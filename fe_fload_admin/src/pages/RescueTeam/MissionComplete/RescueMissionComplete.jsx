@@ -2,6 +2,7 @@ import "./RescueMissionComplete.css";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Image } from "antd";
+import { FALLBACK_RESCUE_IMAGE, extractImageUrls } from "../../../utils/imageUtils";
 import {
   getRescueAssignmentById,
   getUrgencyLevels
@@ -139,54 +140,11 @@ export default function RescueMissionComplete() {
       }
 
       /* ===== IMAGES ===== */
-      const API_BASE = (import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || "https://bebaolu.onrender.com").replace(/\/$/, "");
-
-      const getImages = (req) => {
-        const imgs = [];
-      
-        if (Array.isArray(req?.imageUrls)) {
-          imgs.push(...req.imageUrls);
-        }
-      
-        if (Array.isArray(req?.images)) {
-          imgs.push(...req.images);
-        }
-      
-        if (req?.locationImageUrl) {
-          if (typeof req.locationImageUrl === "string") {
-            imgs.push(...req.locationImageUrl.split(","));
-          } else if (Array.isArray(req.locationImageUrl)) {
-            imgs.push(...req.locationImageUrl);
-          }
-        }
-      
-        return [...new Set(
-          imgs
-            .map(i => i?.trim())
-            .filter(Boolean)
-            .map(i => {
-              if (i.includes("api-rescue.purintech.id.vn")) {
-                return i.replace("https://api-rescue.purintech.id.vn", API_BASE);
-              }
-              return i.startsWith("http")
-                ? i
-                : `${API_BASE}${i.startsWith("/") ? "" : "/"}${i}`;
-            })
-        )];
-      };
-      
-      setImages(getImages(req));
-
-   
-
+      setImages(extractImageUrls(req));
     } catch (err) {
-
       console.error("Load detail error:", err);
-
     } finally {
-
       setLoading(false);
-
     }
 
   };
@@ -469,8 +427,9 @@ export default function RescueMissionComplete() {
         <div key={i} className="rc-image-item">
           <Image
             src={img}
+            fallback={FALLBACK_RESCUE_IMAGE}
             alt="rescue"
-            preview={false}
+            preview={{ mask: "Xem ảnh" }}
           />
         </div>
       ))}

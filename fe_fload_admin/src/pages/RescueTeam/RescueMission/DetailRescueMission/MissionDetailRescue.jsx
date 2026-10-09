@@ -3,6 +3,7 @@ import "./MissionDetailRescue.css";
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Image } from "antd";
+import { FALLBACK_RESCUE_IMAGE, resolveImageUrl, extractImageUrls } from "../../../../utils/imageUtils";
 import {
   getRescueAssignmentById,
   getPendingRescueRequests,
@@ -88,41 +89,7 @@ export default function MissionDetailRescue() {
         const urgencyObj = urgencyMap[req?.urgencyLevelId];
 
         const urgencyText = urgencyObj?.levelName || "Không xác định";
-        const API_BASE = (import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || "https://bebaolu.onrender.com").replace(/\/$/, "");
-
-const getImages = (req) => {
-  const imgs = [];
-
-  if (Array.isArray(req?.imageUrls)) {
-    imgs.push(...req.imageUrls);
-  }
-
-  if (Array.isArray(req?.images)) {
-    imgs.push(...req.images);
-  }
-
-  if (req?.locationImageUrl) {
-    if (typeof req.locationImageUrl === "string") {
-      imgs.push(...req.locationImageUrl.split(","));
-    } else if (Array.isArray(req.locationImageUrl)) {
-      imgs.push(...req.locationImageUrl);
-    }
-  }
-
-  return [...new Set(
-    imgs
-      .map(i => i?.trim())
-      .filter(Boolean)
-      .map(i => {
-        if (i.includes("api-rescue.purintech.id.vn")) {
-          return i.replace("https://api-rescue.purintech.id.vn", API_BASE);
-        }
-        return i.startsWith("http")
-          ? i
-          : `${API_BASE}${i.startsWith("/") ? "" : "/"}${i}`;
-      })
-  )];
-};
+        const getImages = (req) => extractImageUrls(req);
 
         setDetail({
           assignmentId: assignment.assignmentId,
@@ -332,8 +299,10 @@ const getImages = (req) => {
       <Image
         key={i}
         src={img}
+        fallback={FALLBACK_RESCUE_IMAGE}
         alt="rescue"
         className="md-thumb-img"
+        preview={{ mask: "Xem ảnh" }}
       />
     ))}
   </Image.PreviewGroup>

@@ -1,21 +1,102 @@
-/* ROOT */
+/* ===================================================== */
+/* RC – DISPATCH MAP LAYOUT                              */
+/* ===================================================== */
+
 .rcd-layout {
   display: grid;
-  grid-template-columns: 360px 1fr;
-  height: 100%;
-  background: #f8fafc;
+  grid-template-columns: 390px 1fr;
+  height: calc(100vh - 64px);
+  background: #f1f5f9;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
-/* LEFT */
+/* LEFT SIDEBAR */
 .rcd-layout__sidebar {
-  border-right: 1px solid #e5e7eb;
+  border-right: 1px solid #e2e8f0;
   background: #ffffff;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 2px 0 12px rgba(15, 23, 42, 0.03);
+  z-index: 2;
 }
 
-/* RIGHT */
+/* RIGHT MAP & DOCK */
 .rcd-layout__main {
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  position: relative;
+  background: #f8fafc;
+}
+
+/* EMPTY STATE */
+.rcd-empty-state {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  text-align: center;
+  color: #64748b;
+}
+
+.rcd-empty-icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: #f0f9ff;
+  border: 2px solid #bae6fd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  color: #0284c7;
+  margin-bottom: 16px;
+  animation: rcdPulse 2s infinite;
+}
+
+@keyframes rcdPulse {
+  0% { transform: scale(0.96); box-shadow: 0 0 0 0 rgba(2, 132, 199, 0.4); }
+  70% { transform: scale(1.04); box-shadow: 0 0 0 14px rgba(2, 132, 199, 0); }
+  100% { transform: scale(0.96); box-shadow: 0 0 0 0 rgba(2, 132, 199, 0); }
+}
+
+.rcd-empty-state h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 8px;
+}
+
+.rcd-empty-state p {
+  font-size: 14px;
+  color: #64748b;
+  max-width: 380px;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* RESPONSIVE */
+@media (max-width: 1200px) {
+  .rcd-layout {
+    grid-template-columns: 340px 1fr;
+  }
+}
+
+@media (max-width: 992px) {
+  .rcd-layout {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+  .rcd-layout__sidebar {
+    height: 480px;
+    border-right: none;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  .rcd-layout__main {
+    height: 600px;
+  }
 }

@@ -1,17 +1,28 @@
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 
-export default defineConfig({
-  plugins: [react()],
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), "");
+  const target = (env.VITE_API_BASE_URL || env.VITE_API_URL || "https://bebaolu.onrender.com").replace(/\/$/, "");
 
-  base: "/",
+  return {
+    plugins: [react()],
 
-  server: {
-    proxy: {
-      '/api': {
-        target: 'http://localhost:8080',
-        changeOrigin: true,
+    base: "/",
+
+    server: {
+      proxy: {
+        '/api': {
+          target,
+          changeOrigin: true,
+          secure: false,
+        },
+        '/uploads': {
+          target,
+          changeOrigin: true,
+          secure: false,
+        },
       },
     },
-  },
-})
+  };
+});

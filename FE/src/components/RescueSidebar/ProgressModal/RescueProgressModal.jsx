@@ -11,7 +11,7 @@ import AuthNotify from "../../../utils/Common/AuthNotify";
 import "./RescueProgressModal.css";
 import { Input } from "antd";
 import { useNavigate } from "react-router-dom";
-const IMAGE_BASE = (import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || "https://bebaolu.onrender.com").replace(/\/$/, "");
+import { extractImageUrls, FALLBACK_RESCUE_IMAGE } from "../../../utils/imageUtils";
 
 /* ================= REQUEST TYPE ================= */
 
@@ -193,17 +193,7 @@ const RescueProgressModal = ({ requestId, open, onClose }) => {
   "Không xác định";
 
   /* ================= IMAGE ================= */
-
-  const images = data?.rescueRequest?.locationImageUrl
-    ?.split(",")
-    .filter(Boolean)
-    .map(img => {
-      const clean = img.trim();
-      if (clean.includes("api-rescue.purintech.id.vn")) {
-        return clean.replace("https://api-rescue.purintech.id.vn", IMAGE_BASE);
-      }
-      return clean.startsWith("http") ? clean : `${IMAGE_BASE}${clean.startsWith("/") ? "" : "/"}${clean}`;
-    });
+  const images = extractImageUrls(data?.rescueRequest);
 /* ================= CHECK REJECT ================= */
 const isRejected =
   data?.currentProgressCode === "REQUEST_REJECTED" ||
@@ -401,6 +391,8 @@ const isRejected =
                           src={img}
                           width="100%"
                           referrerPolicy="no-referrer"
+                          fallback={FALLBACK_RESCUE_IMAGE}
+                          preview={{ mask: "Xem ảnh phóng to" }}
                         />
                       ))}
                     </Image.PreviewGroup>

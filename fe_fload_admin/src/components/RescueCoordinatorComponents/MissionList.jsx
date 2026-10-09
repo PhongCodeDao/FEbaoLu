@@ -1,15 +1,23 @@
 import { useEffect, useMemo, useState } from "react";
-import { Tag, Select } from "antd";
+import { Tag, Select, Spin } from "antd";
+import {
+  EnvironmentOutlined,
+  PhoneOutlined,
+  ClockCircleOutlined,
+  FireOutlined,
+  SearchOutlined,
+  InboxOutlined,
+} from "@ant-design/icons";
 import { getPendingRescueRequests } from "../../../api/axios/CoordinatorApi/RescueRequestApi";
 import AuthNotify from "../../utils/Common/AuthNotify";
 import { getRequestStatuses } from "../../../api/axios/Auth/authApi";
+import { extractImageUrls } from "../../utils/imageUtils";
 import "./MissionList.css";
 
 const { Option } = Select;
 
 const normalizeAddress = (address) => {
   if (!address) return "";
-
   return address
     .replace(/^(Hẻm|Ngõ|Hẽm)\s*\d*\s*/i, "")
     .replace(/\s+/g, " ")
@@ -18,24 +26,21 @@ const normalizeAddress = (address) => {
 };
 
 /* ================= TIME AGO ================= */
-
 function timeAgo(ts) {
   const diff = Date.now() - ts;
-
   const minutes = Math.floor(diff / 60000);
   const hours = Math.floor(diff / 3600000);
   const days = Math.floor(diff / 86400000);
 
   if (minutes < 1) return "Vừa xong";
-  if (minutes < 60) return `${minutes} phút trước`;
-  if (hours < 24) return `${hours} giờ trước`;
-  if (days < 7) return `${days} ngày trước`;
+  if (minutes < 60) return `${minutes}p trước`;
+  if (hours < 24) return `${hours}h trước`;
+  if (days < 7) return `${days}d trước`;
 
   return new Date(ts).toLocaleDateString("vi-VN");
 }
 
 /* ================= TIME FILTER ================= */
-
 const isExpired = (createdAt) => {
   const diff = (Date.now() - createdAt) / 60000;
   return diff > 60;
@@ -47,96 +52,51 @@ const isNew = (createdAt) => {
 };
 
 /* ================= CONVERT API ================= */
-
-const API_BASE = (import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || "https://bebaolu.onrender.com").replace(/\/$/, "");
-
 const convertApiToMission = (data = [], statuses = []) => {
   if (!Array.isArray(data)) return [];
 
   return data
-  .filter((item) => item.statusId === 1)
-  .map((item) => {
-    const statusObj = statuses.find((s) => s.statusId === item.statusId);
+    .filter((item) => item.statusId === 1)
+    .map((item) => {
+      const statusObj = statuses.find((s) => s.statusId === item.statusId);
+      const getImages = (mission) => extractImageUrls(mission);
 
-    const getImages = (mission) => {
-      const images = [];
-
-      if (Array.isArray(mission.imageUrls)) {
-        images.push(...mission.imageUrls);
-      }
-
-      if (Array.isArray(mission.images)) {
-        images.push(...mission.images);
-      }
-
-      if (mission.locationImageUrl) {
-        if (typeof mission.locationImageUrl === "string") {
-          images.push(...mission.locationImageUrl.split(","));
-        } else if (Array.isArray(mission.locationImageUrl)) {
-          images.push(...mission.locationImageUrl);
-        }
-      }
-
-      return [...new Set(
-        images
-          .map(i => i?.trim())
-          .filter(Boolean)
-          .map(i => {
-            if (i.includes("api-rescue.purintech.id.vn")) {
-              return i.replace("https://api-rescue.purintech.id.vn", API_BASE);
-            }
-            return i.startsWith("http")
-              ? i
-              : `${API_BASE}${i.startsWith("/") ? "" : "/"}${i}`;
-          })
-      )];
-    };
-
-    return {
-      id: item.rescueRequestId || item.id,
-      rescueRequestId: item.rescueRequestId || item.id,
-      name: item.fullName,
-      phone: item.contactPhone,
-      address: item.address,
-
-      lat: item.locationLat,
-      lng: item.locationLng,
-
-      locationLat: item.locationLat,
-      locationLng: item.locationLng,
-
-      createdAt: new Date(item.createdAt).getTime(),
-
-      incident: item.requestType || "Không rõ",
-
-      status: "pending",
-      statusText: statusObj?.description || "Đang xử lý",
-
-      urgencyScore: item.urgencyScore,
-
-      // ✅ FIX Ở ĐÂY
-      images: getImages(item),
-
-      urgencyLevelId: item.urgencyLevelId,
-      detailDescription: item.detailDescription,
-      rescueTeamNote: item.rescueTeamNote,
-      victimCount: item.victimCount,
-      availableRescueTool: item.availableRescueTool,
-      specialNeeds: item.specialNeeds,
-    };
-  });
+      return {
+        id: item.rescueRequestId || item.id,
+        rescueRequestId: item.rescueRequestId || item.id,
+        name: item.fullName || "Người dân",
+        phone: item.contactPhone || "Chưa có SĐT",
+        address: item.address || "Chưa xác định",
+        lat: item.locationLat,
+        lng: item.locationLng,
+        locationLat: item.locationLat,
+        locationLng: item.locationLng,
+        createdAt: item.createdAt ? new Date(item.createdAt).getTime() : Date.now(),
+        incident: item.requestType || "Cứu hộ khẩn cấp",
+        status: "pending",
+        statusText: statusObj?.description || "Chờ xác minh",
+        urgencyScore: item.urgencyScore || 0,
+        images: getImages(item),
+        urgencyLevelId: item.urgencyLevelId,
+        detailDescription: item.detailDescription,
+        rescueTeamNote: item.rescueTeamNote,
+        victimCount: item.victimCount,
+        availableRescueTool: item.availableRescueTool,
+        specialNeeds: item.specialNeeds,
+      };
+    });
 };
-/* ================= COMPONENT ================= */
 
-export default function MissionList({ onSelectMission }) {
+/* ================= COMPONENT ================= */
+export default function MissionList({ onSelectMission, selectedMissionId }) {
   const [missions, setMissions] = useState([]);
   const [tab, setTab] = useState("new");
-
   const [loading, setLoading] = useState(false);
   const [tabLoading, setTabLoading] = useState(null);
   const [requestStatuses, setRequestStatuses] = useState([]);
   const [, forceRender] = useState(0);
   const [currentTime, setCurrentTime] = useState("");
+  const [activeId, setActiveId] = useState(selectedMissionId || null);
 
   const [filters, setFilters] = useState({
     requestType: "",
@@ -145,19 +105,20 @@ export default function MissionList({ onSelectMission }) {
   });
 
   /* ================= LOAD API ================= */
-
   const fetchData = async () => {
     try {
       setLoading(true);
-
       const response = await getPendingRescueRequests();
       const list = Array.isArray(response) ? response : response?.data || [];
-
-      /* Chỉ lấy request chưa xác minh */
-
       const pendingList = list.filter((item) => item.statusId === 1);
+      const converted = convertApiToMission(pendingList, requestStatuses);
+      setMissions(converted);
 
-      setMissions(convertApiToMission(pendingList, requestStatuses));
+      // Auto-select first mission if none selected
+      if (converted.length > 0 && !activeId) {
+        setActiveId(converted[0].id);
+        onSelectMission?.(converted[0]);
+      }
     } catch (error) {
       AuthNotify.error(
         "Không tải được dữ liệu",
@@ -174,29 +135,30 @@ export default function MissionList({ onSelectMission }) {
     }
   }, [requestStatuses]);
 
-  /* ================= ADDRESS OPTIONS ================= */
+  useEffect(() => {
+    if (selectedMissionId) {
+      setActiveId(selectedMissionId);
+    }
+  }, [selectedMissionId]);
 
+  /* ================= ADDRESS OPTIONS ================= */
   const ADDRESS_OPTIONS = useMemo(() => {
     const unique = [
       ...new Set(
         missions.map((m) => normalizeAddress(m.address)).filter(Boolean)
       ),
     ];
-
-    return unique.map((addr) => ({
-      label: addr,
-      value: addr,
-    }));
+    return [
+      { label: "Tất cả địa bàn", value: "" },
+      ...unique.map((addr) => ({ label: addr, value: addr })),
+    ];
   }, [missions]);
 
   /* ================= CHANGE TAB ================= */
-
   const changeTab = (key) => {
     setTabLoading(key);
-
     setTimeout(() => {
       setTab(key);
-
       if (key !== "merge") {
         setFilters({
           requestType: "",
@@ -204,17 +166,14 @@ export default function MissionList({ onSelectMission }) {
           address: "",
         });
       }
-
       setTabLoading(null);
-    }, 200);
+    }, 150);
   };
 
   /* ================= REALTIME CLOCK ================= */
-
   useEffect(() => {
     const updateTime = () => {
       const now = new Date();
-
       setCurrentTime(
         now.toLocaleTimeString("vi-VN", {
           hour: "2-digit",
@@ -223,21 +182,16 @@ export default function MissionList({ onSelectMission }) {
         })
       );
     };
-
     updateTime();
-
     const timer = setInterval(updateTime, 1000);
-
     return () => clearInterval(timer);
   }, []);
 
   /* ================= UPDATE TIME AGO ================= */
-
   useEffect(() => {
     const timer = setInterval(() => {
       forceRender((n) => n + 1);
     }, 60000);
-
     return () => clearInterval(timer);
   }, []);
 
@@ -245,17 +199,13 @@ export default function MissionList({ onSelectMission }) {
     const unique = [
       ...new Set(missions.map((m) => m.incident).filter(Boolean)),
     ];
-
     return [
-      { label: "Tất cả", value: "" },
-      ...unique.map((i) => ({
-        label: i,
-        value: i,
-      })),
+      { label: "Tất cả loại sự cố", value: "" },
+      ...unique.map((i) => ({ label: i, value: i })),
     ];
   }, [missions]);
-  /* ================= FILTER ================= */
 
+  /* ================= FILTER ================= */
   const filtered = useMemo(() => {
     let list = [...missions];
 
@@ -280,7 +230,6 @@ export default function MissionList({ onSelectMission }) {
 
       if (filters.timeRange) {
         const minutes = Number(filters.timeRange);
-
         list = list.filter((m) => {
           const diff = (Date.now() - m.createdAt) / 60000;
           return diff <= minutes;
@@ -289,7 +238,6 @@ export default function MissionList({ onSelectMission }) {
     }
 
     list.sort((a, b) => b.createdAt - a.createdAt);
-
     return list;
   }, [missions, tab, filters]);
 
@@ -297,61 +245,63 @@ export default function MissionList({ onSelectMission }) {
     const loadStatuses = async () => {
       try {
         const data = await getRequestStatuses();
-
         const list = Array.isArray(data) ? data : data?.data || [];
-
         setRequestStatuses(list);
       } catch (error) {
         console.error("LOAD STATUS ERROR:", error);
       }
     };
-
     loadStatuses();
   }, []);
 
-  /* ================= UI ================= */
+  const handleCardClick = (m) => {
+    setActiveId(m.id);
+    onSelectMission?.(m);
+  };
 
+  /* ================= UI ================= */
   return (
     <aside className="rc-queue">
+      {/* HEADER */}
       <div className="rc-queue__header">
-        <h3>Hàng đợi ({filtered.length})</h3>
-
-        <span className="rc-queue__live">{currentTime}</span>
+        <div className="rc-queue__title-group">
+          <h3>Hàng đợi tiếp nhận</h3>
+          <span className="rc-queue__badge">{filtered.length}</span>
+        </div>
+        <div className="rc-queue__live">
+          <span className="rc-live-dot" />
+          <span>{currentTime || "LIVE"}</span>
+        </div>
       </div>
 
       {/* TABS */}
-
       <div className="rc-queue__tabs">
         <button
           disabled={tabLoading !== null}
           className={tab === "new" ? "active" : ""}
           onClick={() => changeTab("new")}
         >
-          {tabLoading === "new" ? "Loading..." : "MỚI NHẤT"}
+          MỚI NHẤT
         </button>
-
         <button
           disabled={tabLoading !== null}
           className={tab === "expired" ? "active" : ""}
           onClick={() => changeTab("expired")}
         >
-          {tabLoading === "expired" ? "Loading..." : "QUÁ HẠN"}
+          QUÁ HẠN
         </button>
-
         <button
           disabled={tabLoading !== null}
           className={tab === "merge" ? "active" : ""}
           onClick={() => changeTab("merge")}
         >
-          {tabLoading === "merge" ? "Loading..." : "TÌM YÊU CẦU"}
+          BỘ LỌC
         </button>
       </div>
 
       {/* FILTER */}
       {tab === "merge" && (
         <div className="rc-filter">
-          {/* LOẠI YÊU CẦU */}
-
           <Select
             placeholder="Loại yêu cầu"
             showSearch
@@ -361,140 +311,99 @@ export default function MissionList({ onSelectMission }) {
             options={INCIDENT_OPTIONS}
             optionFilterProp="label"
             onChange={(value) =>
-              setFilters({
-                requestType: value || "",
-                address: "",
-                timeRange: "",
-              })
+              setFilters((prev) => ({ ...prev, requestType: value || "" }))
             }
           />
 
-          {/* ĐỊA CHỈ */}
-
           <Select
-            placeholder="Địa chỉ"
+            placeholder="Địa chỉ khu vực"
             allowClear
+            showSearch
             style={{ width: "100%" }}
             options={ADDRESS_OPTIONS}
             value={filters.address || undefined}
             onChange={(v) =>
-              setFilters({
-                requestType: "",
-                address: v || "",
-                urgency: "",
-              })
+              setFilters((prev) => ({ ...prev, address: v || "" }))
             }
           />
 
-          {/* THỜI GIAN */}
-
           <Select
-            placeholder="Thời gian"
+            placeholder="Khoảng thời gian"
             allowClear
             value={filters.timeRange || undefined}
-            style={{ width: "100%", marginTop: 8 }}
+            style={{ width: "100%" }}
             onChange={(value) =>
-              setFilters({
-                requestType: "",
-                address: "",
-                timeRange: value || "",
-              })
+              setFilters((prev) => ({ ...prev, timeRange: value || "" }))
             }
           >
-            <Option value="">Tất cả</Option>
-            <Option value="10">10 phút</Option>
-            <Option value="30">30 phút</Option>
-            <Option value="60">60 phút</Option>
-            <Option value="120">2 giờ</Option>
+            <Option value="">Tất cả thời gian</Option>
+            <Option value="15">Trong 15 phút qua</Option>
+            <Option value="30">Trong 30 phút qua</Option>
+            <Option value="60">Trong 1 giờ qua</Option>
+            <Option value="120">Trong 2 giờ qua</Option>
           </Select>
         </div>
       )}
 
       {/* LIST */}
-
       <div className="rc-queue__list">
         {loading ? (
-          <div className="rc-loading">Đang tải dữ liệu...</div>
+          <div className="rc-loading">
+            <Spin size="default" />
+            <p>Đang tải danh sách yêu cầu...</p>
+          </div>
         ) : filtered.length === 0 ? (
-          <div className="rc-empty">Không có dữ liệu</div>
+          <div className="rc-empty">
+            <InboxOutlined style={{ fontSize: 36, color: "#cbd5e1" }} />
+            <span>Không có yêu cầu chờ xử lý</span>
+          </div>
         ) : (
-          filtered.map((m) => (
-            <div
-              className="rc-queue__card"
-              key={m.id}
-              onClick={() => onSelectMission(m)}
-            >
-              <div className="rc-queue__top">
-                <span className="rc-queue__id">Mã yêu cầu: #{m.id}</span>
-
-                <span className="rc-queue__time">
-                  {timeAgo(m.createdAt)}
-
-                  <div className="rc-queue__status">
-                    {m.status === "pending" ? (
-                      <Tag color="orange">{m.statusText || "Đang xử lý"}</Tag>
-                    ) : (
-                      <Tag color="green">{m.statusText || "Đã xác nhận"}</Tag>
-                    )}
-                  </div>
-                </span>
-              </div>
+          filtered.map((m) => {
+            const isSelected = activeId === m.id;
+            return (
               <div
-                className="info-box-minato"
-                style={{
-                  background: "#fff",
-                  borderRadius: 12,
-                  padding: "14px 16px",
-                  border: "1px solid #eee",
-                  boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 8,
-                }}
+                className={`rc-queue__card ${isSelected ? "active" : ""}`}
+                key={m.id}
+                onClick={() => handleCardClick(m)}
               >
-                <strong
-                  style={{
-                    fontSize: 15,
-                    fontWeight: 700,
-                    color: "#1677ff",
-                  }}
-                >
-                  Họ và tên: {m.name}
-                </strong>
-
-                <div
-                  style={{
-                    fontSize: 14,
-                    fontWeight: 600,
-                    color: "#52c41a",
-                    padding: "6px 10px",
-                    background: "#f6ffed",
-                    borderRadius: 8,
-                    border: "1px solid #b7eb8f",
-                  }}
-                >
-                  Số điện thoại: {m.phone}
+                <div className="rc-queue__top">
+                  <span className="rc-queue__id">#{m.id}</span>
+                  <div className="rc-queue__time">
+                    <ClockCircleOutlined />
+                    <span>{timeAgo(m.createdAt)}</span>
+                    <Tag color="orange" style={{ margin: 0, fontSize: 10 }}>
+                      Chờ duyệt
+                    </Tag>
+                  </div>
                 </div>
 
-                <div
-                  style={{
-                    fontSize: 14,
-                    color: "#444",
-                    padding: "6px 10px",
-                    background: "#fafafa",
-                    borderRadius: 8,
-                    border: "1px solid #eee",
-                  }}
-                >
-                  Vị trí: {m.address}
+                <div className="rc-queue__name-row">
+                  <span className="rc-queue__name">{m.name}</span>
+                  <span className="rc-queue__phone-pill">
+                    <PhoneOutlined style={{ marginRight: 4 }} />
+                    {m.phone}
+                  </span>
                 </div>
 
-                <div className="rc-queue__tags">
-                  <Tag color="red">{m.incident}</Tag>
+                <div className="rc-queue__addr-row">
+                  <EnvironmentOutlined style={{ color: "#ef4444", marginTop: 2, flexShrink: 0 }} />
+                  <span className="rc-queue__addr-text">{m.address}</span>
+                </div>
+
+                <div className="rc-queue__footer">
+                  <div className="rc-queue__tags">
+                    <Tag color="blue">{m.incident}</Tag>
+                  </div>
+                  {m.urgencyScore > 0 && (
+                    <span className="rc-queue__score-badge">
+                      <FireOutlined style={{ marginRight: 3 }} />
+                      Điểm: {m.urgencyScore}
+                    </span>
+                  )}
                 </div>
               </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
     </aside>

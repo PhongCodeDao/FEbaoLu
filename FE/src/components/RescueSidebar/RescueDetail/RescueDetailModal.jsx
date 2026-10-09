@@ -3,7 +3,7 @@ import { PhoneOutlined } from "@ant-design/icons";
 
 import "./RescueDetailModal.css";
 
-const IMAGE_BASE = (import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || "https://bebaolu.onrender.com").replace(/\/$/, "");
+import { extractImageUrls, FALLBACK_RESCUE_IMAGE } from "../../../utils/imageUtils";
 const REQUEST_TYPES = [
   "cứu hộ khẩn cấp",
   "hỗ trợ cứu trợ",
@@ -40,33 +40,7 @@ export default function RescueDetailModal({ data, onClose }) {
 
   if (!data) return null;
 
-  const images = [];
-
-  if (Array.isArray(data.imageUrls)) {
-    images.push(...data.imageUrls);
-  }
-  
-  if (Array.isArray(data.images)) {
-    images.push(...data.images);
-  }
-  
-  if (data.locationImageUrl) {
-    if (typeof data.locationImageUrl === "string") {
-      images.push(...data.locationImageUrl.split(","));
-    }
-  }
-  
-  const normalizedImages = images
-  .filter(Boolean)
-  .map(img => img.trim())
-  .map(img => {
-    if (img.includes("api-rescue.purintech.id.vn")) {
-      return img.replace("https://api-rescue.purintech.id.vn", IMAGE_BASE);
-    }
-    return img.startsWith("http")
-      ? img
-      : `${IMAGE_BASE}${img.startsWith("/") ? "" : "/"}${img}`;
-  });
+  const normalizedImages = extractImageUrls(data);
     const getRequestTypeLabel = (value) => {
       const found = REQUEST_TYPE_OPTIONS.find(
         (item) => item.value === value
@@ -210,6 +184,8 @@ export default function RescueDetailModal({ data, onClose }) {
       key={i}
       src={img}
       width="100%"
+      fallback={FALLBACK_RESCUE_IMAGE}
+      preview={{ mask: "Xem ảnh phóng to" }}
     />
   ))}
 

@@ -42,6 +42,7 @@ import {
   updateVehicleImage,
 } from "../../../../api/axios/ManagerApi/vehicleApi";
 import AuthNotify from "../../../utils/Common/AuthNotify";
+import { resolveImageUrl, FALLBACK_VEHICLE_IMAGE } from "../../../utils/imageUtils";
 
 
 export default function VehicleManagementContainer() {
@@ -71,32 +72,7 @@ export default function VehicleManagementContainer() {
 
   const getVehicleId = (vehicle) => vehicle?.id || vehicle?.vehicleId || vehicle?.vehicleID;
 
-  const toAbsoluteImageUrl = (rawUrl, withApiPrefix = false) => {
-    if (!rawUrl) return "";
-    const clean = String(rawUrl).trim();
-    if (!clean || clean === "string" || clean === "/string") return "";
-    if (clean.startsWith("http://") || clean.startsWith("https://")) return clean;
-    if (!clean.startsWith("/") && !clean.includes("/")) return "";
-    const base = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
-    const path = clean.startsWith("/") ? clean : `/${clean}`;
-    if (withApiPrefix && path.startsWith("/uploads/")) {
-      return `${base}/api${path}`;
-    }
-    return `${base}${path}`;
-  };
-
-  const toDevProxiedImageUrl = (rawUrl, withApiPrefix = false) => {
-    if (!import.meta.env.DEV) return "";
-    if (!rawUrl) return "";
-    const clean = String(rawUrl).trim();
-    if (!clean || clean === "string" || clean === "/string") return "";
-    if (clean.startsWith("http://") || clean.startsWith("https://")) return "";
-    const path = clean.startsWith("/") ? clean : `/${clean}`;
-    if (withApiPrefix && path.startsWith("/uploads/")) {
-      return `/api${path}`; // hits vite proxy "/api/uploads"
-    }
-    return path; // hits vite proxy "/uploads"
-  };
+  const toAbsoluteImageUrl = (rawUrl) => resolveImageUrl(rawUrl);
 
   /* ================= LOAD ================= */
 
@@ -466,17 +442,17 @@ export default function VehicleManagementContainer() {
               <div className="vehicle-card-image-wrap">
                 {v.vehicleImg ? (
                   <Image
-                    src={toDevProxiedImageUrl(v.vehicleImg) || toAbsoluteImageUrl(v.vehicleImg)}
-                    fallback={
-                      toDevProxiedImageUrl(v.vehicleImg, true) ||
-                      toAbsoluteImageUrl(v.vehicleImg, true)
-                    }
+                    src={resolveImageUrl(v.vehicleImg)}
+                    fallback={FALLBACK_VEHICLE_IMAGE}
                     referrerPolicy="no-referrer"
                     alt={v.vehicleName}
                     width="100%"
                     height={160}
                     style={{ objectFit: "cover", borderRadius: "10px 10px 0 0" }}
-                    preview={false}
+                    preview={{
+                      mask: "Xem ảnh",
+                    }}
+                    onClick={(e) => e.stopPropagation()}
                   />
                 ) : (
                   <div className="vehicle-placeholder-image">
@@ -630,18 +606,15 @@ export default function VehicleManagementContainer() {
             {selectedVehicle.vehicleImg && (
               <div style={{ marginTop: 12 }}>
                 <Image
-                  src={
-                    toDevProxiedImageUrl(selectedVehicle.vehicleImg) ||
-                    toAbsoluteImageUrl(selectedVehicle.vehicleImg)
-                  }
-                  fallback={
-                    toDevProxiedImageUrl(selectedVehicle.vehicleImg, true) ||
-                    toAbsoluteImageUrl(selectedVehicle.vehicleImg, true)
-                  }
+                  src={resolveImageUrl(selectedVehicle.vehicleImg)}
+                  fallback={FALLBACK_VEHICLE_IMAGE}
                   referrerPolicy="no-referrer"
                   alt={selectedVehicle.vehicleName}
                   width="100%"
                   style={{ borderRadius: 8 }}
+                  preview={{
+                    mask: "Phóng to ảnh",
+                  }}
                 />
               </div>
             )}

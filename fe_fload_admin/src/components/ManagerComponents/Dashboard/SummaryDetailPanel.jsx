@@ -37,6 +37,7 @@ const DATA_KEY_MAPPING = {
 
 const IMAGE_FIELD_HINTS = ["image", "img", "photo", "avatar", "url"];
 const DATE_FIELD_HINTS = ["date", "time", "at"];
+import { FALLBACK_RESCUE_IMAGE } from "../../../utils/imageUtils";
 const API_BASE = (import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || "https://bebaolu.onrender.com").replace(/\/$/, "");
 
 const LABEL_OVERRIDES = {
@@ -150,10 +151,12 @@ const formatValue = (fieldName, value) => {
     return (
       <Image
         src={resolveImageUrl(value)}
+        fallback={FALLBACK_RESCUE_IMAGE}
         alt={formatLabel(fieldName)}
         width={88}
         height={64}
         style={{ objectFit: "cover", borderRadius: 10 }}
+        preview={{ mask: "Xem ảnh" }}
       />
     );
   }
@@ -693,11 +696,12 @@ export default function SummaryDetailPanel({
                         <Image
                           key={`${selectedRow.rescueRequestId}-${index}`}
                           src={img}
+                          fallback={FALLBACK_RESCUE_IMAGE}
                           alt={`Rescue ${selectedRow.rescueRequestId}-${index}`}
                           width={index === 0 ? 260 : 120}
                           height={index === 0 ? 180 : 96}
                           style={{ objectFit: "cover", borderRadius: 14 }}
-                          preview={false}
+                          preview={{ mask: "Phóng to ảnh" }}
                         />
                       ))}
                     </Image.PreviewGroup>

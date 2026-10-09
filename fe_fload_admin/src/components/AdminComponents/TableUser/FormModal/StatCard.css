@@ -1,125 +1,154 @@
-.statCard{
+/* ================================================= */
+/* ULTRA MODERN STAT CARD                            */
+/* ================================================= */
 
+.statCard {
   background: #ffffff;
-  border-radius: 14px;
-  padding: 18px 20px;
-
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-
-  cursor:pointer;
-
-  border:1px solid #ececec;
-
-  transition: all 0.25s ease;
-
-  position:relative;
-
+  border-radius: 18px;
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: pointer;
+  border: 1px solid #e2e8f0;
+  transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 2px 8px -2px rgba(15, 23, 42, 0.05);
 }
 
-/* hover nâng card */
-
-.statCard:hover{
-
-  transform: translateY(-6px);
-
-  box-shadow:
-  0 8px 22px rgba(0,0,0,0.08);
-
+.statCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px -6px rgba(15, 23, 42, 0.1);
+  border-color: #cbd5e1;
 }
 
-/* active */
-
-.statCard.active{
-
-  border:1px solid transparent;
-
-  box-shadow:
-  0 10px 26px rgba(0,0,0,0.12);
-
+.statCard.active {
+  border-color: #2563eb;
+  background: linear-gradient(180deg, #ffffff 0%, #f0f7ff 100%);
+  box-shadow: 0 12px 28px -4px rgba(37, 99, 235, 0.2);
+  transform: translateY(-3px);
 }
 
-/* title */
-
-.statCard__title{
-
-  font-size:14px;
-
-  color:#7a7a7a;
-
-  margin-bottom:6px;
-
+/* Top line */
+.statCard__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
 }
 
-/* value */
-
-.statCard__value{
-
-  font-size:28px;
-
-  font-weight:600;
-
+.statCard__icon-wrap {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  transition: transform 0.2s ease;
 }
 
-/* glow effect */
-
-.statCard::before{
-
-  content:"";
-
-  position:absolute;
-
-  inset:0;
-
-  border-radius:14px;
-
-  opacity:0;
-
-  transition:opacity 0.25s;
-
+.statCard:hover .statCard__icon-wrap {
+  transform: scale(1.08);
 }
 
-.statCard:hover::before{
-
-  opacity:0.08;
-
-}
-.statCard.total::before{
-  background:#1677ff;
+.statCard__icon-wrap.total {
+  background: #eff6ff;
+  color: #2563eb;
 }
 
-.statCard.admin::before{
-  background:#ff4d4f;
+.statCard__icon-wrap.admin {
+  background: #fef2f2;
+  color: #dc2626;
 }
 
-.statCard.manager::before{
-  background:#faad14;
+.statCard__icon-wrap.manager {
+  background: #fffbeb;
+  color: #d97706;
 }
 
-.statCard.RescueCoordinator::before{
-  background:#722ed1;
+.statCard__icon-wrap.RescueCoordinator,
+.statCard__icon-wrap.coordinator {
+  background: #f5f3ff;
+  color: #7c3aed;
 }
 
-.statCard.RescueTeam::before{
-  background:#1677ff;
-}
-.statCard.active.total{
-  box-shadow:0 8px 20px rgba(22,119,255,0.35);
-}
-
-.statCard.active.admin{
-  box-shadow:0 8px 20px rgba(255,77,79,0.35);
+.statCard__icon-wrap.RescueTeam,
+.statCard__icon-wrap.rescueteam {
+  background: #ecfeff;
+  color: #0891b2;
 }
 
-.statCard.active.manager{
-  box-shadow:0 8px 20px rgba(250,173,20,0.35);
+.statCard__pill {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #64748b;
+  background: #f1f5f9;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  letter-spacing: 0.02em;
 }
 
-.statCard.active.RescueCoordinator{
-  box-shadow:0 8px 20px rgba(114,46,209,0.35);
+.statCard.active .statCard__pill {
+  background: #dbeafe;
+  color: #1e40af;
 }
 
-.statCard.active.RescueTeam{
-  box-shadow:0 8px 20px rgba(22,119,255,0.35);
+/* Main */
+.statCard__main {
+  margin-bottom: 14px;
+}
+
+.statCard__value {
+  font-size: 32px;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  margin-bottom: 4px;
+}
+
+.statCard__title {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #64748b;
+}
+
+/* Bottom Bar */
+.statCard__bar {
+  width: 100%;
+  height: 4px;
+  background: #f1f5f9;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.statCard__bar-inner {
+  height: 100%;
+  border-radius: 9999px;
+  width: 100%;
+  opacity: 0.6;
+}
+
+.statCard__bar-inner.total {
+  background: linear-gradient(90deg, #3b82f6, #60a5fa);
+}
+
+.statCard__bar-inner.admin {
+  background: linear-gradient(90deg, #ef4444, #f87171);
+}
+
+.statCard__bar-inner.manager {
+  background: linear-gradient(90deg, #f59e0b, #fbbf24);
+}
+
+.statCard__bar-inner.RescueCoordinator,
+.statCard__bar-inner.coordinator {
+  background: linear-gradient(90deg, #8b5cf6, #a78bfa);
+}
+
+.statCard__bar-inner.RescueTeam,
+.statCard__bar-inner.rescueteam {
+  background: linear-gradient(90deg, #06b6d4, #22d3ee);
 }

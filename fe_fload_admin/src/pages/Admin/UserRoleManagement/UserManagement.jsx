@@ -1,9 +1,14 @@
-import { useState, useEffect } from "react";
-import { Button, Form, message, Modal } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
+import { useState, useEffect, useMemo } from "react";
+import { Button, Form, message, Modal, Input, Tooltip } from "antd";
+import {
+  PlusOutlined,
+  ExclamationCircleOutlined,
+  SearchOutlined,
+  ReloadOutlined,
+  ClearOutlined,
+} from "@ant-design/icons";
 
 import "./UserManagement.css";
-import { ExclamationCircleOutlined } from "@ant-design/icons";
 import UserTable from "../../../components/AdminComponents/TableUser/UserListManager/UserTable";
 import UserFormModal from "../../../components/AdminComponents/TableUser/FormModal/UserFormModal";
 import StatCard from "../../../components/AdminComponents/TableUser/FormModal/StatCard";
@@ -19,16 +24,12 @@ export default function UserManagement() {
   const [form] = Form.useForm();
 
   const [users, setUsers] = useState([]);
-
   const [loading, setLoading] = useState(false);
-
   const [modalOpen, setModalOpen] = useState(false);
-
   const [selectedUser, setSelectedUser] = useState(null);
-
   const [isEdit, setIsEdit] = useState(false);
-
   const [roleFilter, setRoleFilter] = useState("ALL");
+  const [searchTerm, setSearchTerm] = useState("");
 
   const loadUsers = async () => {
     const res = await getAllUser(); // ✅ đúng
@@ -161,18 +162,33 @@ export default function UserManagement() {
     console.log(user);
   };
 
-  const filteredUsers =
-    roleFilter === "ALL"
-      ? users
-      : users.filter((u) => {
-          if (roleFilter === "RescueTeam" || roleFilter === "Rescue Team") {
-            return u.role === "Rescue Team" || u.role === "RescueTeam" || u.role === "Rescuer";
-          }
-          if (roleFilter === "Coordinator" || roleFilter === "RescueCoordinator" || roleFilter === "Rescue Coordinator") {
-            return u.role === "Rescue Coordinator" || u.role === "Coordinator" || u.role === "RescueCoordinator";
-          }
-          return u.role === roleFilter;
-        });
+  const filteredUsers = useMemo(() => {
+    return users.filter((u) => {
+      // Role filter
+      if (roleFilter !== "ALL") {
+        if (roleFilter === "RescueTeam" || roleFilter === "Rescue Team") {
+          const isRescue = u.role === "Rescue Team" || u.role === "RescueTeam" || u.role === "Rescuer";
+          if (!isRescue) return false;
+        } else if (roleFilter === "Coordinator" || roleFilter === "RescueCoordinator" || roleFilter === "Rescue Coordinator") {
+          const isCoord = u.role === "Rescue Coordinator" || u.role === "Coordinator" || u.role === "RescueCoordinator";
+          if (!isCoord) return false;
+        } else if (u.role !== roleFilter) {
+          return false;
+        }
+      }
+
+      // Search filter
+      if (searchTerm.trim()) {
+        const key = searchTerm.toLowerCase().trim();
+        const matchName = u.name?.toLowerCase().includes(key);
+        const matchPhone = u.phone?.toLowerCase().includes(key);
+        const matchId = String(u.id).includes(key);
+        if (!matchName && !matchPhone && !matchId) return false;
+      }
+
+      return true;
+    });
+  }, [users, roleFilter, searchTerm]);
 
   const handleSubmit = async () => {
     try {
@@ -319,20 +335,35 @@ export default function UserManagement() {
   return (
     <div className="userManagement">
       <div className="userManagement__header">
-        <div>
-          <h2 className="userManagement__title">Quản lý người dùng</h2>
-
-          <p className="userManagement__subtitle">Dashboard quản lý hệ thống</p>
+        <div className="userManagement__header-left">
+          <div className="userManagement__badge">
+            <span>🛡️ HỆ THỐNG QUẢN TRỊ</span>
+          </div>
+          <h2 className="userManagement__title">Quản Lý Người Dùng & Phân Quyền</h2>
+          <p className="userManagement__subtitle">
+            Quản trị danh sách nhân sự, tài khoản phân quyền và trạng thái hoạt động trên toàn hệ thống
+          </p>
         </div>
 
-        <Button
-          className="createUserBtn"
-          icon={<PlusOutlined />}
-          size="large"
-          onClick={openCreateModal}
-        >
-          Tạo người dùng
-        </Button>
+        <div className="userManagement__header-actions">
+          <Tooltip title="Làm mới danh sách">
+            <Button
+              className="refreshBtn"
+              icon={<ReloadOutlined spin={loading} />}
+              onClick={fetchUsers}
+              size="large"
+            />
+          </Tooltip>
+
+          <Button
+            className="createUserBtn"
+            icon={<PlusOutlined />}
+            size="large"
+            onClick={openCreateModal}
+          >
+            Tạo người dùng mới
+          </Button>
+        </div>
       </div>
 
       <div className="userManagement__stats">
@@ -375,6 +406,45 @@ export default function UserManagement() {
           active={roleFilter === "RescueTeam"}
           onClick={() => setRoleFilter("RescueTeam")}
         />
+      </div>
+
+      <div className="userManagement__filter-bar">
+        <div className="search-wrap">
+          <Input
+            className="userSearchInput"
+            placeholder="Tìm theo tên, số điện thoại, ID..."
+            prefix={<SearchOutlined className="search-icon" />}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            allowClear
+          />
+        </div>
+
+        <div className="filter-summary">
+          <span className="filter-label">Bộ lọc:</span>
+          <span className="filter-chip">
+            Vai trò: <b>{roleFilter === "ALL" ? "Tất cả" : roleFilter}</b>
+          </span>
+          {searchTerm && (
+            <span className="filter-chip">
+              Từ khóa: <b>{searchTerm}</b>
+            </span>
+          )}
+
+          {(roleFilter !== "ALL" || searchTerm) && (
+            <Button
+              type="link"
+              className="clear-filter-btn"
+              icon={<ClearOutlined />}
+              onClick={() => {
+                setRoleFilter("ALL");
+                setSearchTerm("");
+              }}
+            >
+              Đặt lại bộ lọc
+            </Button>
+          )}
+        </div>
       </div>
 
       <UserTable

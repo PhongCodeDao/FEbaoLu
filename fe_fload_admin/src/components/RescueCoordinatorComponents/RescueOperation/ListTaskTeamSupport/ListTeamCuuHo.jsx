@@ -1,10 +1,18 @@
 import { useEffect, useState, useMemo } from "react";
-import { Select } from "antd";
+import { Select, Spin, Tag } from "antd";
+import {
+  SyncOutlined,
+  EnvironmentOutlined,
+  TeamOutlined,
+  CarOutlined,
+  InboxOutlined,
+  ClockCircleOutlined,
+} from "@ant-design/icons";
 
 import {
   getAllAssignments,
   getPendingRescueRequests,
-  getUrgencyLevels
+  getUrgencyLevels,
 } from "../../../../../api/axios/CoordinatorApi/RescueRequestApi";
 
 import { getAllRescueTeams } from "../../../../../api/axios/ManagerApi/rescueTeamApi";
@@ -13,46 +21,36 @@ import { getRequestStatuses } from "../../../../../api/axios/Auth/authApi";
 
 import "./list-team-cuuho.css";
 
-
 const getPriorityClass = (id) => {
-  const map = {
-    1: "priority-high",     // đỏ
-    2: "priority-medium",   // cam
-    3: "priority-low",      // xanh lá
-    4: "priority-blue",     // xanh dương
-    5: "priority-purple",   // tím
-    6: "priority-cyan",     // cyan
-    7: "priority-gold",     // vàng
-    8: "priority-lime",     // lime
-    9: "priority-magenta",  // hồng
-    10: "priority-volcano"  // đỏ cam
-  };
-
-  return map[id] || "priority-default";
+  if (id === 1) return "priority-high";
+  if (id === 2) return "priority-medium";
+  return "priority-low";
 };
 
 const assignmentStatusMap = {
-  PENDING:"Chờ điều phối",
+  PENDING: "Chờ điều phối",
   ASSIGNED: "Đã điều động",
-  ACCEPTED: "Đội đã nhận nhiệm vụ",
-  DEPARTED: "Đã xuất phát",
-  ARRIVED: "Đã đến hiện trường",
+  ACCEPTED: "Đội đã nhận",
+  DEPARTED: "Đang xuất phát",
+  ARRIVED: "Đã tới hiện trường",
   COMPLETED: "Hoàn thành",
-  REJECTED: "Từ chối nhiệm vụ"
-}
+  REJECTED: "Bị từ chối",
+  CANCELLED: "Đã hủy",
+};
 
 const assignmentStatusClass = {
-  PENDING:  "status-pending",
+  PENDING: "status-pending",
   ASSIGNED: "status-assigned",
   ACCEPTED: "status-accepted",
   DEPARTED: "status-departed",
   ARRIVED: "status-arrived",
   COMPLETED: "status-completed",
-  REJECTED: "status-rejected"
-}
+  REJECTED: "status-rejected",
+  CANCELLED: "status-rejected",
+};
+
 const normalizeAddress = (address) => {
   if (!address) return "";
-
   return address
     .replace(/^(Hẻm|Ngõ|Hẽm)\s*\d*\s*/i, "")
     .replace(/\s+/g, " ")
@@ -60,28 +58,22 @@ const normalizeAddress = (address) => {
     .toLowerCase();
 };
 
-export default function ListTeamCuuHo({ onSelectMission }) {
-
+export default function ListTeamCuuHo({ onSelectMission, selectedAssignmentId }) {
   const [missions, setMissions] = useState([]);
   const [search, setSearch] = useState("");
-  const [loading,setLoading] = useState(false)
+  const [loading, setLoading] = useState(false);
+  const [tab, setTab] = useState("all");
+  const [activeId, setActiveId] = useState(selectedAssignmentId || null);
 
-  const [tab,setTab] = useState("new")
-  const [tabLoading,setTabLoading] = useState(null)
-
-  const [filters,setFilters] = useState({
-    requestType:"",
-    address:"",
-    urgency:""
-  })
+  const [filters, setFilters] = useState({
+    address: "",
+    urgency: "",
+  });
 
   /* ================= LOAD API ================= */
-
-  const fetchData = async()=>{
-
-    try{
-
-      setLoading(true)
+  const fetchData = async () => {
+    try {
+      setLoading(true);
 
       const [
         assignmentRes,
@@ -89,433 +81,276 @@ export default function ListTeamCuuHo({ onSelectMission }) {
         vehicleRes,
         requestRes,
         urgencyRes,
-        statusRes
+        statusRes,
       ] = await Promise.all([
         getAllAssignments(),
         getAllRescueTeams(),
         getAllVehicles(),
         getPendingRescueRequests(),
         getUrgencyLevels(),
-        getRequestStatuses()
-      ])
+        getRequestStatuses(),
+      ]);
 
-      const assignments = assignmentRes?.data || assignmentRes || []
-      const teams = teamRes?.data?.items || []
-      const vehicles = vehicleRes?.data || []
-      const requests = requestRes?.data || requestRes || []
-      const urgencies = urgencyRes || []
-      const statuses = statusRes?.data || statusRes || []
+      const assignments = assignmentRes?.data || assignmentRes || [];
+      const teams = teamRes?.data?.items || [];
+      const vehicles = vehicleRes?.data || [];
+      const requests = requestRes?.data || requestRes || [];
+      const urgencies = urgencyRes || [];
+      const statuses = statusRes?.data || statusRes || [];
 
-      /* MAP LOOKUP */
+      const teamMap = {};
+      teams.forEach((t) => {
+        teamMap[t.rescueTeamId || t.rcid] = t.teamName || t.rcName;
+      });
 
-      const teamMap={}
-      teams.forEach(t=>{
-        teamMap[t.rcid]=t.rcName
-      })
+      const vehicleMap = {};
+      vehicles.forEach((v) => {
+        vehicleMap[v.vehicleId] = v.vehicleName;
+      });
 
-      const vehicleMap={}
-      vehicles.forEach(v=>{
-        vehicleMap[v.vehicleId]=v.vehicleName
-      })
-
-      const requestMap={}
-      requests.forEach(r=>{
-        requestMap[r.rescueRequestId]=r
-      })
+      const requestMap = {};
+      requests.forEach((r) => {
+        requestMap[r.rescueRequestId] = r;
+      });
 
       const urgencyMap = {};
-      urgencies.forEach(u => {
+      urgencies.forEach((u) => {
         urgencyMap[u.urgencyLevelId] = u;
       });
 
-      /* STATUS MAP (VIETNAMESE) */
+      const statusMap = {};
+      statuses.forEach((s) => {
+        statusMap[s.statusId] = s.description;
+      });
 
-      const statusMap={}
-      statuses.forEach(s=>{
-        statusMap[s.statusId]=s.description
-      })
-
-      /* ACTIVE ASSIGNMENTS */
-
-      const activeAssignments = assignments.map(a => a)
-
-      const mapped = activeAssignments.map(a=>{
-
-        const req = requestMap[a.rescueRequestId]
-        
+      const mapped = assignments.map((a) => {
+        const req = requestMap[a.rescueRequestId];
         const urgencyObj = urgencyMap[req?.urgencyLevelId];
-        
-        const requestStatus = statusMap[req?.statusId]
-        
-        const assignmentStatus = a.assignmentStatus
-        
-        return{
-        
-        id:a.rescueRequestId,
-        assignmentId:a.assignmentId,
-        
-        team:teamMap[a.rescueTeamId] || `Team ${a.rescueTeamId}`,
-        
-        vehicle:vehicleMap[a.vehicleId] || `Vehicle ${a.vehicleId}`,
-        
-        fullname:req?.fullname || req?.fullName || "Không rõ",
-        
-        phone:req?.contactPhone || "Không có",
-        
-        address:req?.address || "Không xác định",
-        
-        incident:req?.requestType || "",
-        
-        assignmentStatus:assignmentStatus,
-        
-        urgency: urgencyObj?.levelName || "Không xác định",
-        urgencyLevelId: req?.urgencyLevelId,
-        
-        status:requestStatus || "Đang xử lý",
-        
-        time:a.assignedAt
-        ? new Date(a.assignedAt).toLocaleTimeString("vi-VN",{
-        hour:"2-digit",
-        minute:"2-digit"
-        })
-        :""
-        
-        }
-        
-        })
-      setMissions(mapped)
+        const requestStatus = statusMap[req?.statusId];
 
-    }catch(err){
+        return {
+          id: a.rescueRequestId,
+          assignmentId: a.assignmentId,
+          team: teamMap[a.rescueTeamId] || `Đội #${a.rescueTeamId}`,
+          vehicle: vehicleMap[a.vehicleId] || `Xe #${a.vehicleId}`,
+          fullname: req?.fullname || req?.fullName || "Người dân",
+          phone: req?.contactPhone || "Chưa có SĐT",
+          address: req?.address || "Chưa xác định",
+          incident: req?.requestType || "Cứu nạn",
+          assignmentStatus: a.assignmentStatus || "ASSIGNED",
+          urgency: urgencyObj?.levelName || "Bình thường",
+          urgencyLevelId: req?.urgencyLevelId || 3,
+          status: requestStatus || "Đang xử lý",
+          time: a.assignedAt
+            ? new Date(a.assignedAt).toLocaleTimeString("vi-VN", {
+                hour: "2-digit",
+                minute: "2-digit",
+              })
+            : "",
+        };
+      });
 
-      console.error("Load mission error:",err)
+      setMissions(mapped);
 
-    }finally{
-      setLoading(false)
+      // Auto-select first if none selected
+      if (mapped.length > 0 && !activeId) {
+        setActiveId(mapped[0].assignmentId);
+        onSelectMission?.(mapped[0].assignmentId);
+      }
+    } catch (err) {
+      console.error("Load mission error:", err);
+    } finally {
+      setLoading(false);
     }
+  };
 
-  }
+  useEffect(() => {
+    fetchData();
+  }, []);
 
-  useEffect(()=>{
-    fetchData()
-  },[])
+  useEffect(() => {
+    if (selectedAssignmentId) {
+      setActiveId(selectedAssignmentId);
+    }
+  }, [selectedAssignmentId]);
 
   /* ================= FILTER OPTIONS ================= */
+  const ADDRESS_OPTIONS = useMemo(() => {
+    const unique = [
+      ...new Set(
+        missions.map((m) => normalizeAddress(m.address)).filter(Boolean)
+      ),
+    ];
+    return [
+      { label: "Tất cả địa bàn", value: "" },
+      ...unique.map((addr) => ({ label: addr, value: addr })),
+    ];
+  }, [missions]);
 
-   const ADDRESS_OPTIONS = useMemo(() => {
-  
-      const unique = [...new Set(
-        missions
-          .map(m => normalizeAddress(m.address))
-          .filter(Boolean)
-      )];
-    
-      return unique.map(addr => ({
-        label: addr,
-        value: addr
-      }));
-    
-    }, [missions]);
-
-    const URGENCY_OPTIONS = useMemo(() => {
-
-      const unique = [...new Set(
-        missions
-          .map(m => m.urgencyLevelId)
-          .filter(Boolean)
-      )];
-    
-      return [
-        { label: "Tất cả", value: "" },
-        ...unique.map(id => {
-    
-          const item = missions.find(
-            m => m.urgencyLevelId === id
-          );
-    
-          return {
-            label: item?.urgency || `Level ${id}`,
-            value: id
-          };
-    
-        })
-      ];
-    
-    }, [missions]);
-
-  /* ================= TAB ================= */
-
-  const changeTab=(key)=>{
-
-    setTabLoading(key)
-
-    setTimeout(()=>{
-      setTab(key)
-      setTabLoading(null)
-      setFilters({
-        requestType:"",
-        address:"",
-        urgency:""
-      })
-    },200)
-
-  }
+  const URGENCY_OPTIONS = useMemo(() => {
+    const unique = [
+      ...new Set(missions.map((m) => m.urgencyLevelId).filter(Boolean)),
+    ];
+    return [
+      { label: "Tất cả mức độ", value: "" },
+      ...unique.map((id) => {
+        const item = missions.find((m) => m.urgencyLevelId === id);
+        return {
+          label: item?.urgency || `Mức độ ${id}`,
+          value: id,
+        };
+      }),
+    ];
+  }, [missions]);
 
   /* ================= FILTER ================= */
+  const filtered = useMemo(() => {
+    let list = [...missions];
 
-  const filtered = useMemo(()=>{
-
-    let list=[...missions]
-
-    if(search){
-      list=list.filter(m=>
-        m.team?.toLowerCase().includes(search.toLowerCase())
-      )
+    if (search) {
+      const q = search.toLowerCase();
+      list = list.filter(
+        (m) =>
+          m.team?.toLowerCase().includes(q) ||
+          m.fullname?.toLowerCase().includes(q) ||
+          String(m.id).includes(q)
+      );
     }
 
-    if (filters.address)
-      list = list.filter(m =>
+    if (tab === "active") {
+      list = list.filter(
+        (m) => !["COMPLETED", "REJECTED", "CANCELLED"].includes(m.assignmentStatus)
+      );
+    } else if (tab === "done") {
+      list = list.filter((m) => m.assignmentStatus === "COMPLETED");
+    }
+
+    if (filters.address) {
+      list = list.filter((m) =>
         normalizeAddress(m.address)
           .toLowerCase()
           .includes(filters.address.toLowerCase())
       );
-      if (filters.urgency) {
-        list = list.filter(
-          m => m.urgencyLevelId === filters.urgency
-        );
-      }
+    }
 
-    return list
+    if (filters.urgency) {
+      list = list.filter((m) => m.urgencyLevelId === filters.urgency);
+    }
 
-  },[missions,filters,search])
+    return list;
+  }, [missions, filters, search, tab]);
 
-  /* ================= UI ================= */
+  const handleCardClick = (assignmentId) => {
+    setActiveId(assignmentId);
+    onSelectMission?.(assignmentId);
+  };
 
-  return(
+  return (
+    <section className="rc-team-list">
+      {/* HEADER */}
+      <div className="rc-team-list__header">
+        <div className="rc-team-list__title">
+          <h3>
+            Đang cứu hộ
+            <span className="rc-team-list__count-badge">{filtered.length}</span>
+          </h3>
 
-<section className="rc-team-list">
+          <button
+            className="rc-refresh-btn"
+            onClick={fetchData}
+            disabled={loading}
+          >
+            <SyncOutlined spin={loading} />
+            Làm mới
+          </button>
+        </div>
 
-<div className="rc-team-list__header">
+        <input
+          className="rc-team-list__search"
+          placeholder="Tìm theo tên đội, người dân, mã #..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+      </div>
 
-<div className="rc-team-list__header-left">
+      {/* TABS */}
+      <div className="rc-queue__tabs">
+        <button
+          className={tab === "all" ? "active" : ""}
+          onClick={() => setTab("all")}
+        >
+          TẤT CẢ
+        </button>
+        <button
+          className={tab === "active" ? "active" : ""}
+          onClick={() => setTab("active")}
+        >
+          ĐANG THỰC HIỆN
+        </button>
+        <button
+          className={tab === "done" ? "active" : ""}
+          onClick={() => setTab("done")}
+        >
+          HOÀN THÀNH
+        </button>
+      </div>
 
-<div className="rc-team-list__title">
+      {/* LIST */}
+      <div className="rc-team-list__items">
+        {loading ? (
+          <div style={{ textAlign: "center", padding: 30, color: "#64748b" }}>
+            <Spin size="default" />
+            <p style={{ marginTop: 10 }}>Đang cập nhật danh sách tác chiến...</p>
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="rc-empty">
+            <InboxOutlined style={{ fontSize: 36, color: "#cbd5e1" }} />
+            <span>Không có nhiệm vụ nào</span>
+          </div>
+        ) : (
+          filtered.map((item) => {
+            const isSelected = activeId === item.assignmentId;
+            return (
+              <div
+                key={item.assignmentId}
+                className={`rc-team-item ${isSelected ? "is-active" : ""}`}
+                onClick={() => handleCardClick(item.assignmentId)}
+              >
+                <div className="rc-team-item__top">
+                  <span className="rc-team-item__id">#{item.id}</span>
+                  <span className={`status-badge ${assignmentStatusClass[item.assignmentStatus] || "status-assigned"}`}>
+                    {assignmentStatusMap[item.assignmentStatus] || item.assignmentStatus}
+                  </span>
+                </div>
 
-<h3>Đang cứu hộ ({filtered.length})</h3>
+                <div className="rc-team-item__name">{item.fullname}</div>
 
-<button
-className="rc-refresh-btn"
-onClick={fetchData}
-disabled={loading}
->
+                <div className="rc-team-item__team-pill">
+                  <TeamOutlined />
+                  {item.team}
+                </div>
 
-{loading ? (
-<span className="rc-spinner"></span>
-) : (
-"🔄 Làm mới"
-)}
+                <div className="rc-team-item__location">
+                  <EnvironmentOutlined style={{ color: "#ef4444", marginTop: 2, flexShrink: 0 }} />
+                  <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {item.address}
+                  </span>
+                </div>
 
-</button>
-
-</div>
-{/* 
-<input
-className="rc-team-list__search"
-placeholder="Lọc theo đội..."
-value={search}
-onChange={(e)=>setSearch(e.target.value)}
-/> */}
-
-</div>
-
-<div className="rc-team-list__header-right">
-
-
-
-<div className="rc-queue__tabs">
-
-<button
-className={tab==="new"?"active":""}
-onClick={()=>changeTab("new")}
->
-MỚI NHẤT
-</button>
-
-
-<button
-className={tab==="merge"?"active":""}
-onClick={()=>changeTab("merge")}
->
-TÌM YÊU CẦU
-</button>
-
-</div>
-
-</div>
-
-</div>
-
-{/* FILTER */}
-
-{tab==="merge" && (
-
-<div className="rc-filter">
-
-<Select
-placeholder="Địa chỉ"
-allowClear
-style={{width:"100%"}}
-options={ADDRESS_OPTIONS}
-value={filters.address || undefined}
-onChange={(v)=>setFilters({
-requestType:"",
-address:v || "",
-urgency:""
-})}
-/>
-
-<Select
-placeholder="Mức độ nguy hiểm"
-allowClear
-style={{width:"100%",marginTop:8}}
-options={URGENCY_OPTIONS}
-value={filters.urgency || undefined}
-onChange={(v)=>setFilters({
-requestType:"",
-address:"",
-urgency:v || ""
-})}
-/>
-
-</div>
-
-)}
-
-{/* LIST */}
-
-<div className="rc-team-list__items">
-
-{loading && <div>Đang tải dữ liệu...</div>}
-
-{!loading && filtered.length===0 && (
-  <div className="rc-empty">
-  Không có dữ liệu
-</div>
-)}
-
-{filtered.map(item => (
-
-<div
-  key={item.assignmentId}
-  className="rc-team-item"
-  onClick={()=>onSelectMission?.(item.assignmentId)}
->
-
-<div className="rc-team-item__top">
-<div className="rc-team-item__id">
-  Mã yêu cầu: #{item.id}
-</div>
-
-<span className={`rc-team-item__priority ${getPriorityClass(item.urgencyLevelId)}`}>
-  {item.urgency}
-</span>
-
-<span
-className={`status-badge ${assignmentStatusClass[item.assignmentStatus]}`}
->
-{assignmentStatusMap[item.assignmentStatus]}
-</span>
-</div>
-
-<div
-  className="info-box-minato"
-  style={{
-    background: "#fff",
-    borderRadius: 12,
-    padding: "14px 16px",
-    border: "1px solid #eee",
-    boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-    display: "flex",
-    flexDirection: "column",
-    gap: 8
-  }}
->
-
-  <strong
-    style={{
-      fontSize: 15,
-      fontWeight: 700,
-      color: "#1677ff"
-    }}
-  >
-     Họ và tên: {item.fullname}
-  </strong>
-
-  <div
-    style={{
-      fontSize: 14,
-      color: "#444",
-      padding: "6px 10px",
-      background: "#fafafa",
-      borderRadius: 8,
-      border: "1px solid #eee"
-    }}
-  >
-     Tên đội: {item.team}
-  </div>
-
-  <div
-    style={{
-      fontSize: 14,
-      color: "#444",
-      padding: "6px 10px",
-      background: "#fafafa",
-      borderRadius: 8,
-      border: "1px solid #eee"
-    }}
-  >
-     Tên phương tiện: {item.vehicle}
-  </div>
-
-  <div
-    style={{
-      fontSize: 14,
-      color: "#444",
-      padding: "6px 10px",
-      background: "#fafafa",
-      borderRadius: 8,
-      border: "1px solid #eee"
-    }}
-  >
-     Vị trí: {item.address}
-  </div>
-
-  <div
-    style={{
-      fontSize: 14,
-      fontWeight: 600,
-      color: "#52c41a",
-      padding: "6px 10px",
-      background: "#f6ffed",
-      borderRadius: 8,
-      border: "1px solid #b7eb8f"
-    }}
-  >
-    Số điện thoại: {item.phone}
-  </div>
-
-</div>
-<div className="rc-team-item__footer">
-⏱Phân công lúc:  {item.time}
-</div>
-
-</div>
-
-))}
-
-</div>
-
-</section>
-
-)
-
+                <div className="rc-team-item__footer">
+                  <span className={getPriorityClass(item.urgencyLevelId)}>
+                    {item.urgency}
+                  </span>
+                  <span style={{ color: "#94a3b8" }}>
+                    <ClockCircleOutlined style={{ marginRight: 4 }} />
+                    {item.time || "Vừa điều động"}
+                  </span>
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
+    </section>
+  );
 }

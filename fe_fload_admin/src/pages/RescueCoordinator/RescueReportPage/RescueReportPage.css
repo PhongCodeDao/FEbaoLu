@@ -1,19 +1,62 @@
-/* RescueReportPage.css */
+/* ===================================================== */
+/* RC – RESCUE REPORT PAGE LAYOUT                        */
+/* ===================================================== */
+
 .rc-report-page {
-    display: grid;
-    grid-template-columns: 320px 1fr;
-    height: 100%;
-    background: #f8fafc;
+  display: grid;
+  grid-template-columns: 390px 1fr;
+  height: calc(100vh - 64px);
+  background: #f1f5f9;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.rc-report-page__sidebar {
+  border-right: 1px solid #e2e8f0;
+  background: #ffffff;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 2px 0 12px rgba(15, 23, 42, 0.03);
+  z-index: 2;
+}
+
+.rc-report-page__detail {
+  overflow-y: auto;
+  padding: 24px 28px;
+  background: #f8fafc;
+  box-sizing: border-box;
+  scroll-behavior: smooth;
+}
+
+.rc-report-page__detail::-webkit-scrollbar {
+  width: 6px;
+}
+
+.rc-report-page__detail::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 999px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 1280px) {
+  .rc-report-page {
+    grid-template-columns: 340px 1fr;
   }
-  
-  .rc-report-page__left {
-    border-right: 1px solid #e5e7eb;
-    background: #fff;
-    overflow-y: auto;
+}
+
+@media (max-width: 992px) {
+  .rc-report-page {
+    grid-template-columns: 1fr;
+    height: auto;
   }
-  
-  .rc-report-page__right {
-    padding: 24px;
-    overflow-y: auto;
+  .rc-report-page__sidebar {
+    height: 480px;
+    border-right: none;
+    border-bottom: 1px solid #e2e8f0;
   }
-  
+  .rc-report-page__detail {
+    height: auto;
+    overflow-y: visible;
+  }
+}

@@ -1,554 +1,274 @@
 import { useEffect, useMemo, useState } from "react";
-import { Tag, Select } from "antd";
-import { getPendingRescueRequests,getUrgencyLevels } from "../../../../api/axios/CoordinatorApi/RescueRequestApi";
+import { Tag, Spin } from "antd";
+import {
+  CheckCircleFilled,
+  CloseCircleFilled,
+  EnvironmentOutlined,
+  ClockCircleOutlined,
+  InboxOutlined,
+  UserOutlined,
+  PhoneOutlined,
+} from "@ant-design/icons";
+import {
+  getPendingRescueRequests,
+  getUrgencyLevels,
+} from "../../../../api/axios/CoordinatorApi/RescueRequestApi";
 import AuthNotify from "../../../utils/Common/AuthNotify";
 import { getRequestStatuses } from "../../../../api/axios/Auth/authApi";
+import { extractImageUrls } from "../../../utils/imageUtils";
 import "./ListTeamSuccessful.css";
 
-
 /* ================= TIME AGO ================= */
-
 function timeAgo(ts) {
   const diff = Date.now() - ts;
-
   const minutes = Math.floor(diff / 60000);
   const hours = Math.floor(diff / 3600000);
   const days = Math.floor(diff / 86400000);
 
   if (minutes < 1) return "Vừa xong";
-  if (minutes < 60) return `${minutes} phút trước`;
-  if (hours < 24) return `${hours} giờ trước`;
-  if (days < 7) return `${days} ngày trước`;
+  if (minutes < 60) return `${minutes}p trước`;
+  if (hours < 24) return `${hours}h trước`;
+  if (days < 7) return `${days}d trước`;
 
   return new Date(ts).toLocaleDateString("vi-VN");
 }
-const getUrgencyColor = (id) => {
-  const colors = [
-    "red",
-    "orange",
-    "green",
-    "blue",
-    "purple",
-    "cyan",
-    "gold",
-    "lime",
-    "magenta",
-    "volcano"
-  ];
 
-  return colors[(id - 1) % colors.length] || "default";
+const normalizeAddress = (address) => {
+  if (!address) return "";
+  return address
+    .replace(/^(Hẻm|Ngõ|Hẽm)\s*\d*\s*/i, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
 };
 
-
-/* ================= REQUEST TYPES ================= */
-
-
-
-/* ================= CONVERT API ================= */
-
-
-const API_BASE = (import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || "https://bebaolu.onrender.com").replace(/\/$/, "");
-
 const convertApiToMission = (data = [], statuses = [], urgencyLevels = []) => {
-
   if (!Array.isArray(data)) return [];
   const VALID_STATUS = [5, 6];
   return data
-  .filter(item => VALID_STATUS.includes(item.statusId))
+    .filter((item) => VALID_STATUS.includes(item.statusId))
     .map((item) => {
-
-      const statusObj = statuses.find(
-        s => s.statusId === item.statusId
-      );
+      const statusObj = statuses.find((s) => s.statusId === item.statusId);
       const urgencyObj = urgencyLevels.find(
-        u => u.urgencyLevelId === item.urgencyLevelId
+        (u) => u.urgencyLevelId === item.urgencyLevelId
       );
-      const images = [];
-
-      // imageUrls
-      if (Array.isArray(item.imageUrls)) {
-        images.push(...item.imageUrls);
-      }
-      
-      // images
-      if (Array.isArray(item.images)) {
-        images.push(...item.images);
-      }
-      
-      // locationImageUrl (FIX QUAN TRỌNG)
-      if (item.locationImageUrl) {
-        if (typeof item.locationImageUrl === "string") {
-          images.push(...item.locationImageUrl.split(","));
-        } else if (Array.isArray(item.locationImageUrl)) {
-          images.push(...item.locationImageUrl);
-        }
-      }
-      
-      // normalize + clean + dedupe
-      const normalizedImages = [...new Set(
-        images
-          .map(i => i?.trim())
-          .filter(Boolean)
-          .map(i => {
-            if (i.includes("api-rescue.purintech.id.vn")) {
-              return i.replace("https://api-rescue.purintech.id.vn", API_BASE);
-            }
-            return i.startsWith("http")
-              ? i
-              : `${API_BASE}${i.startsWith("/") ? "" : "/"}${i}`;
-          })
-      )];
+      const normalizedImages = extractImageUrls(item);
 
       return {
         id: item.rescueRequestId,
-        name: item.fullName,
-        phone: item.contactPhone,
-        address: item.address,
-        urgencyScore: item.urgencyScore,
+        name: item.fullName || "Người dân",
+        phone: item.contactPhone || "Chưa có",
+        address: item.address || "Chưa xác định",
+        urgencyScore: item.urgencyScore || 0,
         lat: item.locationLat,
         lng: item.locationLng,
-
         locationLat: item.locationLat,
         locationLng: item.locationLng,
-
-        createdAt: new Date(item.createdAt).getTime(),
-
-        incident: item.requestType || "Không rõ",
-
-          status: "completed",
-          statusText:
-          item.statusId === 6
-            ? "Đã từ chối"
-            : statusObj?.description || "Đã hoàn thành",
-          statusId: item.statusId,
-          images: normalizedImages,
+        createdAt: item.createdAt ? new Date(item.createdAt).getTime() : Date.now(),
+        incident: item.requestType || "Cứu hộ khẩn cấp",
+        status: item.statusId === 6 ? "rejected" : "completed",
+        statusText: item.statusId === 6 ? "Đã từ chối" : statusObj?.description || "Đã hoàn thành",
+        statusId: item.statusId,
+        images: normalizedImages,
         urgencyLevelName: urgencyObj?.levelName,
         urgencyLevelId: item.urgencyLevelId,
         detailDescription: item.detailDescription,
         rescueTeamNote: item.rescueTeamNote,
-        victimCount: item.victimCount,
+        victimCount: item.victimCount || 0,
         availableRescueTool: item.availableRescueTool,
         specialNeeds: item.specialNeeds,
       };
-
     });
-
 };
-/* ================= COMPONENT ================= */
 
-export default function ListTeamSuccessful({ onSelectMission }) {
-
+export default function ListTeamSuccessful({ onSelectMission, selectedMissionId }) {
   const [missions, setMissions] = useState([]);
-
   const [loading, setLoading] = useState(false);
   const [requestStatuses, setRequestStatuses] = useState([]);
-  const [, forceRender] = useState(0);
-  const [currentTime, setCurrentTime] = useState("");
   const [urgencyLevels, setUrgencyLevels] = useState([]);
-  const [filters, setFilters] = useState({
-    requestType: "",
-    address: "",
-    urgencyLevel: "",
-    status: "" 
-  });
+  const [search, setSearch] = useState("");
+  const [tab, setTab] = useState("all");
+  const [activeId, setActiveId] = useState(selectedMissionId || null);
 
   /* ================= LOAD API ================= */
-
   const fetchData = async () => {
-
     try {
-
       setLoading(true);
+      const [response, urgencyRes, statusRes] = await Promise.all([
+        getPendingRescueRequests(),
+        getUrgencyLevels(),
+        getRequestStatuses(),
+      ]);
 
-      const response = await getPendingRescueRequests();
-      const list = Array.isArray(response)
-      ? response
-      : response?.data || [];
+      const list = Array.isArray(response) ? response : response?.data || [];
+      const urgencies = Array.isArray(urgencyRes) ? urgencyRes : urgencyRes?.data || [];
+      const statuses = Array.isArray(statusRes) ? statusRes : statusRes?.data || [];
 
-    
-    setMissions(
-      convertApiToMission(list, requestStatuses, urgencyLevels)
-    );
+      setUrgencyLevels(urgencies);
+      setRequestStatuses(statuses);
 
-    }
-    catch (error) {
+      const converted = convertApiToMission(list, statuses, urgencies);
+      setMissions(converted);
 
+      if (converted.length > 0 && !activeId) {
+        setActiveId(converted[0].id);
+        onSelectMission?.(converted[0]);
+      }
+    } catch (error) {
       AuthNotify.error(
         "Không tải được dữ liệu",
         error?.response?.data?.message || error.message
       );
-
-    }
-    finally {
+    } finally {
       setLoading(false);
     }
-
   };
 
   useEffect(() => {
-    if (requestStatuses.length > 0 && urgencyLevels.length > 0) {
-      fetchData();
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    if (selectedMissionId) {
+      setActiveId(selectedMissionId);
     }
-  }, [requestStatuses, urgencyLevels]);
-
-  /* ================= ADDRESS OPTIONS ================= */
-
-  const ADDRESS_OPTIONS = useMemo(() => {
-
-    const unique = [...new Set(missions.map(m => m.address).filter(Boolean))];
-
-    return unique.map(addr => ({
-      label: addr,
-      value: addr
-    }));
-
-  }, [missions]);
-
-  const INCIDENT_OPTIONS = useMemo(() => {
-
-    const unique = [...new Set(
-      missions
-        .map(m => m.incident)
-        .filter(Boolean)
-    )];
-  
-    return unique.map(i => ({
-      label: i,
-      value: i
-    }));
-  
-  }, [missions]);
-
-
-
-
-  useEffect(() => {
-    const loadUrgency = async () => {
-      try {
-        const data = await getUrgencyLevels();
-        const list = Array.isArray(data)
-          ? data
-          : data?.data || [];
-  
-        setUrgencyLevels(list);
-      } catch (err) {
-        console.error("LOAD URGENCY ERROR:", err);
-      }
-    };
-  
-    loadUrgency();
-  }, []);
-
-  /* ================= REALTIME CLOCK ================= */
-
-  useEffect(() => {
-
-    const updateTime = () => {
-
-      const now = new Date();
-
-      setCurrentTime(
-        now.toLocaleTimeString("vi-VN", {
-          hour: "2-digit",
-          minute: "2-digit",
-          second: "2-digit",
-        })
-      );
-
-    };
-
-    updateTime();
-
-    const timer = setInterval(updateTime, 1000);
-
-    return () => clearInterval(timer);
-
-  }, []);
-
-  /* ================= UPDATE TIME AGO ================= */
-
-  useEffect(() => {
-
-    const timer = setInterval(() => {
-      forceRender(n => n + 1);
-    }, 60000);
-
-    return () => clearInterval(timer);
-
-  }, []);
+  }, [selectedMissionId]);
 
   /* ================= FILTER ================= */
-
   const filtered = useMemo(() => {
     let list = [...missions];
-  
-    if (filters.requestType)
+
+    if (search) {
+      const q = search.toLowerCase();
       list = list.filter(
-        m => m.incident === filters.requestType
+        (m) =>
+          m.name?.toLowerCase().includes(q) ||
+          m.address?.toLowerCase().includes(q) ||
+          String(m.id).includes(q)
       );
-      if (filters.status)
-        list = list.filter(
-          m => String(m.statusId) === filters.status
-        );
-  
-    if (filters.address)
-      list = list.filter(m => m.address === filters.address);
-  
-    if (filters.urgencyLevel)
-      list = list.filter(
-        m => m.urgencyLevelId === filters.urgencyLevel
-      );
-  
+    }
+
+    if (tab === "completed") {
+      list = list.filter((m) => m.statusId === 5);
+    } else if (tab === "rejected") {
+      list = list.filter((m) => m.statusId === 6);
+    }
+
     list.sort((a, b) => b.createdAt - a.createdAt);
-  
     return list;
-  }, [missions, filters]);
+  }, [missions, search, tab]);
 
-  useEffect(() => {
-
-    const loadStatuses = async () => {
-  
-      try {
-  
-        const data = await getRequestStatuses();
-  
-        const list = Array.isArray(data)
-          ? data
-          : data?.data || [];
-  
-        setRequestStatuses(list);
-  
-      } catch (error) {
-  
-        console.error("LOAD STATUS ERROR:", error);
-  
-      }
-  
-    };
-  
-    loadStatuses();
-  
-  }, []);
-
-  /* ================= UI ================= */
+  const handleCardClick = (m) => {
+    setActiveId(m.id);
+    onSelectMission?.(m);
+  };
 
   return (
+    <aside className="rc-succ-queue">
+      {/* HEADER */}
+      <div className="rc-succ-queue__header">
+        <div className="rc-succ-queue__title-wrap">
+          <h3>
+            Hồ sơ hoàn thành
+            <span className="rc-succ-queue__badge">{filtered.length}</span>
+          </h3>
+        </div>
 
-    <aside className="rc-queue">
-
-      <div className="rc-queue__header">
-
-        <h3>Danh sách nhiệm vụ ({filtered.length})</h3>
-
-        <span className="rc-queue__live">
-          {currentTime}
-        </span>
-
+        <input
+          className="rc-succ-queue__search"
+          placeholder="Tìm theo tên, địa chỉ, mã #..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
       </div>
 
-<div className="rc-filter">
-
-  {/* LOẠI YÊU CẦU */}
-
-  <Select
-    placeholder="Loại yêu cầu"
-    showSearch
-    allowClear
-    value={filters.requestType || undefined}
-    style={{ width: "100%" }}
-    options={[
-      { label: "Tất cả", value: "" },
-      ...INCIDENT_OPTIONS
-    ]}
-    optionFilterProp="label"
-    onChange={(value) =>
-      setFilters(prev => ({
-        ...prev,
-        requestType: value || ""
-      }))
-    }
-  />
-
-  {/* ĐỊA CHỈ */}
-
-  <Select
-    placeholder="Địa chỉ"
-    showSearch
-    allowClear
-    value={filters.address || undefined}
-    style={{ width: "100%", marginTop: 8 }}
-    options={[
-      { label: "Tất cả", value: "" },
-      ...ADDRESS_OPTIONS
-    ]}
-    optionFilterProp="label"
-    onChange={(value) =>
-      setFilters({
-        requestType: "",
-        address: value || "",
-        urgencyLevel: ""
-      })
-    }
-  />
-<Select
-  placeholder="Mức độ nguy hiểm"
-  allowClear
-  value={filters.urgencyLevel || undefined}
-  style={{ width: "100%", marginTop: 8 }}
-  options={[
-    { label: "Tất cả", value: "" },
-    ...urgencyLevels.map(u => ({
-      label: u.levelName,
-      value: u.urgencyLevelId
-    }))
-  ]}
-  onChange={(value) =>
-    setFilters({
-      ...filters,
-      urgencyLevel: value || ""
-    })
-  }
-/>
-<Select
-  placeholder="Trạng thái"
-  allowClear
-  value={filters.status || undefined}
-  style={{ width: "100%", marginTop: 8 }}
-  options={[
-    { label: "Tất cả", value: "" },
-    { label: "Hoàn thành", value: "5" },
-    { label: "Đã từ chối", value: "6" }
-  ]}
-  onChange={(value) =>
-    setFilters({
-      ...filters,
-      status: value || ""
-    })
-  }
-/>
-
-
-</div>
-
-
+      {/* TABS */}
+      <div className="rc-queue__tabs">
+        <button
+          className={tab === "all" ? "active" : ""}
+          onClick={() => setTab("all")}
+        >
+          TẤT CẢ
+        </button>
+        <button
+          className={tab === "completed" ? "active" : ""}
+          onClick={() => setTab("completed")}
+        >
+          HOÀN THÀNH
+        </button>
+        <button
+          className={tab === "rejected" ? "active" : ""}
+          onClick={() => setTab("rejected")}
+        >
+          TỪ CHỐI
+        </button>
+      </div>
 
       {/* LIST */}
-
-      <div className="rc-queue__list">
-
+      <div className="rc-succ-queue__list">
         {loading ? (
-
-          <div className="rc-loading">
-            Đang tải dữ liệu...
+          <div style={{ textAlign: "center", padding: 30, color: "#64748b" }}>
+            <Spin size="default" />
+            <p style={{ marginTop: 10 }}>Đang tải danh sách hồ sơ...</p>
           </div>
-
         ) : filtered.length === 0 ? (
-
-          <div className="rc-empty">
-            Không có dữ liệu
+          <div style={{ textAlign: "center", padding: 40, color: "#94a3b8" }}>
+            <InboxOutlined style={{ fontSize: 36, marginBottom: 8 }} />
+            <p>Không có hồ sơ nào</p>
           </div>
-
         ) : (
+          filtered.map((m) => {
+            const isSelected = activeId === m.id;
+            const isDone = m.statusId === 5;
 
-          filtered.map((m) => (
-
-            <div
-            className="rc-queue__card"
-            key={m.id}
-            onClick={() => {
-              console.log("CLICK ITEM:", m);
-              onSelectMission(m);
-            }}
-          >
-
-              <div className="rc-queue__top">
-
-                <span className="rc-queue__id">
-                  Mã yêu cầu: #{m.id}
-                  
-                </span>
-
-                <span className="rc-queue__time">
-
-                  {timeAgo(m.createdAt)}
-                  <div className="rc-queue__status">
-                  <Tag color={m.statusId === 6 ? "red" : "green"}>
-  {m.statusText}
-</Tag>
-</div>
-
-                </span>
-
-              </div>
+            return (
               <div
-  className="info-box-minato"
-  style={{
-    background: "#fff",
-    borderRadius: 12,
-    padding: "14px 16px",
-    border: "1px solid #eee",
-    boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-    display: "flex",
-    flexDirection: "column",
-    gap: 8
-  }}
->
-<strong
-    style={{
-      fontSize: 15,
-      fontWeight: 700,
-      color: "#1677ff"
-    }}
-  >
-     Họ và tên: {m.name}
-  </strong>
+                key={m.id}
+                className={`rc-succ-card ${isSelected ? "is-active" : ""}`}
+                onClick={() => handleCardClick(m)}
+              >
+                <div className="rc-succ-card__top">
+                  <span className="rc-succ-card__id">#{m.id}</span>
+                  <span className="rc-succ-card__time">
+                    <ClockCircleOutlined style={{ marginRight: 4 }} />
+                    {timeAgo(m.createdAt)}
+                  </span>
+                </div>
 
-  <div
-    style={{
-      fontSize: 14,
-      fontWeight: 600,
-      color: "#52c41a",
-      padding: "6px 10px",
-      background: "#f6ffed",
-      borderRadius: 8,
-      border: "1px solid #b7eb8f"
-    }}
-  >
-    Số điện thoại: {m.phone}
-  </div>
+                <div className="rc-succ-card__name">{m.name}</div>
 
-  <div
-    style={{
-      fontSize: 14,
-      color: "#444",
-      padding: "6px 10px",
-      background: "#fafafa",
-      borderRadius: 8,
-      border: "1px solid #eee"
-    }}
-  >
-     Vị trí: {m.address}
-  </div>
+                <div className="rc-succ-card__phone-pill">
+                  <PhoneOutlined style={{ marginRight: 4 }} />
+                  {m.phone}
+                </div>
 
-              <div className="rc-queue__tags">
-  <Tag color="red">{m.incident}</Tag>
+                <div className="rc-succ-card__addr">
+                  <EnvironmentOutlined style={{ color: "#ef4444", marginTop: 2, flexShrink: 0 }} />
+                  <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {m.address}
+                  </span>
+                </div>
 
+                <div className="rc-succ-card__footer">
+                  <Tag color="blue" style={{ borderRadius: 6, margin: 0, fontSize: 11 }}>
+                    {m.incident}
+                  </Tag>
 
-  <Tag color={getUrgencyColor(m.urgencyLevelId)}>
-  {m.urgencyLevelName}
-</Tag>
-</div>
-            </div>
-            </div>
-
-          ))
-
+                  {isDone ? (
+                    <span className="rc-status-pill-success">
+                      <CheckCircleFilled /> Hoàn thành
+                    </span>
+                  ) : (
+                    <span className="rc-status-pill-rejected">
+                      <CloseCircleFilled /> Đã từ chối
+                    </span>
+                  )}
+                </div>
+              </div>
+            );
+          })
         )}
-
       </div>
-
     </aside>
-
   );
-
 }

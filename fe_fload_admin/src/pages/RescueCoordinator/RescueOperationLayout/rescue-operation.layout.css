@@ -1,18 +1,114 @@
+/* ===================================================== */
+/* RC – RESCUE OPERATION LAYOUT                          */
+/* ===================================================== */
+
 .rc-operation-layout {
-    display: grid;
+  display: grid;
+  grid-template-columns: 390px 1fr;
+  height: calc(100vh - 64px);
+  background: #f1f5f9;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.rc-operation-layout__left {
+  border-right: 1px solid #e2e8f0;
+  background: #ffffff;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 2px 0 12px rgba(15, 23, 42, 0.03);
+  z-index: 2;
+}
+
+.rc-operation-layout__right {
+  overflow-y: auto;
+  padding: 24px 28px;
+  background: #f8fafc;
+  box-sizing: border-box;
+  scroll-behavior: smooth;
+}
+
+.rc-operation-layout__right::-webkit-scrollbar {
+  width: 6px;
+}
+
+.rc-operation-layout__right::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 999px;
+}
+
+/* EMPTY STATE */
+.rc-op-empty {
+  height: 100%;
+  min-height: 480px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px;
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1px dashed #cbd5e1;
+  color: #64748b;
+}
+
+.rc-op-empty-icon {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  background: #eff6ff;
+  border: 2px solid #bfdbfe;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 34px;
+  color: #2563eb;
+  margin-bottom: 18px;
+  animation: opPulse 2.4s infinite;
+}
+
+@keyframes opPulse {
+  0% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.4); }
+  70% { box-shadow: 0 0 0 16px rgba(37, 99, 235, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
+}
+
+.rc-op-empty h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 8px;
+}
+
+.rc-op-empty p {
+  font-size: 14px;
+  color: #64748b;
+  max-width: 400px;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* RESPONSIVE */
+@media (max-width: 1280px) {
+  .rc-operation-layout {
     grid-template-columns: 340px 1fr;
-    height: calc(100vh - 64px); /* trừ header */
-    background: #f8fafc;
   }
-  
+}
+
+@media (max-width: 992px) {
+  .rc-operation-layout {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
   .rc-operation-layout__left {
-    border-right: 1px solid #e5e7eb;
-    background: #ffffff;
-    overflow-y: auto;
+    height: 480px;
+    border-right: none;
+    border-bottom: 1px solid #e2e8f0;
   }
-  
   .rc-operation-layout__right {
-    overflow-y: auto;
-    padding: 24px;
+    height: auto;
+    overflow-y: visible;
   }
-  
+}

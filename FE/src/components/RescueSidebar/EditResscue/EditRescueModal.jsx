@@ -18,7 +18,7 @@ import { updateRescueRequest } from "../../../api/service/historyApi";
 import AuthNotify from "../../../utils/Common/AuthNotify";
 
 import "./EditRescueModal.css";
-const API_BASE = (import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || "https://bebaolu.onrender.com").replace(/\/$/, "");
+import { resolveImageUrl, FALLBACK_RESCUE_IMAGE } from "../../../utils/imageUtils";
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -79,16 +79,10 @@ function EditRescueModal({ data, onClose, onUpdated }) {
         locationLat: data.locationLat || 0,
         locationLng: data.locationLng || 0,
         locationImageUrl: data.locationImageUrl
-        ? data.locationImageUrl.split(",").map(i => {
-            const clean = i.trim();
-            if (clean.includes("api-rescue.purintech.id.vn")) {
-              return clean.replace("https://api-rescue.purintech.id.vn", API_BASE);
-            }
-            return clean.startsWith("http")
-              ? clean
-              : `${API_BASE}${clean.startsWith("/") ? "" : "/"}${clean}`;
-          })
-        : [],
+          ? (typeof data.locationImageUrl === "string" ? data.locationImageUrl.split(",") : data.locationImageUrl)
+              .map(i => resolveImageUrl(i))
+              .filter(Boolean)
+          : [],
         previewImages: []
       });
 
@@ -646,6 +640,8 @@ function EditRescueModal({ data, onClose, onUpdated }) {
         <Image
           src={img}
           alt="preview"
+          fallback={FALLBACK_RESCUE_IMAGE}
+          preview={{ mask: "Xem ảnh" }}
           style={{
             width: "100%",
             height: "100%",

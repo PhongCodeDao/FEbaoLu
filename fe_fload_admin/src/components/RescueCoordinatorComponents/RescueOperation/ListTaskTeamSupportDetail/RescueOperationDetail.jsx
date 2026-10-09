@@ -1,58 +1,47 @@
-import "./rescue-operation-detail.css";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Image, Tag, Spin } from "antd";
+import {
+  UserOutlined,
+  TeamOutlined,
+  CarOutlined,
+  EnvironmentOutlined,
+  PictureOutlined,
+  ClockCircleOutlined,
+  AlertOutlined,
+  SendOutlined,
+  CheckCircleOutlined,
+  RocketOutlined,
+  SafetyCertificateOutlined,
+  ExclamationCircleOutlined,
+} from "@ant-design/icons";
 
 import {
   getRescueAssignmentById,
   getPendingRescueRequests,
   getUrgencyLevels,
 } from "../../../../../api/axios/CoordinatorApi/RescueRequestApi";
-import { Image } from "antd";
-// import UpdateDetailTeam from "../UpdateTeamSupportDetail/UpdateDetailTeam";
 import { getAllRescueTeams } from "../../../../../api/axios/ManagerApi/rescueTeamApi";
 import { getAllVehicles } from "../../../../../api/axios/ManagerApi/vehicleApi";
 import { getRequestStatuses } from "../../../../../api/axios/Auth/authApi";
-const API_BASE = (import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || "https://bebaolu.onrender.com").replace(/\/$/, "");
-const getPriorityClass = (id) => {
-  const colors = [
-    "priority-high",
-    "priority-medium",
-    "priority-low",
-    "priority-blue",
-    "priority-purple",
-    "priority-cyan",
-    "priority-gold",
-    "priority-lime",
-    "priority-magenta",
-    "priority-volcano",
-  ];
-
-  return colors[(id - 1) % colors.length] || "priority-default";
-};
+import { extractImageUrls, FALLBACK_RESCUE_IMAGE } from "../../../../utils/imageUtils";
+import "./rescue-operation-detail.css";
 
 const STATUS_STEPS = [
-  { key: "PENDING", label: "Chờ điều phối", icon: "⏳" },
-  { key: "ASSIGNED", label: "Đã điều động", icon: "📋" },
-  { key: "ACCEPTED", label: "Đội đã nhận", icon: "👍" },
-  { key: "DEPARTED", label: "Đã xuất phát", icon: "🚑" },
-  { key: "ARRIVED", label: "Đã đến hiện trường", icon: "📍" },
-  { key: "COMPLETED", label: "Hoàn thành", icon: "✔" },
+  { key: "PENDING", label: "Chờ điều phối", icon: <ClockCircleOutlined /> },
+  { key: "ASSIGNED", label: "Đã điều động", icon: <SendOutlined /> },
+  { key: "ACCEPTED", label: "Đội đã nhận", icon: <CheckCircleOutlined /> },
+  { key: "DEPARTED", label: "Đang xuất phát", icon: <RocketOutlined /> },
+  { key: "ARRIVED", label: "Đã đến hiện trường", icon: <EnvironmentOutlined /> },
+  { key: "COMPLETED", label: "Hoàn thành", icon: <SafetyCertificateOutlined /> },
 ];
 
 export default function RescueOperationDetail({ assignmentId }) {
-  const navigate = useNavigate();
-
   const [detail, setDetail] = useState(null);
-
-  const [location, setLocation] = useState({
-    lat: 10.8231,
-    lng: 106.6297,
-  });
+  const [location, setLocation] = useState({ lat: 10.8231, lng: 106.6297 });
   const [loading, setLoading] = useState(false);
   const [images, setImages] = useState([]);
 
   /* ================= LOAD DATA ================= */
-
   const fetchData = async () => {
     try {
       setLoading(true);
@@ -81,7 +70,7 @@ export default function RescueOperationDetail({ assignmentId }) {
 
       const teamMap = {};
       teams.forEach((t) => {
-        teamMap[t.rcid] = t.rcName;
+        teamMap[t.rescueTeamId || t.rcid] = t.teamName || t.rcName;
       });
 
       const vehicleMap = {};
@@ -100,39 +89,30 @@ export default function RescueOperationDetail({ assignmentId }) {
       });
 
       const req = requests.find(
-        (r) => r.rescueRequestId === assignment.rescueRequestId
+        (r) => r.rescueRequestId === assignment?.rescueRequestId
       );
 
       const urgencyObj = urgencyMap[req?.urgencyLevelId];
-
-      const urgencyText = urgencyObj?.levelName || "Không xác định";
 
       const data = {
         missionId: assignment.assignmentId,
         rescueRequestId: assignment.rescueRequestId,
         rescueTeamId: assignment.rescueTeamId,
         vehicleId: assignment.vehicleId,
-
-        team: teamMap[assignment.rescueTeamId],
-        vehicle: vehicleMap[assignment.vehicleId],
-        assignmentStatus: assignment.assignmentStatus,
-        fullname: req?.fullname || req?.fullName,
-        phone: req?.contactPhone,
-        address: req?.address,
-
-        urgency: urgencyText,
-        urgencyLevelId: req?.urgencyLevelId,
-
-        status: statusMap[req?.requestStatusId],
-        statusId: req?.requestStatusId,
-        urgencyScore: req?.urgencyScore,
+        team: teamMap[assignment.rescueTeamId] || `Đội cứu hộ #${assignment.rescueTeamId}`,
+        vehicle: vehicleMap[assignment.vehicleId] || `Phương tiện #${assignment.vehicleId}`,
+        assignmentStatus: assignment.assignmentStatus || "ASSIGNED",
+        fullname: req?.fullname || req?.fullName || "Người dân gặp nạn",
+        phone: req?.contactPhone || "Chưa có",
+        address: req?.address || "Chưa xác định",
+        urgency: urgencyObj?.levelName || "Khẩn cấp",
+        urgencyLevelId: req?.urgencyLevelId || 1,
+        status: statusMap[req?.requestStatusId] || "Đang xử lý",
+        urgencyScore: req?.urgencyScore || 0,
         startTime: assignment.assignedAt,
         detailDescription: req?.detailDescription || "",
-
         victimCount: req?.victimCount || 0,
-
         availableRescueTool: req?.availableRescueTool || "",
-
         specialNeeds: req?.specialNeeds || "",
         rejectReason: assignment?.rejectReason || "",
       };
@@ -146,43 +126,7 @@ export default function RescueOperationDetail({ assignmentId }) {
         });
       }
 
-      /* ================= IMAGE FIX ================= */
-
-      const getImages = (req) => {
-        const imgs = [];
-      
-        if (Array.isArray(req?.imageUrls)) {
-          imgs.push(...req.imageUrls);
-        }
-      
-        if (Array.isArray(req?.images)) {
-          imgs.push(...req.images);
-        }
-      
-        if (req?.locationImageUrl) {
-          if (typeof req.locationImageUrl === "string") {
-            imgs.push(...req.locationImageUrl.split(","));
-          } else if (Array.isArray(req.locationImageUrl)) {
-            imgs.push(...req.locationImageUrl);
-          }
-        }
-      
-        return [...new Set(
-          imgs
-            .map(i => i?.trim())
-            .filter(Boolean)
-            .map(i => {
-              if (i.includes("api-rescue.purintech.id.vn")) {
-                return i.replace("https://api-rescue.purintech.id.vn", API_BASE);
-              }
-              return i.startsWith("http")
-                ? i
-                : `${API_BASE}${i.startsWith("/") ? "" : "/"}${i}`;
-            })
-        )];
-      };
-      
-      setImages(getImages(req));
+      setImages(extractImageUrls(req));
     } catch (err) {
       console.error("Load detail error:", err);
     } finally {
@@ -191,269 +135,253 @@ export default function RescueOperationDetail({ assignmentId }) {
   };
 
   useEffect(() => {
-    if (!assignmentId) return;
-
-    fetchData();
+    if (assignmentId) {
+      fetchData();
+    }
   }, [assignmentId]);
 
-  if (!detail) {
+  if (loading) {
     return (
-      <div
-        style={{
-          height: "100%",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          fontSize: 22,
-          fontWeight: 600,
-          color: "#555",
-        }}
-      >
-        Chọn yêu cầu bên trái để xem chi tiết
+      <div style={{ textAlign: "center", padding: 60, color: "#64748b" }}>
+        <Spin size="large" />
+        <p style={{ marginTop: 16, fontSize: 15, fontWeight: 500 }}>
+          Đang kết nối trung tâm chỉ huy thực địa...
+        </p>
       </div>
     );
   }
-  const isRejected = detail.assignmentStatus === "REJECTED";
-  let visibleSteps = STATUS_STEPS;
 
-  if (detail.assignmentStatus === "CANCELLED") {
-    visibleSteps = STATUS_STEPS.filter((step) =>
-      ["ASSIGNED", "CANCELLED"].includes(step.key)
+  if (!detail) {
+    return (
+      <div className="rc-op-empty">
+        <ExclamationCircleOutlined style={{ fontSize: 36, color: "#94a3b8", marginBottom: 12 }} />
+        <h3>Không tìm thấy nhiệm vụ</h3>
+        <p>Vui lòng chọn một nhiệm vụ từ danh sách bên trái để xem tiến độ chi tiết.</p>
+      </div>
     );
   }
 
-  const currentIndex = visibleSteps.findIndex(
-    (s) => s.key === detail.assignmentStatus
-  );
+  const isRejected = detail.assignmentStatus === "REJECTED";
+  const currentIndex = STATUS_STEPS.findIndex((s) => s.key === detail.assignmentStatus);
 
   return (
     <section className="rc-op-detail">
       {/* HEADER */}
-
       <header className="rc-op-detail__header">
-        <div>
+        <div className="rc-op-detail__title-wrap">
           <h2>
-            Mã yêu cầu: #{detail.rescueRequestId}
-        
+            Nhiệm Vụ Tác Chiến #{detail.missionId} (Yêu cầu #{detail.rescueRequestId})
+            <span className="rc-badge-pill" style={{ background: "#e0f2fe", color: "#0284c7" }}>
+              {detail.urgency}
+            </span>
           </h2>
-
-          <p>
-            ⏱ Phân công lúc:
-            {detail.startTime &&
-              new Date(detail.startTime).toLocaleTimeString("vi-VN")}
-          </p>
+          <div className="rc-op-detail__meta">
+            <span>
+              <ClockCircleOutlined /> Lệnh phát lúc:{" "}
+              {detail.startTime ? new Date(detail.startTime).toLocaleString("vi-VN") : "Hôm nay"}
+            </span>
+            <span>•</span>
+            <span>Tình trạng: <strong>{detail.assignmentStatus}</strong></span>
+          </div>
         </div>
 
-        <div className="rc-op-detail__actions">
-          <span
-            className={`rc-badge ${getPriorityClass(detail.urgencyLevelId)}`}
-          >
-            {detail.urgency}
-          </span>
+        <div>
+          <Tag color={isRejected ? "red" : "blue"} style={{ padding: "6px 14px", borderRadius: 8, fontSize: 13, fontWeight: 700 }}>
+            {detail.team}
+          </Tag>
         </div>
       </header>
 
-      {/* ================= TIMELINE ================= */}
-
-      <section className="rc-op-card">
+      {/* TIMELINE STEPPER */}
+      <div className="rc-timeline-card">
         {isRejected ? (
-          <div style={{ textAlign: "center", padding: 20 }}>
-            <div className="rc-timeline__item active">
-              <div
-                className="rc-timeline__icon"
-                style={{
-                  background: "#dc2626",
-                  color: "#fff",
-                  borderRadius: "50%",
-                  width: 48,
-                  height: 48,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: 20,
-                }}
-              >
-                ✖
-              </div>
-
-              <div className="rc-timeline__content"></div>
-            </div>
-            <b style={{ color: "#dc2626", fontSize: 16 }}>
-              NHIỆM VỤ ĐÃ BỊ TỪ CHỐI
-            </b>
+          <div style={{ textAlign: "center", padding: 16, color: "#dc2626" }}>
+            <h4 style={{ margin: 0, fontWeight: 700 }}>✖ NHIỆM VỤ ĐÃ BỊ TỪ CHỐI</h4>
+            {detail.rejectReason && <p style={{ marginTop: 6, color: "#64748b" }}>Lý do: {detail.rejectReason}</p>}
           </div>
         ) : (
-          <div className="rc-timeline">
+          <div className="rc-timeline-stepper">
             {STATUS_STEPS.map((step, index) => {
               const isDone = index < currentIndex;
               const isActive = index === currentIndex;
 
               return (
-                <div key={step.key} className="rc-timeline__step">
-                  <div
-                    className={`rc-timeline__item 
-                  ${isActive ? "active" : ""}
-                  ${isDone ? "done" : ""}`}
-                  >
-                    <div className="rc-timeline__icon">{step.icon}</div>
-
-                    <div className="rc-timeline__content">
-                      <b>{step.label.toUpperCase()}</b>
+                <div key={step.key} className="rc-step-wrapper">
+                  <div className={`rc-step-node ${isActive ? "active" : ""} ${isDone ? "done" : ""}`}>
+                    <div className="rc-step-icon">
+                      {isDone ? <CheckCircleOutlined /> : step.icon}
                     </div>
+                    <span className="rc-step-label">{step.label}</span>
                   </div>
-
                   {index < STATUS_STEPS.length - 1 && (
-                    <div
-                      className={`rc-timeline__line ${isDone ? "done" : ""}`}
-                    />
+                    <div className={`rc-step-connector ${isDone ? "done" : ""}`} />
                   )}
                 </div>
               );
             })}
           </div>
         )}
-      </section>
+      </div>
 
-      {/* GRID */}
-
+      {/* TWO COLUMN GRID */}
       <div className="rc-op-grid">
+        {/* LEFT COLUMN */}
         <div className="rc-op-col">
-          {/* INFO */}
+          {/* CITIZEN INFO */}
+          <div className="rc-card">
+            <div className="rc-card__header">
+              <h4 className="rc-card__title">
+                <UserOutlined className="rc-card__icon" />
+                Thông Tin Người Dân Cứu Hộ
+              </h4>
+            </div>
 
-          <section className="card">
-            <h4 className="card-title">1. THÔNG TIN NGƯỜI DÂN</h4>
-
-            <div className="info-row">
-              <div className="info-item">
-                <label>HỌ VÀ TÊN</label>
-                <strong>{detail.name || detail.fullname}</strong>
+            <div className="rc-info-grid">
+              <div className="rc-info-cell">
+                <span className="rc-info-label">Họ và tên</span>
+                <span className="rc-info-value">{detail.fullname}</span>
               </div>
-
-              <div className="info-item">
-                <label>SỐ ĐIỆN THOẠI</label>
-                <strong className="phone">{detail.phone}</strong>
+              <div className="rc-info-cell">
+                <span className="rc-info-label">Số điện thoại</span>
+                <span className="rc-info-value phone">{detail.phone}</span>
+              </div>
+              <div className="rc-info-cell">
+                <span className="rc-info-label">Số nạn nhân</span>
+                <span className="rc-info-value" style={{ color: detail.victimCount > 0 ? "#dc2626" : "inherit" }}>
+                  {detail.victimCount > 0 ? `${detail.victimCount} người` : "Chưa rõ"}
+                </span>
               </div>
             </div>
-            <div className="info-item">
-              <label>ĐỊA CHỈ HIỆN TẠI</label>
 
-              <p className="address-text">{detail.address}</p>
+            <span className="rc-info-label" style={{ marginBottom: 4 }}>Vị trí gặp nạn</span>
+            <div style={{ background: "#f8fafc", padding: "10px 14px", borderRadius: 10, border: "1px solid #e2e8f0", fontSize: 13, color: "#334155" }}>
+              <EnvironmentOutlined style={{ color: "#ef4444", marginRight: 6 }} />
+              {detail.address}
             </div>
-          </section>
+          </div>
 
-          {/* TEAM */}
-
-          <section className="rc-op-card">
-            <div className="rc-op-card-header">
-              <h4 className="card-title">2. ĐỘI CỨU HỘ & PHƯƠNG TIỆN</h4>
+          {/* INCIDENT DETAILS */}
+          <div className="rc-card">
+            <div className="rc-card__header">
+              <h4 className="rc-card__title">
+                <AlertOutlined className="rc-card__icon" />
+                Tình Trạng Hiện Trường & Nhu Cầu
+              </h4>
+              {detail.urgencyScore > 0 && (
+                <Tag color="orange" style={{ fontWeight: 700 }}>
+                  Điểm AI: {detail.urgencyScore}
+                </Tag>
+              )}
             </div>
 
-            <div className="rc-op-item">
-              <label>Tên Đội Cứu Hộ</label>
-
-              <p> {detail.team}</p>
+            <div className="rc-info-grid">
+              <div className="rc-info-cell">
+                <span className="rc-info-label">Dụng cụ cứu hộ có sẵn</span>
+                <span className="rc-info-value">{detail.availableRescueTool || "Không có"}</span>
+              </div>
+              <div className="rc-info-cell">
+                <span className="rc-info-label">Nhu cầu khẩn cấp</span>
+                <span className="rc-info-value">{detail.specialNeeds || "Cứu hộ cơ bản"}</span>
+              </div>
             </div>
 
-            <div className="rc-op-item">
-              <label>Tên Phương Tiện</label>
-
-              <p> {detail.vehicle}</p>
+            <span className="rc-info-label" style={{ marginTop: 8, marginBottom: 4 }}>Chi tiết từ hiện trường</span>
+            <div style={{ background: "#f0f9ff", borderLeft: "4px solid #0284c7", padding: "12px 14px", borderRadius: "0 10px 10px 0", fontSize: 13, fontStyle: "italic", color: "#1e293b" }}>
+              "{detail.detailDescription || "Không có mô tả chi tiết."}"
             </div>
-          </section>
-          <section className="card">
-            <h4 className="card-title">3. TÌNH TRẠNG KHẨN CẤP</h4>
+          </div>
 
-            <p className="quote">{detail.detailDescription}</p>
-          </section>
-          
-          <section className="card">
-
-<h4 className="card-title">
-  4. ĐIỂM ĐÁNH GIÁ MỨC ĐỘ
-</h4>
-
-
-
-<label>ĐIỂM MỨC ĐỘ</label>
-
-<p>{detail.urgencyScore}</p>
-
-</section>
-          {/* MAP */}
-
-          <section className="rc-op-card">
-            <h4 className="card-title">
-              5. VỊ TRÍ HIỆN TẠI
-              <span className="rc-online">● TRỰC TUYẾN</span>
-            </h4>
+          {/* GPS REALTIME MAP */}
+          <div className="rc-card">
+            <div className="rc-card__header">
+              <h4 className="rc-card__title">
+                <EnvironmentOutlined className="rc-card__icon" />
+                Bản Đồ GPS Vị Trí Cứu Hộ
+              </h4>
+              <Tag color="green">Vệ Tinh</Tag>
+            </div>
 
             <div className="rc-map-mini">
               <iframe
-                title="team-map"
+                title="map-operation"
                 src={`https://www.google.com/maps?q=${location.lat},${location.lng}&z=15&output=embed`}
-                loading="lazy"
               />
             </div>
-          </section>
+          </div>
         </div>
 
+        {/* RIGHT COLUMN */}
         <div className="rc-op-col">
-          <section className="rc-op-card">
-            <div className="rc-card-header">
-              <h4 className="card-title">6. HÌNH ẢNH TỪ HIỆN TRƯỜNG</h4>
+          {/* ASSIGNED FORCE */}
+          <div className="rc-card">
+            <div className="rc-card__header">
+              <h4 className="rc-card__title">
+                <TeamOutlined className="rc-card__icon" />
+                Lực Lượng & Phương Tiện Tác Chiến
+              </h4>
             </div>
 
-            <div className="rc-images">
-              {images.length === 0 && (
-                <div className="rc-image">Không có hình ảnh</div>
-              )}
+            <div className="rc-team-highlight">
+              <div className="rc-team-icon-wrap">
+                <TeamOutlined />
+              </div>
+              <div className="rc-team-meta">
+                <h4>{detail.team}</h4>
+                <p>Mã đội tác chiến: #{detail.rescueTeamId}</p>
+              </div>
+            </div>
 
-              {images.length > 0 && (
+            <div className="rc-info-grid">
+              <div className="rc-info-cell">
+                <span className="rc-info-label">Phương tiện điều động</span>
+                <span className="rc-info-value">
+                  <CarOutlined style={{ marginRight: 6, color: "#0284c7" }} />
+                  {detail.vehicle}
+                </span>
+              </div>
+              <div className="rc-info-cell">
+                <span className="rc-info-label">Trạng thái tác chiến</span>
+                <span className="rc-info-value" style={{ color: "#10b981" }}>
+                  ● Đang kết nối trực tiếp
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* SCENE IMAGES */}
+          <div className="rc-card">
+            <div className="rc-card__header">
+              <h4 className="rc-card__title">
+                <PictureOutlined className="rc-card__icon" />
+                Hình Ảnh Hiện Trường
+              </h4>
+              <span style={{ fontSize: 12, color: "#64748b", fontWeight: 600 }}>
+                {images.length} ảnh
+              </span>
+            </div>
+
+            {images.length > 0 ? (
+              <div className="rc-images-grid">
                 <Image.PreviewGroup>
                   {images.map((img, i) => (
-                    <Image
-                      key={i}
-                      src={img}
-                      alt="rescue"
-                      className="rc-image"
-                     
-                    />
+                    <div className="rc-image-thumb" key={i}>
+                      <Image
+                        src={img}
+                        fallback={FALLBACK_RESCUE_IMAGE}
+                        alt={`operation-${i}`}
+                        preview={{ mask: "Xem lớn" }}
+                        referrerPolicy="no-referrer"
+                      />
+                    </div>
                   ))}
                 </Image.PreviewGroup>
-              )}
-            </div>
-          </section>
-    
-          <section className="card">
-            <h4 className="card-title">7. NGUỒN LỰC</h4>
-
-            <div className="resource-grid">
-              <div className="resource-item">
-                <label>SỐ NGƯỜI GẶP NẠN</label>
-                <p>{detail.victimCount}</p>
               </div>
-
-              <div className="resource-item">
-                <label>DỤNG CỤ CỨU HỘ</label>
-                <p>{detail.availableRescueTool}</p>
+            ) : (
+              <div style={{ padding: 24, textAlign: "center", color: "#94a3b8", fontSize: 13, background: "#f8fafc", borderRadius: 10 }}>
+                Chưa có ảnh tải lên từ hiện trường
               </div>
-            </div>
-
-            <label>NHU CẦU ĐẶC BIỆT</label>
-
-            <p>{detail.specialNeeds}</p>
-
-            <label>GHI CHÚ CHO ĐỘI CỨU HỘ</label>
-
-            <p>{detail.rescueTeamNote || "Không có"}</p>
-          </section>
-          {isRejected && (
-            <section className="card">
-              <h4 className="card-title">8. LÝ DO TỪ CHỐI</h4>
-
-              <p className="quote">{detail.rejectReason || "Không có lý do"}</p>
-            </section>
-          )}
+            )}
+          </div>
         </div>
       </div>
     </section>

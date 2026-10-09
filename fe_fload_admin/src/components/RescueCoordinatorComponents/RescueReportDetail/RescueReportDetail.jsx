@@ -1,5 +1,18 @@
 import { useEffect, useState } from "react";
-import { Image, Tag } from "antd";
+import { Image, Tag, Spin } from "antd";
+import {
+  UserOutlined,
+  TeamOutlined,
+  CarOutlined,
+  EnvironmentOutlined,
+  PictureOutlined,
+  ClockCircleOutlined,
+  CheckCircleOutlined,
+  SafetyCertificateOutlined,
+  AlertOutlined,
+  FileDoneOutlined,
+  CheckCircleFilled,
+} from "@ant-design/icons";
 
 import {
   getRescueProgress,
@@ -7,9 +20,8 @@ import {
   getRescueTeamMembers,
 } from "../../../../api/axios/CoordinatorApi/RescueRequestApi";
 import verifyIcon from "../../../assets/verifire.svg";
+import { extractImageUrls, FALLBACK_RESCUE_IMAGE } from "../../../utils/imageUtils";
 import "./RescueReportDetail.css";
-
-const IMAGE_BASE = (import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || "https://bebaolu.onrender.com").replace(/\/$/, "");
 
 const getUrgencyColor = (id) => {
   const colors = [
@@ -24,36 +36,19 @@ const getUrgencyColor = (id) => {
     "magenta",
     "volcano",
   ];
-
   return colors[(id - 1) % colors.length] || "default";
-};
-const thStyle = {
-  padding: "8px",
-  border: "1px solid #eee",
-  textAlign: "left",
-  fontWeight: 600,
-  fontSize: 14,
-  background: "#fafafa",
-};
-
-const tdStyle = {
-  padding: "8px",
-  border: "1px solid #eee",
-  fontSize: 14,
 };
 
 export default function RescueReportDetail({ mission }) {
   const [data, setData] = useState(null);
   const [urgencyLevels, setUrgencyLevels] = useState([]);
   const [teamMembers, setTeamMembers] = useState([]);
-
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   const requestId = mission?.id;
 
   /* ================= LOAD PROGRESS ================= */
-
   useEffect(() => {
     if (!requestId) return;
 
@@ -66,8 +61,6 @@ export default function RescueReportDetail({ mission }) {
           getRescueProgress(requestId),
           getUrgencyLevels(),
         ]);
-
-        console.log("PROGRESS:", progressRes);
 
         setData(progressRes);
 
@@ -90,18 +83,13 @@ export default function RescueReportDetail({ mission }) {
   }, [requestId]);
 
   /* ================= LOAD TEAM MEMBERS ================= */
-
   useEffect(() => {
     const teamId = data?.assignment?.rescueTeam?.rescueTeamId;
-
     if (!teamId) return;
 
     const fetchMembers = async () => {
       try {
         const res = await getRescueTeamMembers(teamId);
-
-        console.log("TEAM API:", res);
-
         const list = Array.isArray(res)
           ? res
           : Array.isArray(res?.data)
@@ -109,7 +97,6 @@ export default function RescueReportDetail({ mission }) {
           : Array.isArray(res?.data?.items)
           ? res.data.items
           : [];
-
         setTeamMembers(list);
       } catch (err) {
         console.error("LOAD TEAM MEMBERS ERROR:", err);
@@ -119,42 +106,36 @@ export default function RescueReportDetail({ mission }) {
     fetchMembers();
   }, [data]);
 
-  /* ================= GUARD ================= */
-
   if (!mission) {
     return (
-      <div
-        style={{
-          height: "100%",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          fontSize: 22,
-          fontWeight: 600,
-          color: "#555",
-        }}
-      >
-        Chọn nhiệm vụ bên trái
+      <div style={{ textAlign: "center", padding: 60, color: "#64748b" }}>
+        <FileDoneOutlined style={{ fontSize: 44, color: "#cbd5e1", marginBottom: 12 }} />
+        <h3 style={{ fontSize: 18, color: "#0f172a" }}>Hồ Sơ Nghiệm Thu Cứu Hộ</h3>
+        <p>Vui lòng chọn một hồ sơ từ danh sách bên trái để kiểm tra chi tiết kết quả tác chiến.</p>
       </div>
     );
   }
 
   if (loading) {
-    return <div className="rc-empty-center">Đang tải dữ liệu...</div>;
+    return (
+      <div style={{ textAlign: "center", padding: 60, color: "#64748b" }}>
+        <Spin size="large" />
+        <p style={{ marginTop: 16 }}>Đang trích xuất dữ liệu nghiệm thu...</p>
+      </div>
+    );
   }
 
-  if (error) {
-    return <div className="rc-empty-center">Lỗi: {error}</div>;
-  }
-
-  if (!data) {
-    return null;
+  if (error || !data) {
+    return (
+      <div style={{ textAlign: "center", padding: 60, color: "#ef4444" }}>
+        <p>Lỗi tải báo cáo: {error || "Không có dữ liệu tiến độ"}</p>
+      </div>
+    );
   }
 
   const formatTime = (date) => {
     if (!date) return "--";
-    const d = new Date(date);
-    return d.toLocaleTimeString("vi-VN", {
+    return new Date(date).toLocaleTimeString("vi-VN", {
       hour: "2-digit",
       minute: "2-digit",
     });
@@ -167,25 +148,14 @@ export default function RescueReportDetail({ mission }) {
 
   const calcDuration = (start, end) => {
     if (!start || !end) return "--";
-
     const diff = new Date(end) - new Date(start);
-
     const h = Math.floor(diff / 3600000);
     const m = Math.floor((diff % 3600000) / 60000);
-    const s = Math.floor((diff % 60000) / 1000);
-
-    return `${String(h).padStart(2, "0")}:${String(m).padStart(
-      2,
-      "0"
-    )}:${String(s).padStart(2, "0")}`;
+    return `${h} giờ ${m} phút`;
   };
 
-  /* ================= DATA ================= */
-
-  const request = data.rescueRequest;
-  const assignment = data.assignment;
-
-  /* ================= SLA ================= */
+  const request = data.rescueRequest || {};
+  const assignment = data.assignment || {};
 
   const getDurationMinutes = (start, end) => {
     if (!start || !end) return null;
@@ -197,466 +167,298 @@ export default function RescueReportDetail({ mission }) {
     assignment?.completedAt
   );
 
-  /* ✅ urgency PHẢI nằm trước isOnTime */
   const urgency = urgencyLevels.find(
     (u) => u.urgencyLevelId === request?.urgencyLevelId
   );
 
-  /* ✅ trạng thái */
   const isRejected = data.currentProgressCode === "REQUEST_REJECTED";
-
-  /* ✅ SLA check */
   const isOnTime =
     actualMinutes !== null &&
     urgency?.slaMinutes &&
     actualMinutes <= urgency.slaMinutes;
-  /* ================= IMAGE ================= */
 
-  const images = [];
+  const normalizedImages = extractImageUrls(request);
 
-  if (Array.isArray(request?.imageUrls)) {
-    images.push(...request.imageUrls);
-  }
-  
-  if (Array.isArray(request?.images)) {
-    images.push(...request.images);
-  }
-  
-  if (request?.locationImageUrl) {
-    if (typeof request.locationImageUrl === "string") {
-      images.push(...request.locationImageUrl.split(","));
-    } else if (Array.isArray(request.locationImageUrl)) {
-      images.push(...request.locationImageUrl);
-    }
-  }
-  
-  // normalize + clean + dedupe
-  const normalizedImages = [...new Set(
-    images
-      .map(i => i?.trim())
-      .filter(Boolean)
-      .map(i => {
-        if (i.includes("api-rescue.purintech.id.vn")) {
-          return i.replace("https://api-rescue.purintech.id.vn", IMAGE_BASE);
-        }
-        return i.startsWith("http")
-          ? i
-          : `${IMAGE_BASE}${i.startsWith("/") ? "" : "/"}${i}`;
-      })
-  )];
   const formatSLA = (minutes) => {
     if (!minutes) return "--";
-
     const h = Math.floor(minutes / 60);
     const m = minutes % 60;
-
     if (h === 0) return `${m} phút`;
     if (m === 0) return `${h} giờ`;
-
-    return `${h} giờ ${m} phút`;
+    return `${h}g ${m}p`;
   };
-  /* ================= UI ================= */
 
   return (
-    <section className="rc-md">
+    <section className="rc-rpt-detail">
       {/* HEADER */}
-      <header className="rc-md__header">
-        <div>
-          <h2>Mã yêu cầu: #{request?.rescueRequestId}</h2>
-
-          <p>{new Date(request.createdAt).toLocaleString()}</p>
-
-          <Tag
-            color={
-              data.currentProgressCode === "COMPLETED"
-                ? "green"
-                : data.currentProgressCode === "REQUEST_REJECTED"
-                ? "red"
-                : "blue"
-            }
-          >
-            {data.currentProgressLabel}
-          </Tag>
+      <header className="rc-rpt-detail__header">
+        <div className="rc-rpt-detail__title-wrap">
+          <h2>
+            Báo Cáo Nghiệm Thu Cứu Hộ #{request?.rescueRequestId}
+            <Tag
+              color={
+                data.currentProgressCode === "COMPLETED"
+                  ? "green"
+                  : isRejected
+                  ? "red"
+                  : "blue"
+              }
+              style={{ fontSize: 12, padding: "2px 10px", borderRadius: 6, fontWeight: 700 }}
+            >
+              {data.currentProgressLabel || (isRejected ? "Đã từ chối" : "Đã hoàn thành")}
+            </Tag>
+          </h2>
+          <div className="rc-rpt-detail__meta">
+            <span>Tiếp nhận: {new Date(request.createdAt).toLocaleString("vi-VN")}</span>
+            <span>•</span>
+            <span>Cấp độ: <strong>{urgency?.levelName || "Khẩn cấp"}</strong></span>
+          </div>
         </div>
-        <Tag color={getUrgencyColor(urgency?.urgencyLevelId)}>
-          {urgency?.levelName || "Không xác định"}
+
+        <Tag color={getUrgencyColor(urgency?.urgencyLevelId)} style={{ padding: "4px 12px", borderRadius: 8, fontSize: 13, fontWeight: 700 }}>
+          {urgency?.levelName || "Khẩn cấp"}
         </Tag>
       </header>
-      <div className="rc-summary">
-        {/* START */}
-        <div className="rc-box">
-          <p className="label">THỜI GIAN BẮT ĐẦU</p>
-          <h3>{formatTime(request.createdAt)}</h3>
-          <span>{formatDate(request.createdAt)}</span>
+
+      {/* KPI METRIC CARDS */}
+      <div className="rc-rpt-stats">
+        <div className="rc-stat-box">
+          <span className="rc-stat-label">Thời gian bắt đầu</span>
+          <span className="rc-stat-value">{formatTime(request.createdAt)}</span>
+          <span className="rc-stat-sub">{formatDate(request.createdAt)}</span>
         </div>
 
-        {/* END */}
-        <div className="rc-box">
-          <p className="label">THỜI GIAN KẾT THÚC</p>
-          <h3>{formatTime(assignment?.completedAt)}</h3>
-          <span>{formatDate(assignment?.completedAt)}</span>
+        <div className="rc-stat-box success">
+          <span className="rc-stat-label">Thời gian hoàn thành</span>
+          <span className="rc-stat-value">{formatTime(assignment?.completedAt)}</span>
+          <span className="rc-stat-sub">{formatDate(assignment?.completedAt)}</span>
         </div>
 
-        {/* PEOPLE */}
-        <div className="rc-box">
-          <p className="label">SỐ NGƯỜI ĐƯỢC CỨU</p>
-
-          <h3 style={{ color: "#0ea5a4" }}>
-            {isRejected ? "--" : request.victimCount}
-          </h3>
-
-          <span>{isRejected ? "" : "nạn nhân"}</span>
+        <div className="rc-stat-box warning">
+          <span className="rc-stat-label">Số người cứu nạn</span>
+          <span className="rc-stat-value" style={{ color: "#d97706" }}>
+            {isRejected ? "--" : `${request.victimCount || 0} người`}
+          </span>
+          <span className="rc-stat-sub">An toàn tại hiện trường</span>
         </div>
 
-        {/* DURATION */}
-        <div className="rc-box">
-          <p className="label">TỔNG THỜI LƯỢNG</p>
-
-          <h3>
+        <div className={`rc-stat-box ${isOnTime ? "success" : "danger"}`}>
+          <span className="rc-stat-label">Tổng thời lượng & SLA</span>
+          <span className="rc-stat-value" style={{ fontSize: 20 }}>
             {assignment?.completedAt
               ? calcDuration(request.createdAt, assignment.completedAt)
               : "--"}
-          </h3>
-
-          {/* 👉 CHỈ HIỆN KHI ĐÃ HOÀN THÀNH */}
-          {assignment?.completedAt && (
-            <>
-              <span
-                style={{
-                  color: isOnTime ? "green" : "red",
-                }}
-              >
-                {isOnTime ? "ĐÚNG TIẾN ĐỘ" : "TRỄ TIẾN ĐỘ"}
-              </span>
-
-              <span style={{ fontSize: 12, color: "#999" }}>
-                SLA: {formatSLA(urgency?.slaMinutes)}
-              </span>
-            </>
-          )}
+          </span>
+          <span className="rc-stat-sub" style={{ color: isOnTime ? "#10b981" : "#ef4444", fontWeight: 700 }}>
+            {isOnTime ? "● ĐÚNG TIẾN ĐỘ" : "● TRỄ TIẾN ĐỘ"} (SLA: {formatSLA(urgency?.slaMinutes)})
+          </span>
         </div>
       </div>
 
-      <div className="divider" />
+      {/* GRID CONTENT */}
+      <div className="rc-rpt-grid">
+        {/* LEFT COLUMN */}
+        <div className="rc-rpt-col">
+          {/* SENDER INFO */}
+          <div className="rc-card">
+            <div className="rc-card__header">
+              <h4 className="rc-card__title">
+                <UserOutlined className="rc-card__icon" />
+                Thông Tin Người Gặp Nạn
+              </h4>
+            </div>
 
-      <div className="detail-grid rc-md__content">
-        {/* LEFT */}
-        <div className="left-col">
-          <section className="card">
-            <h4 className="card-title">1. THÔNG TIN NGƯỜI GỬI</h4>
-            <p>
-              <b>Họ tên:</b> {request.fullName}
-            </p>
-            <p>
-              <b>SĐT:</b> {request.contactPhone}
-            </p>
-
-            <p>
-              <b>Địa chỉ:</b> {request.address}
-            </p>
-          </section>
-          <section className="card">
-
-<h4 className="card-title">
-  2. ĐIỂM ĐÁNH GIÁ MỨC ĐỘ
-</h4>
-
-
-
-<label>ĐIỂM MỨC ĐỘ</label>
-
-<p>{request.urgencyScore}</p>
-
-</section>
-          <section className="card">
-            <h4 className="card-title">3. LOẠI YÊU CẦU</h4>
-            <p>
-              <b>Loại yêu cầu:</b> {request.requestType}
-            </p>
-          </section>
-          <section className="card">
-            <h4 className="card-title">4. MÔ TẢ CHI TIẾT</h4>
-            <p>{request.detailDescription}</p>
-          </section>
-
-          <section className="card">
-            <h4 className="card-title">5. NGUỒN LỰC</h4>
-
-            <div className="resource-grid">
-              <div className="resource-item">
-                <label>SỐ NGƯỜI GẶP NẠN</label>
-                <p>{request.victimCount}</p>
+            <div className="rc-info-grid">
+              <div className="rc-info-cell">
+                <span className="rc-info-label">Họ và tên</span>
+                <span className="rc-info-value">{request.fullName}</span>
               </div>
-
-              <div className="resource-item">
-                <label>DỤNG CỤ CỨU HỘ</label>
-                <p>{request.availableRescueTool}</p>
+              <div className="rc-info-cell">
+                <span className="rc-info-label">Số điện thoại</span>
+                <span className="rc-info-value" style={{ color: "#0284c7" }}>
+                  {request.contactPhone}
+                </span>
+              </div>
+              <div className="rc-info-cell">
+                <span className="rc-info-label">Loại sự cố</span>
+                <span className="rc-info-value">{request.requestType}</span>
               </div>
             </div>
 
-            <label>NHU CẦU ĐẶC BIỆT</label>
+            <span className="rc-info-label" style={{ marginBottom: 4 }}>Vị trí địa bàn</span>
+            <div style={{ background: "#f8fafc", padding: "10px 14px", borderRadius: 10, border: "1px solid #e2e8f0", fontSize: 13, color: "#334155" }}>
+              <EnvironmentOutlined style={{ color: "#ef4444", marginRight: 6 }} />
+              {request.address}
+            </div>
+          </div>
 
-            <p>{request.specialNeeds}</p>
+          {/* INCIDENT DETAILS */}
+          <div className="rc-card">
+            <div className="rc-card__header">
+              <h4 className="rc-card__title">
+                <AlertOutlined className="rc-card__icon" />
+                Mô Tả Hiện Trường & Nguồn Lực
+              </h4>
+              {request.urgencyScore > 0 && (
+                <Tag color="orange" style={{ fontWeight: 700 }}>
+                  Điểm AI: {request.urgencyScore}
+                </Tag>
+              )}
+            </div>
 
-            <label>GHI CHÚ CHO ĐỘI CỨU HỘ</label>
+            <div className="rc-info-grid">
+              <div className="rc-info-cell">
+                <span className="rc-info-label">Dụng cụ có sẵn</span>
+                <span className="rc-info-value">{request.availableRescueTool || "Không có"}</span>
+              </div>
+              <div className="rc-info-cell">
+                <span className="rc-info-label">Nhu cầu đặc biệt</span>
+                <span className="rc-info-value">{request.specialNeeds || "Cơ bản"}</span>
+              </div>
+            </div>
 
-            <p>{request.rescueTeamNote || "Không có"}</p>
-          </section>
+            <span className="rc-info-label" style={{ marginTop: 8, marginBottom: 4 }}>Chi tiết từ người dân</span>
+            <div style={{ background: "#f0f9ff", borderLeft: "4px solid #0284c7", padding: "12px 14px", borderRadius: "0 10px 10px 0", fontSize: 13, fontStyle: "italic", color: "#1e293b" }}>
+              "{request.detailDescription || "Không có mô tả thêm."}"
+            </div>
+          </div>
 
-          {/* IMAGE */}
-          <section className="card">
-            <h4 className="card-title">6. HÌNH ẢNH THỰC TẾ</h4>
+          {/* SCENE IMAGES */}
+          <div className="rc-card">
+            <div className="rc-card__header">
+              <h4 className="rc-card__title">
+                <PictureOutlined className="rc-card__icon" />
+                Hình Ảnh Nghiệm Thu Thực Tế
+              </h4>
+              <span style={{ fontSize: 12, color: "#64748b", fontWeight: 600 }}>
+                {normalizedImages.length} ảnh
+              </span>
+            </div>
 
             {normalizedImages.length > 0 ? (
-  <Image.PreviewGroup>
-    <div className="rc-image-grid">
-      {normalizedImages.map((img, i) => (
-        <div key={i} className="rc-image-item">
-          <Image
-            src={img}
-            alt="rescue"
-            // preview={false}
-          />
-        </div>
-      ))}
-    </div>
-  </Image.PreviewGroup>
-) : (
-  <p>Không có hình ảnh</p>
-)}
-          </section>
-       
-        </div>
-
-        {/* RIGHT */}
-        <div className="right-col">
-        <section className="rc-op-card">
-            <h4 className="card-title">
-              7. VỊ TRÍ HIỆN TẠI
-              <span className="rc-online">● TRỰC TUYẾN</span>
-            </h4>
-
-            <div className="rc-map-mini">
-              <iframe
-                title="map"
-                width="100%"
-                height="250"
-                src={`https://www.google.com/maps?q=${request.locationLat},${request.locationLng}&z=13&output=embed`}
-              />
-            </div>
-          </section>
-          {/* TEAM */}
-          <section className="card">
-            <h4 className="card-title">8. ĐỘI CỨU HỘ</h4>
-            <p>
-              <b>Tên:</b> {assignment?.rescueTeam?.teamName}
-            </p>
-            <p>
-              <b>SĐT:</b> {assignment?.rescueTeam?.contactPhone}
-            </p>
-            <p>
-              <b>Khu vực:</b> {assignment?.rescueTeam?.areaName}
-            </p>
-          </section>
-
-          {/* MEMBERS */}
-          <section className="card">
-            <h4 className="card-title">9. THÀNH VIÊN CỨU HỘ</h4>
-
-            {!Array.isArray(teamMembers) || teamMembers.length === 0 ? (
-              <p>Không có thành viên</p>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(110px, 1fr))", gap: 10 }}>
+                <Image.PreviewGroup>
+                  {normalizedImages.map((img, i) => (
+                    <div key={i} style={{ borderRadius: 10, overflow: "hidden", border: "1px solid #e2e8f0", aspectRatio: "4/3" }}>
+                      <Image
+                        src={img}
+                        alt={`rescue-report-${i + 1}`}
+                        fallback={FALLBACK_RESCUE_IMAGE}
+                        preview={{ mask: "Xem lớn" }}
+                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                      />
+                    </div>
+                  ))}
+                </Image.PreviewGroup>
+              </div>
             ) : (
-              <div style={{ overflowX: "auto" }}>
-                <table
-                  style={{
-                    width: "100%",
-                    borderCollapse: "collapse",
-                    marginTop: 10,
-                  }}
-                >
-                  <thead>
-                    <tr style={{ background: "#fafafa" }}>
-                      <th style={thStyle}>STT</th>
-                      <th style={thStyle}>Tên</th>
-                      <th style={thStyle}>SĐT</th>
+              <div style={{ padding: 24, textAlign: "center", color: "#94a3b8", fontSize: 13, background: "#f8fafc", borderRadius: 10 }}>
+                Chưa có ảnh nghiệm thu
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* RIGHT COLUMN */}
+        <div className="rc-rpt-col">
+          {/* RESCUE FORCE & VEHICLE */}
+          <div className="rc-card">
+            <div className="rc-card__header">
+              <h4 className="rc-card__title">
+                <TeamOutlined className="rc-card__icon" />
+                Lực Lượng Tham Gia Cứu Hộ
+              </h4>
+            </div>
+
+            <div className="rc-info-grid">
+              <div className="rc-info-cell">
+                <span className="rc-info-label">Đội cứu hộ</span>
+                <span className="rc-info-value">{assignment?.rescueTeam?.teamName || "Chưa rõ"}</span>
+              </div>
+              <div className="rc-info-cell">
+                <span className="rc-info-label">Số liên lạc đội</span>
+                <span className="rc-info-value" style={{ color: "#0284c7" }}>
+                  {assignment?.rescueTeam?.contactPhone || "--"}
+                </span>
+              </div>
+            </div>
+
+            <div className="rc-info-grid">
+              <div className="rc-info-cell">
+                <span className="rc-info-label">Phương tiện điều động</span>
+                <span className="rc-info-value">
+                  <CarOutlined style={{ marginRight: 6, color: "#0284c7" }} />
+                  {assignment?.vehicle?.vehicleName || "Phương tiện cứu hộ"}
+                </span>
+              </div>
+              <div className="rc-info-cell">
+                <span className="rc-info-label">Loại xe / xuồng</span>
+                <span className="rc-info-value">{assignment?.vehicle?.vehicleType || "Chuyên dụng"}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* TEAM MEMBERS TABLE */}
+          <div className="rc-card">
+            <div className="rc-card__header">
+              <h4 className="rc-card__title">
+                <TeamOutlined className="rc-card__icon" />
+                Thành Viên Tác Chiến ({teamMembers.length})
+              </h4>
+            </div>
+
+            {teamMembers.length === 0 ? (
+              <p style={{ color: "#94a3b8", fontSize: 13 }}>Không có danh sách thành viên</p>
+            ) : (
+              <table className="rc-members-table">
+                <thead>
+                  <tr>
+                    <th style={{ width: 50 }}>STT</th>
+                    <th>Họ và tên</th>
+                    <th>Số điện thoại</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {teamMembers.map((m, index) => (
+                    <tr key={index}>
+                      <td style={{ fontWeight: 700, color: "#94a3b8" }}>{index + 1}</td>
+                      <td style={{ fontWeight: 600, color: "#0f172a" }}>{m.fullName || m.name || "—"}</td>
+                      <td style={{ color: "#0284c7", fontFamily: "ui-monospace, monospace" }}>
+                        {m.phone || m.contactPhone || "—"}
+                      </td>
                     </tr>
-                  </thead>
-
-                  <tbody>
-                    {teamMembers.map((m, index) => (
-                      <tr key={index}>
-                        <td style={tdStyle}>{index + 1}</td>
-                        <td style={tdStyle}>{m.fullName || m.name || "—"}</td>
-                        <td style={tdStyle}>
-                          {m.phone || m.contactPhone || "—"}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                  ))}
+                </tbody>
+              </table>
             )}
-          </section>
+          </div>
 
-          {/* VEHICLE */}
-          <section className="card">
-            <h4 className="card-title">10. PHƯƠNG TIỆN</h4>
-            <p>
-              <b>Tên:</b> {assignment?.vehicle?.vehicleName}
-            </p>
-            <p>
-              <b>Loại:</b> {assignment?.vehicle?.vehicleType}
-            </p>
-            <p>
-              <b>Vị trí:</b> {assignment?.vehicle?.vehicleLocation}
-            </p>
-          </section>
-
-          {/* STATUS */}
-          <section className="card">
-            <h4 className="card-title">11. HỆ THỐNG GHI NHẬN</h4>
-
-            <p>
-              <b>Xác minh:</b> {data.isVerified ? "✔️" : "❌"}
-            </p>
-            <p>
-              <b>Đã phân công:</b> {data.isAssigned ? "✔️" : "❌"}
-            </p>
-            <p>
-              <b>Trạng thái:</b> {assignment?.assignmentStatusLabel}
-            </p>
-
-            {assignment?.rejectReason && (
-              <p style={{ color: "red" }}>
-                <b>Lý do từ chối:</b> {assignment.rejectReason}
-              </p>
-            )}
-
-            {assignment?.completedAt && (
-              <p>
-                <b>Hoàn thành:</b>{" "}
-                {new Date(assignment.completedAt).toLocaleString()}
-              </p>
-            )}
-          </section>
-          {data.currentProgressCode !== "REQUEST_REJECTED" && (
-            <section
-              style={{
-                background: "#e6f4f1",
-                borderRadius: 20,
-                padding: 24,
-                border: "1px solid #cde7e3",
-                textAlign: "center",
-              }}
-            >
-              {/* HEADER */}
-              <div style={{ marginBottom: 20 }}>
-                <h3
-                  style={{
-                    margin: 0,
-                    marginTop: 6,
-                    fontWeight: 700,
-                    color: "#2aa39a",
-                    letterSpacing: 1,
-                  }}
-                >
-                  XÁC NHẬN TỪ
-                  <br />
-                  NGƯỜI DÂN
-                </h3>
+          {/* CITIZEN CONFIRMATION CERTIFICATE */}
+          {!isRejected && (
+            <div className="rc-certificate">
+              <div className="rc-cert-header">
+                <h4>Biên Bản Nghiệm Thu & Xác Nhận</h4>
               </div>
 
-              {/* CARD */}
-              <div
-                style={{
-                  background: "#fff",
-                  borderRadius: 18,
-                  padding: 20,
-                  maxWidth: 280,
-                  margin: "0 auto",
-                  boxShadow: "0 6px 16px rgba(0,0,0,0.08)",
-                }}
-              >
-                {/* AVATAR */}
-                <div
-                  style={{
-                    width: 60,
-                    height: 60,
-                    borderRadius: "50%",
-                    background: "#cde7e3",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    margin: "0 auto 10px",
-                  }}
-                >
-                  <span style={{ fontSize: 26 }}>👤</span>
+              <div className="rc-cert-box">
+                <div className="rc-cert-avatar">
+                  <CheckCircleFilled />
                 </div>
-
-                {/* NAME */}
-                <h3 style={{ marginBottom: 6 }}>
-                  Họ và tên: {request.fullName || "--"}
-                </h3>
-
-                {/* NOTE */}
-                <p
-                  style={{
-                    fontStyle: "italic",
-                    color: "#6b7280",
-                    lineHeight: 1.5,
-                    marginBottom: 16,
-                  }}
-                >
-                  Ghi chú: “{request.note || "Đã nhận đủ hỗ trợ và an toàn"}”
+                <h4 className="rc-cert-name">{request.fullName || "Đại diện người dân"}</h4>
+                <p className="rc-cert-quote">
+                  "{request.note || "Đã nhận đầy đủ hỗ trợ và an toàn tại địa điểm tập kết."}"
                 </p>
 
-                {/* ICON CONFIRM */}
-                <div
-                  style={{
-                    margin: "10px 0",
-                    padding: "10px 0",
-                    borderTop: "1px dashed #ddd",
-                    borderBottom: "1px dashed #ddd",
-                    display: "flex",
-                    flexDirection: "column", // 👈 QUAN TRỌNG
-                    alignItems: "center", // 👈 căn giữa
-                    justifyContent: "center",
-                  }}
-                >
-                  <img src={verifyIcon} width={32} />
-
-                  <p style={{ marginTop: 6, fontSize: 14, color: "#2aa39a" }}>
-                    Đã xác nhận
-                  </p>
+                <div className="rc-cert-seal">
+                  <img src={verifyIcon} width={24} alt="verified" />
+                  <span>XÁC THỰC CỨU HỘ HOÀN TẤT</span>
                 </div>
 
-                {/* TIME */}
-                <div
-                  style={{
-                    marginTop: 10,
-                    fontSize: 13,
-                    color: "#2aa39a",
-                  }}
-                >
-                  Xác nhận lúc{" "}
-                  {assignment?.completedAt
-                    ? new Date(assignment.completedAt).toLocaleTimeString(
-                        "vi-VN",
-                        {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        }
-                      )
-                    : "--"}
-                  <br />
-                  {assignment?.completedAt
-                    ? new Date(assignment.completedAt).toLocaleDateString(
-                        "vi-VN"
-                      )
-                    : "--"}
-                </div>
+                <span className="rc-cert-time">
+                  Ký điện tử: {assignment?.completedAt ? new Date(assignment.completedAt).toLocaleString("vi-VN") : "Hôm nay"}
+                </span>
               </div>
-            </section>
+            </div>
           )}
         </div>
       </div>
