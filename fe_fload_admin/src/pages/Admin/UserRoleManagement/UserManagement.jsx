@@ -39,15 +39,23 @@ export default function UserManagement() {
 
     const validUsers = data.filter((u) => u.roleName);
 
-    const mappedUsers = validUsers.map((user) => ({
-      id: user.userId,
-      name: user.fullName,
-      phone: user.phone,
-      role: user.roleName,
-      areaId: user.areaId,
-      status: user.status || "Hoạt động",
-      raw: user,
-    }));
+    const mappedUsers = validUsers.map((user) => {
+      let displayRole = user.roleName;
+      if (user.roleName === "Rescuer" || user.roleName === "RescueTeam") {
+        displayRole = "Rescue Team";
+      } else if (user.roleName === "Coordinator" || user.roleName === "RescueCoordinator") {
+        displayRole = "Rescue Coordinator";
+      }
+      return {
+        id: user.userId,
+        name: user.fullName,
+        phone: user.phone,
+        role: displayRole,
+        areaId: user.areaId,
+        status: user.status || "Hoạt động",
+        raw: user,
+      };
+    });
     
     // 👇 THÊM SORT
     mappedUsers.sort((a, b) => b.id - a.id);
@@ -72,15 +80,25 @@ export default function UserManagement() {
 
       const validUsers = data.filter((u) => u.roleName);
 
-      const mappedUsers = validUsers.map((user) => ({
-        id: user.userId,
-        name: user.fullName,
-        phone: user.phone,
-        role: user.roleName,
-        areaId: user.areaId,
-        status: user.status || "Hoạt động",
-        raw: user,
-      }));
+      const mappedUsers = validUsers.map((user) => {
+        let displayRole = user.roleName;
+        if (user.roleName === "Rescuer" || user.roleName === "RescueTeam") {
+          displayRole = "Rescue Team";
+        } else if (user.roleName === "Coordinator" || user.roleName === "RescueCoordinator") {
+          displayRole = "Rescue Coordinator";
+        }
+        return {
+          id: user.userId,
+          name: user.fullName,
+          phone: user.phone,
+          role: displayRole,
+          areaId: user.areaId,
+          status: user.status || "Hoạt động",
+          raw: user,
+        };
+      });
+
+      mappedUsers.sort((a, b) => b.id - a.id);
 
       setUsers(mappedUsers);
     } catch {
@@ -144,7 +162,17 @@ export default function UserManagement() {
   };
 
   const filteredUsers =
-    roleFilter === "ALL" ? users : users.filter((u) => u.role === roleFilter);
+    roleFilter === "ALL"
+      ? users
+      : users.filter((u) => {
+          if (roleFilter === "RescueTeam" || roleFilter === "Rescue Team") {
+            return u.role === "Rescue Team" || u.role === "RescueTeam" || u.role === "Rescuer";
+          }
+          if (roleFilter === "Coordinator" || roleFilter === "RescueCoordinator" || roleFilter === "Rescue Coordinator") {
+            return u.role === "Rescue Coordinator" || u.role === "Coordinator" || u.role === "RescueCoordinator";
+          }
+          return u.role === roleFilter;
+        });
 
   const handleSubmit = async () => {
     try {
@@ -246,8 +274,12 @@ export default function UserManagement() {
 
   const roleReverseMap = {
     Manager: 2,
-    RescueTeam: 3,
-    Coordinator: 4,
+    "Rescue Coordinator": 3,
+    Coordinator: 3,
+    RescueCoordinator: 3,
+    "Rescue Team": 4,
+    RescueTeam: 4,
+    Rescuer: 4,
   };
 
   const openEditModal = (user) => {
@@ -278,9 +310,9 @@ export default function UserManagement() {
 
   const totalManager = users.filter((u) => u.role === "Manager").length;
 
-  const totalCoordinator = users.filter((u) => u.role === "Coordinator").length;
+  const totalCoordinator = users.filter((u) => u.role === "Rescue Coordinator" || u.role === "Coordinator" || u.role === "RescueCoordinator").length;
 
-  const totalRescue = users.filter((u) => u.role === "RescueTeam").length;
+  const totalRescue = users.filter((u) => u.role === "Rescue Team" || u.role === "RescueTeam" || u.role === "Rescuer").length;
 
   const totalActive = users.length;
 

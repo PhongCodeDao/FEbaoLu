@@ -153,11 +153,17 @@ const menuByRole = {
   ],
 };
 
+// Aliases for role mapping
+menuByRole.rescuer = menuByRole.rescueteam;
+menuByRole.rescue = menuByRole.rescueteam;
+
 const roleMeta = {
   admin: { name: "Quản trị viên", color: "#ef4444" },
   manager: { name: "Điều hành kho & đội", color: "#a855f7" },
   coordinator: { name: "Điều phối viên", color: "#38bdf8" },
   rescueteam: { name: "Đội viên cứu nạn", color: "#22c55e" },
+  rescuer: { name: "Đội viên cứu nạn", color: "#22c55e" },
+  rescue: { name: "Đội viên cứu nạn", color: "#22c55e" },
 };
 
 export default function Sidebar() {
@@ -166,9 +172,10 @@ export default function Sidebar() {
   const [profileOpen, setProfileOpen] = useState(false);
 
   const user = JSON.parse(sessionStorage.getItem("user") || "{}");
-  const role = (sessionStorage.getItem("role") || "admin").toLowerCase();
+  const rawRole = (sessionStorage.getItem("role") || localStorage.getItem("role") || "admin").toLowerCase().trim();
+  const role = (rawRole === "rescuer" || rawRole === "rescue" || rawRole === "rescueteam") ? "rescueteam" : rawRole;
   const currentRoleMeta = roleMeta[role] || { name: role, color: "#3b82f6" };
-  const menus = menuByRole[role] || [];
+  const menus = menuByRole[role] || menuByRole[rawRole] || [];
 
   const [userProfile, setUserProfile] = useState({
     fullName: user.fullName || "Tài khoản",

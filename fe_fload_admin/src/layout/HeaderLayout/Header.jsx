@@ -19,7 +19,8 @@ import { getAllNotifications } from "../../../api/axios/Notifications/notificati
 import "./rc-hd.header.css";
 
 export default function Header() {
-  const role = (sessionStorage.getItem("role") || "admin").toLowerCase();
+  const rawRole = (sessionStorage.getItem("role") || localStorage.getItem("role") || "admin").toLowerCase().trim();
+  const role = (rawRole === "rescuer" || rawRole === "rescue" || rawRole === "rescueteam") ? "rescueteam" : rawRole;
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [serverOnline, setServerOnline] = useState(true);
   const [pingMs, setPingMs] = useState(32);

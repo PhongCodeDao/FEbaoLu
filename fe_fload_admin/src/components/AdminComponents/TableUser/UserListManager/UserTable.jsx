@@ -67,9 +67,15 @@ export default function UserTable({
       case "manager":
         return "gold";
       case "coordinator":
+      case "rescue coordinator":
+      case "rescuecoordinator":
         return "purple";
       case "rescueteam":
+      case "rescue team":
+      case "rescuer":
         return "blue";
+      case "user":
+        return "cyan";
       default:
         return "default";
     }

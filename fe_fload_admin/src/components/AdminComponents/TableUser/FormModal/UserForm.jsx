@@ -10,8 +10,8 @@ import { useEffect, useState } from "react";
 import { getProvinces } from "../../../../../api/axios/Auth/authApi";
 
 const ROLE_OPTIONS = [
-  { label: "Rescue Team", value: 3 },
-  { label: "Rescue Coordinator", value: 4 },
+  { label: "Rescue Team", value: 4 },
+  { label: "Rescue Coordinator", value: 3 },
   { label: "Manager", value: 2 },
 ];
 
