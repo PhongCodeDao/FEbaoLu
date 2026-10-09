@@ -63,6 +63,40 @@ export default function MissionDetail({ mission }) {
     fetchUrgencyLevels();
   }, []);
 
+  /* ================= AUTO SET PRIORITY FROM SYSTEM / DB ================= */
+  useEffect(() => {
+    if (!mission || !urgencyLevels.length) return;
+
+    let targetLevel = null;
+
+    // 1. Hệ thống đã tính urgencyLevelId
+    if (mission.urgencyLevelId) {
+      targetLevel = urgencyLevels.find(
+        (l) => l.urgencyLevelId === mission.urgencyLevelId
+      );
+    }
+
+    // 2. Fallback nếu có điểm AI/thuật toán tính (urgencyScore)
+    if (!targetLevel && mission.urgencyScore !== undefined && mission.urgencyScore !== null) {
+      const score = Number(mission.urgencyScore);
+      if (score >= 80) targetLevel = urgencyLevels[0];
+      else if (score >= 50) targetLevel = urgencyLevels[1];
+      else targetLevel = urgencyLevels[2] || urgencyLevels[0];
+    }
+
+    // 3. Mặc định cấp P1 nếu không có dữ liệu
+    if (!targetLevel && urgencyLevels.length > 0) {
+      targetLevel = urgencyLevels[0];
+    }
+
+    if (targetLevel) {
+      const index = urgencyLevels.indexOf(targetLevel);
+      const code = `P${index + 1}`;
+      setPriority(code);
+      setRecommendedPriority(code);
+    }
+  }, [mission, urgencyLevels]);
+
   const formatSLA = (minutes) => {
     if (!minutes) return "--";
     const h = Math.floor(minutes / 60);
@@ -79,30 +113,36 @@ export default function MissionDetail({ mission }) {
       return;
     }
 
+    const index = parseInt(priority.replace("P", ""), 10) - 1;
+    const selectedLevel = urgencyLevels[index] || urgencyLevels[0];
+    const requestId = mission.id || mission.rescueRequestId;
+
+    if (!requestId) {
+      AuthNotify.error("Thiếu mã yêu cầu", "Không tìm thấy ID của yêu cầu cứu hộ");
+      return;
+    }
+
     try {
       setConfirmLoading(true);
-      const selectedIndex = parseInt(priority.replace("P", ""), 10) - 1;
-      const selectedLevel = urgencyLevels[selectedIndex] || urgencyLevels[0];
 
-      const payload = {
-        rescueRequestId: mission.id || mission.rescueRequestId,
+      await verifyAndDispatchRescueRequest(requestId, {
         urgencyLevelId: selectedLevel?.urgencyLevelId || 1,
-        verificationNote: note,
-      };
+        note: note || "Xác minh yêu cầu cứu hộ",
+      });
 
-      await verifyAndDispatchRescueRequest(payload);
       AuthNotify.success(
         "Xác minh thành công",
         "Yêu cầu đã được xác thực và chuyển vào danh sách chờ điều phối"
       );
+
       navigate("/coordinator/dang", {
-        state: { updatedRequestId: payload.rescueRequestId },
+        state: { mission, priority, updatedRequestId: requestId },
       });
     } catch (error) {
-      console.error(error);
+      console.error("Dispatch error:", error);
       AuthNotify.error(
         "Xác minh thất bại",
-        error?.response?.data?.message || "Vui lòng thử lại"
+        error?.response?.data?.message || error.message || "Vui lòng thử lại"
       );
     } finally {
       setConfirmLoading(false);
@@ -116,15 +156,21 @@ export default function MissionDetail({ mission }) {
       return;
     }
 
+    const requestId = mission?.id || mission?.rescueRequestId;
+    if (!requestId) {
+      AuthNotify.error("Thiếu mã yêu cầu");
+      return;
+    }
+
     try {
       setRejectLoading(true);
-      await rejectRescueRequest(
-        mission.id || mission.rescueRequestId,
-        rejectReason
-      );
+      await rejectRescueRequest(requestId, rejectReason);
       AuthNotify.success("Từ chối yêu cầu thành công");
       setRejectOpen(false);
       navigate("/coordinator");
+      setTimeout(() => {
+        window.location.reload();
+      }, 300);
     } catch (error) {
       console.error(error);
       AuthNotify.error("Từ chối yêu cầu thất bại");
@@ -334,19 +380,29 @@ export default function MissionDetail({ mission }) {
             <div className="rc-card__header">
               <h4 className="rc-card__title">
                 <SafetyCertificateOutlined className="rc-card__icon" />
-                Phân Cấp Khẩn Cấp & SLA
+                Phân Cấp Khẩn Cấp & SLA (Hệ Thống Tính Toán)
               </h4>
             </div>
+
+            {recommendedPriority && (
+              <div className="rc-priority-recommend-banner">
+                <ExclamationCircleFilled style={{ color: "#0284c7", fontSize: 16, marginTop: 2, flexShrink: 0 }} />
+                <div className="rc-priority-recommend-text">
+                  <strong>Hệ thống tự động đề xuất mức {recommendedPriority}:</strong> Phân tích dựa trên thuật toán khẩn cấp (số nạn nhân: {victimCount} người, nhu cầu đặc biệt và tình trạng mô tả). Coordinator có thể giữ nguyên đề xuất hoặc linh hoạt điều chỉnh sau khi xác minh thực địa.
+                </div>
+              </div>
+            )}
 
             <div className="rc-priority-list">
               {urgencyLevels.map((level, index) => {
                 const priorityCode = `P${index + 1}`;
                 const isActive = priority === priorityCode;
+                const isRecommended = recommendedPriority === priorityCode;
 
                 return (
                   <div
                     key={level.urgencyLevelId}
-                    className={`rc-priority-card ${isActive ? "is-active" : ""}`}
+                    className={`rc-priority-card ${isActive ? "is-active" : ""} ${isRecommended ? "is-recommended" : ""}`}
                     onClick={() => setPriority(priorityCode)}
                   >
                     <div className="rc-priority-radio" />
@@ -354,6 +410,11 @@ export default function MissionDetail({ mission }) {
                       <div className="rc-priority-name-row">
                         <span className="rc-priority-name">
                           {priorityCode} - {level.levelName}
+                          {isRecommended && (
+                            <Tag color="cyan" style={{ marginLeft: 8, borderRadius: 6, fontWeight: 700 }}>
+                              Hệ thống đề xuất
+                            </Tag>
+                          )}
                         </span>
                         <span className="rc-priority-sla">
                           SLA: {formatSLA(level.slaMinutes)}
