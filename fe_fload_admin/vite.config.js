@@ -18,6 +18,19 @@ export default defineConfig({
       "/api": {
         target: "http://localhost:8080",
         changeOrigin: true,
+        bypass(req) {
+          if (
+            req.url.startsWith("/api/axios") ||
+            req.url.startsWith("/api/firebase") ||
+            req.url.endsWith(".js") ||
+            req.url.endsWith(".jsx") ||
+            req.url.endsWith(".ts") ||
+            req.url.endsWith(".tsx") ||
+            req.headers.accept?.includes("text/javascript")
+          ) {
+            return req.url;
+          }
+        },
       },
       "/upload-api": {
         target: "http://localhost:8080",
