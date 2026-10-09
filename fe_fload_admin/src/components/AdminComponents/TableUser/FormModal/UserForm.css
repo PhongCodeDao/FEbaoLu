@@ -1,0 +1,162 @@
+.userForm {
+  width: 100%;
+}
+
+
+/* CARD */
+.userForm__card {
+
+  background: #ffffff;
+
+  padding: 28px;
+
+  border-radius: 14px;
+
+  border: 1px solid #e5e7eb;
+
+  box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+
+}
+
+
+/* GRID */
+.userForm__grid {
+
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  gap: 20px;
+
+}
+
+
+@media (max-width:768px){
+
+  .userForm__grid {
+
+    grid-template-columns: 1fr;
+
+  }
+
+}
+
+
+/* FIX INPUT */
+.userForm .ant-input-affix-wrapper {
+
+  height: 48px !important;
+
+  border-radius: 10px !important;
+
+}
+
+
+/* FIX INPUT INNER */
+.userForm .ant-input {
+
+  font-size: 15px;
+
+}
+
+
+/* FIX SELECT */
+.userForm .ant-select {
+
+  height: 48px;
+
+}
+
+
+.userForm .ant-select .ant-select-selector {
+
+  height: 48px !important;
+
+  border-radius: 10px !important;
+
+  display: flex;
+
+  align-items: center;
+
+}
+
+
+/* PREFIX ICON */
+.userForm .ant-input-prefix {
+
+  font-size: 16px;
+
+  color: #8c8c8c;
+
+}
+
+
+/* LABEL */
+.userForm .ant-form-item-label > label {
+
+  font-weight: 600;
+
+  font-size: 14px;
+
+}
+
+
+/* FOCUS */
+.userForm .ant-input-affix-wrapper:focus,
+.userForm .ant-input-affix-wrapper-focused {
+
+  border-color: #1677ff !important;
+
+  box-shadow: 0 0 0 3px rgba(22,119,255,0.15);
+
+}
+
+
+.userForm .ant-select-focused .ant-select-selector {
+
+  border-color: #1677ff !important;
+
+  box-shadow: 0 0 0 3px rgba(22,119,255,0.15);
+
+}
+
+
+/* ERROR */
+.userForm .ant-form-item-explain-error {
+
+  font-size: 12px;
+
+}
+
+
+/* HEADER */
+.userForm__header {
+
+  margin-bottom: 18px;
+
+
+}
+.user_backround {
+  background-color: #1677ff;
+  }
+
+.userForm__header h3 {
+
+  margin: 0;
+
+  font-size: 18px;
+
+  font-weight: 700;
+
+}
+
+
+.userForm__header p {
+
+  margin: 0;
+
+  color: #888;
+
+  font-size: 13px;
+
+}

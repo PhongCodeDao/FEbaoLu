@@ -1,0 +1,21 @@
+/* ROOT */
+.rcd-layout {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  height: 100%;
+  background: #f8fafc;
+}
+
+/* LEFT */
+.rcd-layout__sidebar {
+  border-right: 1px solid #e5e7eb;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+/* RIGHT */
+.rcd-layout__main {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}

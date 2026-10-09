@@ -1,0 +1,45 @@
+.supply-page {
+    padding: 20px;
+  }
+  
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+  
+  .header h2 {
+    font-size: 22px;
+    font-weight: 700;
+  }
+  
+  .actions {
+    display: flex;
+    gap: 8px;
+  }
+  
+  /* table */
+  .ant-table {
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  
+  .ant-table-thead > tr > th {
+    background: #f1f5f9;
+    font-weight: 600;
+  }
+  
+  .ant-table-row:hover {
+    cursor: pointer;
+    background: #f9fafb !important;
+  }
+  
+  /* button */
+  .ant-btn-primary {
+    border-radius: 8px;
+  }
+  
+  .ant-btn {
+    border-radius: 6px;
+  }

@@ -1,0 +1,184 @@
+/* ================= SIDEBAR ================= */
+.sidebar-top {
+  padding: 16px;
+  background: #fff;
+  border-bottom: 1px solid #eee;
+  padding-top: 76px;
+}
+
+/* TITLE */
+.history-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 14px;
+}
+
+/* SEARCH */
+.history-input {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.history-input input {
+  height: 40px;
+  border-radius: 12px;
+}
+
+.history-input button {
+  height: 40px;
+  border-radius: 12px;
+}
+
+/* LIST TITLE */
+.history-list-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #9ca3af;
+  margin-bottom: 8px;
+}
+
+/* ================= CARD ================= */
+.history-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 14px 14px 12px 14px;
+  margin-bottom: 12px;
+  border-left: 5px solid;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+  transition: all 0.25s ease;
+}
+
+.history-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 26px rgba(0,0,0,0.08);
+}
+
+/* STATUS COLORS */
+.history-card.green {
+  border-color: #22c55e;
+}
+
+.history-card.orange {
+  border-color: #f97316;
+}
+
+.history-card.red {
+  border-color: #ef4444;
+}
+
+/* ROW */
+.history-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.code {
+  font-size: 12px;
+  color: #374151;
+  background: #f3f4f6;
+  padding: 4px 8px;
+  border-radius: 8px;
+}
+
+/* TIME */
+.time {
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 6px;
+}
+
+/* DESC */
+.desc {
+  font-size: 13px;
+  color: #111827;
+  margin-top: 6px;
+  line-height: 1.5;
+}
+
+.desc b {
+  color: #2563eb;
+  font-weight: 600;
+}
+
+/* PHONE */
+.phone {
+  font-size: 12px;
+  margin-top: 6px;
+  color: #374151;
+  font-weight: 600;
+}
+
+/* ================= ACTION WRAPPER ================= */
+.history-action {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 14px;
+}
+
+/* ================= BASE BUTTON ================= */
+.action-btn {
+  display: flex !important;
+  align-items: center;
+  gap: 6px;
+
+  padding: 6px 12px !important;
+  border-radius: 999px !important;
+
+  font-size: 12px !important;
+  font-weight: 600 !important;
+
+  transition: all 0.25s ease !important;
+}
+
+/* ICON SIZE */
+.action-btn .anticon {
+  font-size: 14px;
+}
+
+/* ================= EDIT ================= */
+.edit-btn {
+  background: linear-gradient(135deg, #3b82f6, #2563eb) !important;
+  color: #fff !important;
+}
+
+.edit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.35);
+  background: linear-gradient(135deg, #2563eb, #1e40af) !important;
+}
+
+/* ================= VIEW ================= */
+.view-btn {
+  background: linear-gradient(135deg, #22c55e, #16a34a) !important;
+  color: #fff !important;
+}
+
+.view-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(22, 163, 74, 0.35);
+  background: linear-gradient(135deg, #16a34a, #15803d) !important;
+}
+
+/* ================= DELETE ================= */
+.delete-btn {
+  background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+  color: #fff !important;
+}
+
+.delete-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(220, 38, 38, 0.35);
+  background: linear-gradient(135deg, #dc2626, #b91c1c) !important;
+}
+.process-btn {
+  color: #13c2c2;
+  font-weight: 500;
+}

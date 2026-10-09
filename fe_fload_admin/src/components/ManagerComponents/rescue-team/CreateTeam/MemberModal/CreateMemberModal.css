@@ -1,0 +1,167 @@
+/* ============================================================
+   CREATE MEMBER MODAL - FIGMA PREMIUM UI
+   ============================================================ */
+
+/* MODAL CONTAINER */
+.create-member-modal .ant-modal-content {
+    border-radius: 20px;
+    padding: 28px 28px 24px 28px;
+    background: linear-gradient(
+      135deg,
+      #ffffff 0%,
+      #f8fbff 100%
+    );
+    box-shadow:
+      0 20px 60px rgba(15, 23, 42, 0.08),
+      0 8px 24px rgba(15, 23, 42, 0.06);
+    overflow: hidden;
+  }
+  
+  /* MODAL HEADER */
+  .create-member-modal .ant-modal-header {
+    background: transparent;
+    border-bottom: none;
+    padding-bottom: 10px;
+  }
+  
+  .create-member-modal .ant-modal-title {
+    font-size: 20px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #1677ff, #3b82f6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  
+  /* FORM SPACING */
+  .create-member-form {
+    margin-top: 12px;
+  }
+  
+  /* LABEL STYLE */
+  .create-member-form .ant-form-item-label > label {
+    font-weight: 600;
+    color: #1f2937;
+    font-size: 14px;
+  }
+  
+  /* INPUT & SELECT BASE */
+  .create-member-form .ant-input,
+  .create-member-form .ant-select-selector {
+    border-radius: 14px !important;
+    height: 48px !important;
+    border: 1px solid #e5e7eb !important;
+    background-color: #ffffff !important;
+    transition: all 0.25s ease;
+    padding-left: 14px !important;
+  }
+  
+  /* PREFIX ICON */
+  .create-member-form .ant-input-prefix {
+    color: #9ca3af;
+    margin-right: 8px;
+  }
+  
+  /* HOVER EFFECT */
+  .create-member-form .ant-input:hover,
+  .create-member-form .ant-select-selector:hover {
+    border-color: #3b82f6 !important;
+    background-color: #f9fbff !important;
+  }
+  
+  /* FOCUS EFFECT */
+  .create-member-form .ant-input:focus,
+  .create-member-form .ant-select-focused .ant-select-selector {
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15) !important;
+    background-color: #ffffff !important;
+  }
+  
+  /* SELECT DROPDOWN */
+  .ant-select-dropdown {
+    border-radius: 14px !important;
+    padding: 6px;
+    box-shadow:
+      0 15px 40px rgba(15, 23, 42, 0.08),
+      0 5px 18px rgba(15, 23, 42, 0.06);
+  }
+  
+  /* DROPDOWN OPTION */
+  .ant-select-item-option {
+    border-radius: 10px;
+    padding: 8px 12px;
+    transition: all 0.2s ease;
+  }
+  
+  .ant-select-item-option-active {
+    background-color: #f0f7ff !important;
+  }
+  
+  .ant-select-item-option-selected {
+    background-color: #e0edff !important;
+    font-weight: 600;
+  }
+  
+  /* BUTTON STYLE */
+  .create-member-btn {
+    height: 52px;
+    border-radius: 16px;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 0.4px;
+    background: linear-gradient(
+      135deg,
+      #1677ff,
+      #3b82f6
+    );
+    border: none;
+    margin-top: 10px;
+    transition: all 0.25s ease;
+    box-shadow: 0 8px 20px rgba(59, 130, 246, 0.25);
+  }
+  
+  /* BUTTON HOVER */
+  .create-member-btn:hover {
+    transform: translateY(-3px);
+    box-shadow:
+      0 12px 30px rgba(59, 130, 246, 0.35);
+  }
+  
+  /* BUTTON ACTIVE */
+  .create-member-btn:active {
+    transform: scale(0.98);
+  }
+  
+  /* ERROR MESSAGE */
+  .create-member-form .ant-form-item-explain-error {
+    font-size: 12px;
+    margin-top: 4px;
+  }
+  
+  /* MODAL ANIMATION */
+  .create-member-modal .ant-modal {
+    animation: fadeInScale 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  @keyframes fadeInScale {
+    from {
+      opacity: 0;
+      transform: scale(0.92) translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+  
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    .create-member-modal .ant-modal-content {
+      padding: 20px;
+      border-radius: 18px;
+    }
+  
+    .create-member-btn {
+      height: 48px;
+      font-size: 15px;
+    }
+  }

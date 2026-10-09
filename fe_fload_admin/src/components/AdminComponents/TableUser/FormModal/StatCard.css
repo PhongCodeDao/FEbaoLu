@@ -1,0 +1,125 @@
+.statCard{
+
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 18px 20px;
+
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+
+  cursor:pointer;
+
+  border:1px solid #ececec;
+
+  transition: all 0.25s ease;
+
+  position:relative;
+
+}
+
+/* hover nâng card */
+
+.statCard:hover{
+
+  transform: translateY(-6px);
+
+  box-shadow:
+  0 8px 22px rgba(0,0,0,0.08);
+
+}
+
+/* active */
+
+.statCard.active{
+
+  border:1px solid transparent;
+
+  box-shadow:
+  0 10px 26px rgba(0,0,0,0.12);
+
+}
+
+/* title */
+
+.statCard__title{
+
+  font-size:14px;
+
+  color:#7a7a7a;
+
+  margin-bottom:6px;
+
+}
+
+/* value */
+
+.statCard__value{
+
+  font-size:28px;
+
+  font-weight:600;
+
+}
+
+/* glow effect */
+
+.statCard::before{
+
+  content:"";
+
+  position:absolute;
+
+  inset:0;
+
+  border-radius:14px;
+
+  opacity:0;
+
+  transition:opacity 0.25s;
+
+}
+
+.statCard:hover::before{
+
+  opacity:0.08;
+
+}
+.statCard.total::before{
+  background:#1677ff;
+}
+
+.statCard.admin::before{
+  background:#ff4d4f;
+}
+
+.statCard.manager::before{
+  background:#faad14;
+}
+
+.statCard.RescueCoordinator::before{
+  background:#722ed1;
+}
+
+.statCard.RescueTeam::before{
+  background:#1677ff;
+}
+.statCard.active.total{
+  box-shadow:0 8px 20px rgba(22,119,255,0.35);
+}
+
+.statCard.active.admin{
+  box-shadow:0 8px 20px rgba(255,77,79,0.35);
+}
+
+.statCard.active.manager{
+  box-shadow:0 8px 20px rgba(250,173,20,0.35);
+}
+
+.statCard.active.RescueCoordinator{
+  box-shadow:0 8px 20px rgba(114,46,209,0.35);
+}
+
+.statCard.active.RescueTeam{
+  box-shadow:0 8px 20px rgba(22,119,255,0.35);
+}

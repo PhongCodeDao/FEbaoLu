@@ -1,0 +1,13 @@
+.emergency-footer {
+    display: flex;
+    justify-content: space-between;
+    padding: 16px 40px;
+    background: white;
+    margin-top: 40px;
+    font-size: 14px;
+  }
+  
+  .emergency-footer span {
+    margin-left: 16px;
+  }
+  

@@ -1,0 +1,62 @@
+/* ============================================================
+   PAGE SHELL – shared layout for Admin & Manager pages
+   ============================================================ */
+
+.page-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  background: #f8fafc;
+}
+
+/* ---- HEADER ---- */
+.page-shell__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 28px;
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+  flex-shrink: 0;
+}
+
+.page-shell__header-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.page-shell__icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.page-shell__title {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0;
+  color: #0f172a;
+  line-height: 1.3;
+}
+
+.page-shell__subtitle {
+  font-size: 13px;
+  color: #64748b;
+  margin: 3px 0 0;
+  line-height: 1.4;
+}
+
+/* ---- BODY ---- */
+.page-shell__body {
+  flex: 1;
+  overflow: auto;
+  padding: 24px 28px;
+  min-height: 0;
+}

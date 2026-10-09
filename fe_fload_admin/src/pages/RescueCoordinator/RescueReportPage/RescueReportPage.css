@@ -1,0 +1,19 @@
+/* RescueReportPage.css */
+.rc-report-page {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    height: 100%;
+    background: #f8fafc;
+  }
+  
+  .rc-report-page__left {
+    border-right: 1px solid #e5e7eb;
+    background: #fff;
+    overflow-y: auto;
+  }
+  
+  .rc-report-page__right {
+    padding: 24px;
+    overflow-y: auto;
+  }
+  

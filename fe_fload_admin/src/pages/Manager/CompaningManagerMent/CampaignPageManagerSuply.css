@@ -1,0 +1,60 @@
+.campaign-page {
+    padding: 24px;
+  }
+  
+  .campaign-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  
+  .campaign-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 16px;
+  }
+  
+  .campaign-card {
+    border-radius: 12px;
+  }
+  
+  .actions {
+    margin-top: 10px;
+    display: flex;
+    gap: 10px;
+  }
+  /* HEADER */
+.campaign-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+/* LEFT */
+.campaign-header .left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* COUNT */
+.count {
+  background: #1677ff;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  margin-bottom: 10px;
+}
+
+/* LINK CLICK */
+.link {
+  color: #1677ff;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.link:hover {
+  text-decoration: underline;
+}

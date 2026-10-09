@@ -1,0 +1,216 @@
+/* ================= LOADING ================= */
+
+.progress-loading {
+  text-align: center;
+  padding: 30px;
+  color: #888;
+}
+
+/* ================= STATUS ================= */
+
+.progress-status {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.progress-status .ant-tag {
+  font-size: 15px;
+  padding: 6px 14px;
+  border-radius: 8px;
+}
+
+/* ================= INFO ================= */
+
+.progress-info {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+.info-block {
+  background: #fafafa;
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 1px solid #eee;
+}
+
+.info-block h4 {
+  margin-bottom: 8px;
+  color: #1677ff;
+}
+
+.info-block p {
+  margin: 4px 0;
+}
+
+/* ================= TIMELINE ================= */
+
+.rescue-progress-timeline {
+  display: flex;
+  align-items: center;
+  justify-content: center; /* 🔥 căn giữa */
+  margin: 30px 0;
+  gap: 10px;
+  overflow-x: auto;
+}
+
+/* STEP */
+.rp-step {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+/* 🔥 FIX khi chỉ có 1 step (reject) */
+.rescue-progress-timeline .rp-step:only-child {
+  flex: unset;
+  justify-content: center;
+}
+
+/* ITEM */
+.rp-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 100px;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+/* ICON */
+.rp-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #eee;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  margin-bottom: 8px;
+  transition: all 0.3s ease;
+}
+
+/* TEXT */
+.rp-text {
+  font-size: 13px;
+  color: #666;
+  font-weight: 500;
+}
+
+/* LINE */
+.rp-line {
+  flex: 1;
+  height: 3px;
+  background: #e5e5e5;
+  margin: 0 6px;
+  transition: all 0.3s ease;
+}
+
+/* ================= DONE ================= */
+
+.rp-item.done .rp-icon {
+  background: #52c41a;
+  color: white;
+}
+
+.rp-item.done .rp-text {
+  color: #52c41a;
+  font-weight: 600;
+}
+
+.rp-line.done {
+  background: #52c41a;
+}
+.card-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 14px;
+  color: #1677ff;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+/* ================= ACTIVE ================= */
+
+.rp-item.active .rp-icon {
+  background: #52c41a;
+  color: white;
+  transform: scale(1.1);
+}
+
+.rp-item.active .rp-text {
+  color: #52c41a;
+  font-weight: 700;
+}
+
+/* ================= REJECTED ================= */
+
+.rp-item.rejected {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  /* background: #fff1f0;
+  border: 1px solid #ff4d4f; */
+  color: #ff4d4f;
+  padding: 18px 24px;
+  /* font-weight: 600;
+  text-align: center;
+
+
+  border-radius: 14px;
+
+  min-width: 180px; */
+}
+
+/* ICON REJECT */
+.rp-item.rejected .rp-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: #ff4d4f;
+  color: white;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 24px;
+  margin-bottom: 8px;
+}
+
+/* HOVER */
+.rp-item.rejected:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(255, 77, 79, 0.25);
+  transition: 0.2s;
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media (max-width: 768px) {
+
+  .rp-text {
+    font-size: 11px;
+  }
+
+  .rp-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+  }
+
+  .rp-item.rejected {
+    min-width: 140px;
+    padding: 14px 16px;
+  }
+
+  .rp-item.rejected .rp-icon {
+    width: 44px;
+    height: 44px;
+    font-size: 20px;
+  }
+
+}

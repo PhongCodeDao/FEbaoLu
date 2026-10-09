@@ -1,0 +1,136 @@
+/* ===== TABLE WRAPPER ===== */
+.dispatch-table {
+    background: linear-gradient(145deg, #13263c, #0d1f31);
+    border-radius: 12px;
+    padding: 12px;
+    color: #fff;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+  }
+  
+  /* ===== HEADER ===== */
+  .table-head {
+    display: grid;
+    grid-template-columns: 100px 140px 1fr 180px;
+    padding: 10px 12px;
+    font-size: 13px;
+    color: #8aa0b6;
+    border-bottom: 1px solid #22384f;
+    font-weight: 500;
+  }
+  
+  /* ===== ROW ===== */
+  .table-row {
+    display: grid;
+    grid-template-columns: 100px 140px 1fr 180px;
+    padding: 12px;
+    border-bottom: 1px solid #1b2e44;
+    align-items: center;
+    transition: all 0.2s ease;
+  }
+  
+  .table-row:hover {
+    background: #162b44;
+  }
+  
+  /* ===== CELL ===== */
+  .cell-id {
+    font-weight: 600;
+    color: #ffffff;
+  }
+  
+  .cell-warehouse {
+    color: #cbd5e1;
+  }
+  
+  .cell-items p {
+    margin: 0;
+    font-size: 12px;
+    color: #d1d9e6;
+    line-height: 1.4;
+  }
+  
+  /* ===== TIME ===== */
+  .confirmed-time {
+    font-size: 12px;
+    color: #22c55e;
+    font-weight: 500;
+  }
+  
+  /* ===== EMPTY ===== */
+  .empty-box {
+    text-align: center;
+    padding: 20px;
+    color: #8aa0b6;
+  }
+  
+  /* ===== FOOTER ===== */
+  .table-footer {
+    display: flex;
+    justify-content: flex-end;
+    padding: 12px 6px 4px;
+  }
+  
+  /* ===== PAGINATION ===== */
+  .pagination {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  /* BUTTON */
+  .pagination button {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: none;
+    background: #1b2e44;
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  /* HOVER */
+  .pagination button:hover:not(:disabled) {
+    background: #2a4a6a;
+  }
+  
+  /* DISABLED */
+  .pagination button:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+  
+  /* TEXT */
+  .pagination span {
+    font-size: 13px;
+    color: #8aa0b6;
+  }
+  
+  /* ===== SCROLL nếu nhiều row ===== */
+  .dispatch-table {
+    max-height: 420px;
+    overflow-y: auto;
+  }
+  
+  /* SCROLLBAR */
+  .dispatch-table::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .dispatch-table::-webkit-scrollbar-thumb {
+    background: #22384f;
+    border-radius: 6px;
+  }
+  
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 768px) {
+    .table-head,
+    .table-row {
+      grid-template-columns: 1fr;
+      gap: 6px;
+    }
+  
+    .table-row {
+      padding: 10px;
+    }
+  }

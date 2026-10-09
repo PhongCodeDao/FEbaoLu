@@ -1,0 +1,393 @@
+/* ===================================================== */
+/* RC – MISSION DETAIL (ISOLATED, NO CONFLICT)           */
+/* ===================================================== */
+
+.rc-md {
+    padding: 24px 28px;
+    background: #f8fafc;
+    min-height: 100%;
+    font-family: "Inter", system-ui, -apple-system, sans-serif;
+  }
+  
+  /* ================= HEADER ================= */
+  .rc-md .detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+  
+  .rc-md .request-title {
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .rc-md .request-meta {
+    margin-top: 6px;
+    color: #64748b;
+    font-size: 14px;
+  }
+  
+  .rc-md .status {
+    background: #e0f2fe;
+    color: #0284c7;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 999px;
+  }
+  
+  .rc-md .call-btn {
+    background: #5bb1c4;
+    color: #fff;
+    border-radius: 14px;
+    height: 44px;
+    padding: 0 20px;
+    font-weight: 600;
+    box-shadow: 0 10px 24px rgba(91, 177, 196, 0.35);
+  }
+  
+  .rc-md .call-btn:hover {
+    background: #49a0b5;
+    color: #fff;
+  }
+  /* HEADER BAR */
+  .rc-md__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  
+    width: 100%;              /* QUAN TRỌNG */
+    padding-bottom: 8px;
+  }
+  
+  /* LEFT BLOCK */
+  .rc-md__header-info {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  
+  /* CALL BUTTON */
+  .rc-md__action-call {
+    margin-left: auto;        /* ÉP NÓ SANG PHẢI TUYỆT ĐỐI */
+  }
+  
+  
+  /* ================= DIVIDER ================= */
+  .rc-md .divider {
+    height: 1px;
+    background: #e5e7eb;
+    margin: 20px 0;
+  }
+  
+  /* ================= GRID ================= */
+  .rc-md .detail-grid {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr; /* GỌN HƠN */
+    gap: 24px;
+    align-items: flex-start;
+  }
+  
+  /* ================= COLUMNS ================= */
+  .rc-md .left-col,
+  .rc-md .right-col {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  /* ================= CARD ================= */
+  .rc-md .card {
+    background: #ffffff;
+    border-radius: 18px;
+    padding: 18px 20px; /* GIẢM padding */
+    box-shadow: 0 8px 28px rgba(15, 23, 42, 0.06);
+  }
+  
+  .rc-md .card-title {
+    margin: 0 0 12px;
+    font-size: 14px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  /* ================= INFO ================= */
+  .rc-md .info-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 12px;
+  }
+  
+  .rc-md label {
+    font-size: 11px;
+    color: #64748b;
+    font-weight: 600;
+  }
+  
+  .rc-md strong {
+    display: block;
+    font-size: 14px;
+    margin-top: 4px;
+  }
+  
+  .rc-md .phone {
+    color: #0ea5e9;
+    font-weight: 700;
+  }
+  
+  /* ================= TEXT ================= */
+  .rc-md .address-text,
+  .rc-md .resource-text {
+    font-size: 14px;
+    line-height: 1.5;
+    color: #334155;
+  }
+  
+  /* ================= QUOTE ================= */
+  .rc-md .quote {
+    font-style: italic;
+    line-height: 1.6;
+    color: #334155;
+    padding-left: 12px;
+    border-left: 3px solid #0ea5e9;
+  }
+  
+  /* ================= MAP ================= */
+  .rc-md .map-card {
+    position: relative;
+    overflow: hidden;
+    border-radius: 18px;
+    height: 240px; /* GIẢM CHIỀU CAO */
+  }
+  
+  .rc-md .map-card iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+  
+  .rc-md .map-link {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background: #ffffff;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  
+  /* ================= RESOURCE ================= */
+  .rc-md .resource-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 12px;
+  }
+  
+  /* ================= IMAGE ================= */
+  .rc-md .image-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* RÕ RÀNG HƠN */
+    gap: 12px;
+  }
+  
+  .rc-md .image-grid img {
+    border-radius: 14px;
+    object-fit: cover;
+    cursor: pointer;
+  }
+  
+  /* ================= PRIORITY ================= */
+  .rc-md .priority {
+    display: flex;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 14px;
+    margin-bottom: 10px;
+  }
+  
+  .rc-md .priority-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 2px solid #94a3b8;
+    margin-top: 4px;
+  }
+  
+  .rc-md .priority.danger {
+    background: #fff1f2;
+  }
+  
+  .rc-md .priority.active {
+    background: #ecfeff;
+    border: 2px solid #22d3ee;
+  }
+  
+  .rc-md .priority.active .priority-dot {
+    background: #22d3ee;
+    border-color: #22d3ee;
+  }
+  
+  .rc-md .priority.normal {
+    background: #f0fdf4;
+  }
+  
+  /* ================= NOTE ================= */
+  .rc-md .ant-input-textarea textarea {
+    border-radius: 14px;
+    padding: 12px;
+  }
+  
+  /* ================= CONFIRM ================= */
+  .rc-md .confirm-btn {
+    background: #5bb1c4;
+    border-radius: 16px;
+    height: 52px;
+    font-size: 15px;
+    font-weight: 700;
+    color: #ffffff;
+  }
+  
+  /* ================= DANGER ================= */
+  .rc-md .danger-text {
+    margin-top: 8px;
+    color: #dc2626;
+    font-weight: 600;
+    text-align: center;
+    cursor: pointer;
+  }
+  /* CLICKABLE */
+  .priority {
+    cursor: pointer;
+    transition: all 0.25s ease;
+  }
+  
+  /* HOVER */
+  .priority:hover {
+    transform: translateY(-2px);
+  }
+  
+  /* ACTIVE STATE */
+  .priority.is-active {
+    border: 2px solid currentColor;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+  }
+  
+  /* DOT ACTIVE */
+  .priority.is-active .priority-dot {
+    background: currentColor;
+    border-color: currentColor;
+  }
+  /* ================= PRIORITY ================= */
+  .rc-priority-card {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  
+  /* ITEM */
+  .rc-priority-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 5px 10px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    border: 2px solid transparent;
+  }
+  
+  /* RADIO CIRCLE */
+  .rc-radio {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 3px solid #94a3b8;
+    flex-shrink: 0;
+  }
+  
+  /* CONTENT */
+  .rc-priority-content strong {
+    font-size: 18px;
+    font-weight: 800;
+  }
+  
+  .rc-priority-content p {
+    margin-top: 4px;
+    font-size: 14px;
+    color: #334155;
+    line-height: 1.4;
+  }
+  
+  /* ===== COLOR THEMES ===== */
+  
+  /* P1 – KHẨN CẤP */
+  .rc-p1 {
+    background: #fff1f2;
+  }
+  
+  .rc-p1.is-active {
+    border-color: #f87171;
+  }
+  
+  .rc-p1.is-active .rc-radio {
+    background: #f87171;
+    border-color: #f87171;
+  }
+  
+  /* P2 – CAO */
+  .rc-p2 {
+    background: #ecfeff;
+  }
+  
+  .rc-p2.is-active {
+    border-color: #38bdf8;
+  }
+  
+  .rc-p2.is-active .rc-radio {
+    background: #38bdf8;
+    border-color: #38bdf8;
+  }
+  
+  /* P3 – THƯỜNG */
+  .rc-p3 {
+    background: #f0fdf4;
+  }
+  
+  .rc-p3.is-active {
+    border-color: #4ade80;
+  }
+  
+  .rc-p3.is-active .rc-radio {
+    background: #4ade80;
+    border-color: #4ade80;
+  }
+    /* ================= SCROLL ISOLATION ================= */
+  /* ================= SCROLL SAFE AREA ================= */
+  .rc-md {
+    padding-bottom: 96px; /* hoặc 120px nếu muốn dư */
+  }
+  
+  
+  /* ẩn scrollbar cho đẹp (optional) */
+  .rc-md::-webkit-scrollbar {
+    width: 0;
+  }
+  
+  
+  /* ================= RESPONSIVE ================= */
+  @media (max-width: 1200px) {
+    .rc-md .detail-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  

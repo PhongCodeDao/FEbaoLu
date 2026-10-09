@@ -1,0 +1,50 @@
+/* ================================================= */
+/* APP LAYOUT – ISOLATED (SAFE FOR ALL PAGES)        */
+/* ================================================= */
+
+/* ===== ROOT ===== */
+.app-layout {
+  height: 100vh;
+  overflow: hidden; /* khóa scroll toàn page */
+  background: #f8fafc;
+}
+
+/* ===== HEADER (chỉ layout, không style header bên trong) ===== */
+.app-layout > header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  z-index: 1000;
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* ===== BODY ===== */
+.app-layout__body {
+  display: flex;
+  height: calc(100vh - 64px);
+  margin-top: 64px; /* chừa chỗ cho header */
+}
+
+/* ===== SIDEBAR ===== */
+.app-layout__body > aside {
+  position: fixed;
+  top: 64px;
+  left: 0;
+  width: 260px;
+  height: calc(100vh - 64px);
+  background: #0f172a;
+  overflow: hidden; /* sidebar KHÔNG scroll */
+}
+
+/* ===== MAIN CONTENT ===== */
+.app-layout__content {
+  margin-left: 260px; /* chừa sidebar */
+  width: calc(100% - 260px);
+  height: calc(100vh - 64px);
+
+  overflow-y: auto; /* CHỈ CONTENT scroll */
+  background: #f8fafc;
+}

@@ -1,0 +1,125 @@
+.tm-table {
+    background: #fff;
+    border-radius: 12px;
+    padding: 16px;
+  }
+  
+  /* HEADER */
+  .tm-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+  
+  .tm-header h3 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+  }
+  
+  .tm-header span {
+    color: #888;
+  }
+  
+  /* TABLE */
+  .tm-table table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .tm-table th {
+    text-align: left;
+    padding: 12px;
+    background: #fafafa;
+    font-weight: 600;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .tm-table td {
+    padding: 12px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  
+  /* ROW HOVER */
+  .tm-table tbody tr:hover {
+    background: #f9f9f9;
+  }
+  
+  /* USER */
+  .tm-user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .tm-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #1677ff;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+  }
+  
+  /* EMPTY */
+  .tm-empty {
+    text-align: center;
+    padding: 20px;
+    color: #888;
+  }
+  
+  /* LOADING */
+  .tm-loading {
+    display: flex;
+    justify-content: center;
+    padding: 40px;
+  }
+  
+  /* PAGINATION */
+  .tm-pagination {
+    margin-top: 16px;
+    text-align: center;
+  }
+  /* ===== DOT ===== */
+.status-dot {
+  position: relative;
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background: #52c41a;
+  border-radius: 50%;
+  margin-right: 6px;
+}
+
+/* ===== BÓNG LAN ===== */
+.status-dot::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: #52c41a;
+  animation: ripple 1.6s infinite;
+}
+
+/* ===== ANIMATION ===== */
+@keyframes ripple {
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  70% {
+    transform: scale(3);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(3);
+    opacity: 0;
+  }
+}

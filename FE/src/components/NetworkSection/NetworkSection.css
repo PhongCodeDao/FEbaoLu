@@ -1,0 +1,209 @@
+/* =========================
+SECTION
+========================= */
+
+.network-section{
+  background: radial-gradient(#1f1f1f 1px, transparent 1px);
+  background-size:20px 20px;
+  background-color:#0b0d10;
+
+  padding:120px 0;
+  color:#fff;
+}
+
+/* =========================
+CONTAINER
+========================= */
+
+.network-container{
+  max-width:1200px;
+  margin:auto;
+
+  display:grid;
+  grid-template-columns:1.1fr 1fr;
+
+  gap:80px;
+  align-items:center;
+}
+
+/* =========================
+LEFT
+========================= */
+
+.network-tag{
+  color:#facc15;
+  font-weight:700;
+  letter-spacing:2px;
+  font-size:14px;
+}
+
+.network-title{
+  font-size:48px;
+  font-weight:900;
+
+  margin:16px 0;
+
+  line-height:1.2;
+}
+
+.network-desc{
+  color:#9ca3af;
+  max-width:520px;
+
+  line-height:1.7;
+}
+
+/* =========================
+FEATURES
+========================= */
+
+.network-features{
+  margin-top:40px;
+
+  display:flex;
+  flex-direction:column;
+  gap:20px;
+}
+
+.feature-item{
+  display:flex;
+  gap:16px;
+
+  background:rgba(255,255,255,0.05);
+
+  padding:18px 22px;
+
+  border-radius:14px;
+
+  border:1px solid rgba(255,255,255,0.08);
+
+  backdrop-filter: blur(4px);
+}
+
+.feature-icon{
+  color:#facc15;
+  font-size:26px;
+  margin-top:4px;
+}
+
+.feature-item h4{
+  font-size:16px;
+  font-weight:800;
+}
+
+.feature-item p{
+  font-size:14px;
+  color:#9ca3af;
+
+  margin-top:4px;
+}
+
+/* =========================
+RIGHT MAP
+========================= */
+
+.map-card{
+  height:420px;
+
+  border-radius:24px;
+
+  overflow:hidden;
+
+  background:#050505;
+
+  border:1px solid rgba(255,255,255,0.08);
+
+  box-shadow:0 20px 50px rgba(0,0,0,0.45);
+
+  position:relative;
+}
+
+/* GOOGLE MAP */
+
+.map-frame{
+  width:100%;
+  height:100%;
+  border:none;
+}
+
+/* =========================
+LIVE STATUS
+========================= */
+
+.live-status{
+  position:absolute;
+
+  top:16px;
+  right:16px;
+
+  background:rgba(5,46,31,0.9);
+
+  padding:10px 14px;
+
+  border-radius:12px;
+
+  display:flex;
+  gap:10px;
+
+  align-items:center;
+
+  border:1px solid #10b981;
+
+  backdrop-filter:blur(6px);
+}
+
+.live-status .dot{
+  width:8px;
+  height:8px;
+
+  background:#10b981;
+  border-radius:50%;
+
+  animation:liveBlink 1.4s infinite;
+}
+
+.live-status strong{
+  display:block;
+  font-size:18px;
+}
+
+/* blink animation */
+
+@keyframes liveBlink{
+  0%{opacity:1}
+  50%{opacity:.3}
+  100%{opacity:1}
+}
+
+/* =========================
+RESPONSIVE
+========================= */
+
+@media (max-width:1024px){
+
+  .network-container{
+    grid-template-columns:1fr;
+    gap:60px;
+  }
+
+}
+
+@media (max-width:768px){
+
+  .network-section{
+    padding:80px 20px;
+  }
+
+  .network-title{
+    font-size:36px;
+  }
+
+}
+
+@media (max-width:480px){
+
+  .network-title{
+    font-size:28px;
+  }
+
+}

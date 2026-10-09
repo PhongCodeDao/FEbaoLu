@@ -1,0 +1,67 @@
+/* ===== WRAPPER ===== */
+.summary-row {
+    margin-bottom: 20px;
+  }
+  
+  /* ===== CARD ===== */
+  .summary-card {
+    background: linear-gradient(145deg, #13263c, #0d1f31);
+    border-radius: 14px;
+    padding: 16px;
+    color: #fff;
+    text-align: center;
+    border: none;
+    transition: all 0.25s ease;
+  }
+  
+  /* hover effect */
+  .summary-card:hover {
+    transform: translateY(-4px) scale(1.03);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  }
+  
+  /* ===== VALUE ===== */
+  .summary-value {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: #ffffff;
+  }
+  
+  /* ===== LABEL ===== */
+  .summary-label {
+    font-size: 13px;
+    color: #8aa0b6;
+    letter-spacing: 0.5px;
+  }
+  
+  /* ===== COLOR VARIANTS ===== */
+  .summary-blue {
+    border-left: 4px solid #1890ff;
+  }
+  
+  .summary-green {
+    border-left: 4px solid #52c41a;
+  }
+  
+  .summary-red {
+    border-left: 4px solid #ff4d4f;
+  }
+  
+  .summary-yellow {
+    border-left: 4px solid #faad14;
+  }
+  
+  .summary-purple {
+    border-left: 4px solid #722ed1;
+  }
+  .summary-card {
+    cursor: pointer;
+    border-radius: 12px;
+    transition: all 0.25s ease;
+  }
+  
+  .summary-card:hover {
+    transform: translateY(-4px) scale(1.03);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+  }

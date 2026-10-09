@@ -1,0 +1,79 @@
+.rescue-sidebar {
+  width: 380px; /* Điều chỉnh nếu cần rộng hơn cho form input/filter */
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  border-right: 1px solid #e2e8f0;
+  overflow: hidden;
+  box-shadow: 1px 0 8px rgba(0, 0, 0, 0.04);
+}
+
+/* Tab bar - nền tím nhạt, giống ảnh bạn gửi */
+.tab-bar {
+  display: flex;
+  height: 52px;
+  background: #f3e8ff; /* tím nhạt nhẹ */
+  border-bottom: 1px solid #d8b4fe;
+  flex-shrink: 0;
+}
+
+.tab-item {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px; /* nếu thêm icon */
+  padding: 0 24px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #6b7280; /* xám cho tab inactive */
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  transition: color 0.25s ease;
+}
+
+.tab-item:hover {
+  color: #7c3aed; /* tím khi hover */
+}
+
+.tab-item.active {
+  color: #7c3aed; /* tím active */
+  font-weight: 700;
+}
+
+/* Underline tím đậm dưới tab active - giống ảnh */
+.tab-item.active::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4px; /* độ dày underline */
+  background: #7c3aed; /* tím chính */
+}
+
+/* Nội dung scroll được khi danh sách dài */
+.sidebar-content {
+  flex: 1;
+  overflow-y: auto;
+  background: #f9fafb;
+  padding: 16px;
+}
+
+/* Scrollbar tùy chỉnh (tùy chọn, làm đẹp hơn) */
+.sidebar-content::-webkit-scrollbar {
+  width: 6px;
+}
+.sidebar-content::-webkit-scrollbar-track {
+  background: #f3f4f6;
+}
+.sidebar-content::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 3px;
+}
+.sidebar-content::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}

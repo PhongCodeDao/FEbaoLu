@@ -1,0 +1,17 @@
+.vehicle-table {
+  padding: 16px 20px;
+  background: #f8fafc;
+  border-radius: 10px;
+}
+
+.vehicle-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.vehicle-add {
+  display: flex;
+  gap: 10px;
+}

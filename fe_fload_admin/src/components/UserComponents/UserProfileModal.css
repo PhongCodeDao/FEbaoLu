@@ -1,0 +1,91 @@
+.profile-modal .ant-modal-content {
+
+    border-radius: 16px;
+  
+    overflow: hidden;
+  
+  }
+  
+  
+  .profile-header {
+  
+    display: flex;
+  
+    align-items: center;
+  
+    gap: 16px;
+  
+    margin-bottom: 20px;
+  
+    padding-bottom: 16px;
+  
+    border-bottom: 1px solid #eee;
+  
+  }
+  
+  
+  .profile-avatar {
+  
+    background: linear-gradient(135deg, #1677ff, #4096ff);
+  
+    font-size: 20px;
+  
+    font-weight: bold;
+  
+  }
+  
+  
+  .profile-header h2 {
+  
+    margin: 0;
+  
+  }
+  
+  
+  .profile-header p {
+  
+    margin: 0;
+  
+    color: #888;
+  
+  }
+  
+  
+  .profile-form {
+  
+    margin-top: 10px;
+  
+  }
+  
+  
+  .profile-save-btn {
+  
+    height: 48px;
+  
+    font-size: 16px;
+  
+    font-weight: 600;
+  
+    border-radius: 10px;
+  
+    background: linear-gradient(135deg, #1677ff, #4096ff);
+  
+    border: none;
+  
+  }
+  
+  
+  .profile-save-btn:hover {
+  
+    background: linear-gradient(135deg, #0958d9, #1677ff);
+  
+  }
+  
+  
+  .profile-loading {
+  
+    text-align: center;
+  
+    padding: 50px;
+  
+  }

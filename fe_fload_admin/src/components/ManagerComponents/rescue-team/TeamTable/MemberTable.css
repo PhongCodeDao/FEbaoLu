@@ -1,0 +1,210 @@
+/* ============================================================
+   MEMBER TABLE - CLEAN ENTERPRISE UI
+   ============================================================ */
+
+   .member-table-container {
+    background: #ffffff;
+    border-radius: 14px;
+    margin-top: 14px;
+    overflow: hidden;
+    box-shadow: 0 6px 24px rgba(15, 23, 42, 0.05);
+    animation: slideDown 0.25s ease;
+  }
+  
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* ================= HEADER ================= */
+  
+  .member-table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 22px;
+    background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+    border-bottom: 1px solid #e2e8f0;
+  }
+  
+  .member-table-header h4 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: #0f172a;
+  }
+  
+  /* ================= WRAPPER ================= */
+  
+  .member-table-wrapper {
+    padding: 18px 22px;
+  }
+  
+  /* ================= TABLE HEAD ================= */
+  
+  .member-table-head {
+    display: grid;
+    grid-template-columns: 80px 2fr 1.5fr 1.5fr 120px;
+    padding: 12px 16px;
+    background: #f8fafc;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 12px;
+    color: #64748b;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    align-items: center;
+  }
+  
+  /* ================= ROW ================= */
+  
+  .member-row {
+    display: grid;
+    grid-template-columns: 80px 2fr 1.5fr 1.5fr 120px;
+    padding: 14px 16px;
+    align-items: center; /* 🔥 đảm bảo thẳng hàng */
+    border-radius: 10px;
+    background: #ffffff;
+    transition: all 0.2s ease;
+    margin-bottom: 10px;
+    border: 1px solid #f1f5f9;
+  }
+  
+  .member-row:hover {
+    background: #f8fafc;
+    border-color: #e2e8f0;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+  }
+  
+  /* ================= CELL ALIGN FIX ================= */
+  
+  /* ép tất cả cell align giữa dọc */
+  .member-row > div {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  /* ================= CELL STYLE ================= */
+  
+  .id-cell strong {
+    color: #0f172a;
+    font-size: 13px;
+  }
+  
+  .name-cell {
+    font-weight: 500;
+    color: #111827;
+  }
+  
+  .phone-cell {
+    color: #475569;
+    font-size: 13px;
+  }
+  
+  .role-cell {
+    display: flex;
+    align-items: center;
+  }
+  
+  /* ================= ACTION CELL ================= */
+  
+  .actions-cell {
+    justify-content: center; /* 🔥 nằm giữa cột */
+    gap: 6px;
+  }
+  
+  /* ================= MUI BUTTON STYLE ================= */
+  
+  .actions-cell .MuiIconButton-root {
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+  }
+  
+  /* DELETE STYLE */
+  
+  .action-delete {
+    background-color: #fee2e2 !important;
+    color: #dc2626 !important;
+  }
+  
+  .action-delete:hover {
+    background-color: #fecaca !important;
+    transform: scale(1.05);
+  }
+  
+  /* ================= EMPTY ================= */
+  
+  .no-data {
+    text-align: center;
+    padding: 28px;
+    color: #94a3b8;
+    font-size: 14px;
+  }
+  
+  /* ================= LOADING ================= */
+  
+  .loading {
+    display: flex;
+    justify-content: center;
+    padding: 32px;
+  }
+  
+  /* ============================================================
+     RESPONSIVE
+     ============================================================ */
+  
+  @media (max-width: 1024px) {
+  
+    .member-table-head,
+    .member-row {
+      grid-template-columns: 80px 2fr 1.5fr 120px;
+    }
+  
+    .member-table-head span:nth-child(3),
+    .member-row .phone-cell {
+      display: none;
+    }
+  
+  }
+  
+  @media (max-width: 768px) {
+  
+    .member-table-head {
+      display: none;
+    }
+  
+    .member-row {
+      grid-template-columns: 1fr;
+      gap: 12px;
+      padding: 16px;
+    }
+  
+    .member-row > div {
+      justify-content: space-between;
+      border-bottom: 1px solid #f1f5f9;
+      padding-bottom: 8px;
+    }
+  
+    .member-row > div:last-child {
+      border-bottom: none;
+    }
+  
+    .actions-cell {
+      justify-content:  flex-start;
+    }
+  
+  }

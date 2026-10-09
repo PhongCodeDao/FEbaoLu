@@ -1,0 +1,64 @@
+/* ===== MODAL WRAPPER ===== */
+.edit-campaign-modal .ant-modal-content {
+    border-radius: 16px;
+    padding: 20px;
+  }
+  
+  /* ===== TITLE ===== */
+  .edit-campaign-modal .ant-modal-title {
+    font-size: 20px;
+    font-weight: 600;
+  }
+  
+  /* ===== FORM ===== */
+  .edit-campaign-modal .ant-form-item {
+    margin-bottom: 16px;
+  }
+  
+  /* LABEL */
+  .edit-campaign-modal .ant-form-item-label > label {
+    font-weight: 500;
+    color: #333;
+  }
+  
+  /* INPUT */
+  .edit-campaign-modal .ant-input {
+    height: 40px;
+    border-radius: 10px;
+  }
+  
+  /* SELECT */
+  .edit-campaign-modal .ant-select-selector {
+    height: 40px !important;
+    border-radius: 10px !important;
+    display: flex;
+    align-items: center;
+  }
+  
+  /* FOCUS */
+  .edit-campaign-modal .ant-input:focus,
+  .edit-campaign-modal .ant-select-focused .ant-select-selector {
+    border-color: #1677ff !important;
+    box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.1);
+  }
+  
+  /* BUTTON */
+  .edit-campaign-modal .ant-btn {
+    border-radius: 8px;
+    height: 36px;
+  }
+  
+  /* PRIMARY BUTTON */
+  .edit-campaign-modal .ant-btn-primary {
+    background: #1677ff;
+    border: none;
+  }
+  
+  .edit-campaign-modal .ant-btn-primary:hover {
+    background: #4096ff;
+  }
+  
+  /* FOOTER */
+  .edit-campaign-modal .ant-modal-footer {
+    border-top: none;
+  }

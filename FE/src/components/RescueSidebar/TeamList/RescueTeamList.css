@@ -1,0 +1,72 @@
+.rescue-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 20px;
+  margin-top: 50px;
+}
+
+/* FILTER */
+.rescue-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 15px;
+}
+
+.team-count {
+  font-weight: 600;
+  color: #555;
+}
+
+/* SCROLL AREA */
+.team-list-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
+/* Scroll đẹp hơn */
+.team-list-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.team-list-scroll::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 6px;
+}
+
+/* CARD */
+.team-card-modern {
+  background: #fff;
+  padding: 18px;
+  border-radius: 14px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+  margin-bottom: 16px;
+  transition: 0.2s;
+}
+
+.team-card-modern:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
+
+.team-header-modern {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.team-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  color: #666;
+}
+
+.loading-wrapper {
+  padding: 40px;
+  text-align: center;
+  margin-top: 250px;
+}

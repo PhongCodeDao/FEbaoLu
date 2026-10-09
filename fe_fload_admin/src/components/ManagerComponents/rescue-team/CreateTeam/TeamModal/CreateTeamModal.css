@@ -1,0 +1,244 @@
+/* ===== MODAL CONTAINER ===== */
+
+.createTeamModal .ant-modal-content {
+
+    border-radius: 18px;
+  
+    padding: 0;
+  
+    overflow: hidden;
+  
+    border: none;
+  
+    box-shadow:
+      0 20px 60px rgba(0,0,0,0.15),
+      0 4px 12px rgba(0,0,0,0.08);
+  
+  }
+  
+  
+  /* ===== HEADER ===== */
+  
+  .createTeamModal .ant-modal-header {
+  
+    background:
+      linear-gradient(
+        135deg,
+        #1677ff,
+        #4096ff
+      );
+  
+    border-bottom: none;
+  
+    padding: 20px 24px;
+  
+  }
+  
+  
+  .createTeamModal .ant-modal-title {
+  
+    color: white !important;
+  
+    font-size: 20px;
+  
+    font-weight: 600;
+  
+  }
+  
+  
+  .createTeamModal .ant-modal-close {
+  
+    color: white !important;
+  
+    opacity: 0.8;
+  
+  }
+  
+  .createTeamModal .ant-modal-close:hover {
+  
+    opacity: 1;
+  
+    transform: rotate(90deg);
+  
+  }
+  
+  
+  /* ===== BODY ===== */
+  
+  .createTeamModal .ant-modal-body {
+  
+    padding: 24px;
+  
+    background: #f9fafc;
+  
+  }
+  
+  
+  /* ===== FORM LABEL ===== */
+  
+  .createTeamModal .ant-form-item-label > label {
+  
+    font-weight: 600;
+  
+    color: #1f2937;
+  
+    font-size: 14px;
+  
+  }
+  
+  
+  /* ===== INPUT ===== */
+  
+  .createTeamModal .ant-input {
+  
+    height: 44px;
+  
+    border-radius: 12px;
+  
+    border: 1px solid #e5e7eb;
+  
+    background: white;
+  
+    transition: all 0.25s ease;
+  
+  }
+  
+  
+  .createTeamModal .ant-input:hover {
+  
+    border-color: #4096ff;
+  
+  }
+  
+  
+  .createTeamModal .ant-input:focus {
+  
+    border-color: #1677ff;
+  
+    box-shadow:
+      0 0 0 3px rgba(22,119,255,0.15);
+  
+  }
+  
+  
+  /* ===== SELECT ===== */
+  
+  .createTeamModal .ant-select-selector {
+  
+    height: 44px !important;
+  
+    border-radius: 12px !important;
+  
+    border: 1px solid #e5e7eb !important;
+  
+    display: flex;
+  
+    align-items: center;
+  
+  }
+  
+  
+  .createTeamModal .ant-select-focused .ant-select-selector {
+  
+    border-color: #1677ff !important;
+  
+    box-shadow:
+      0 0 0 3px rgba(22,119,255,0.15) !important;
+  
+  }
+  
+  
+  /* ===== ICON INPUT ===== */
+  
+  .createTeamModal .ant-input-prefix {
+  
+    color: #1677ff;
+  
+    font-size: 16px;
+  
+  }
+  
+  
+  /* ===== BUTTON ===== */
+  
+  .createTeamModal__btn {
+  
+    margin-top: 12px;
+  
+    height: 46px;
+  
+    border-radius: 14px;
+  
+    font-weight: 600;
+  
+    font-size: 16px;
+  
+    background:
+      linear-gradient(
+        135deg,
+        #1677ff,
+        #4096ff
+      );
+  
+    border: none;
+  
+    box-shadow:
+      0 8px 20px rgba(22,119,255,0.3);
+  
+    transition: all 0.25s ease;
+  
+  }
+  
+  
+  /* hover */
+  
+  .createTeamModal__btn:hover {
+  
+    transform: translateY(-2px);
+  
+    box-shadow:
+      0 12px 28px rgba(22,119,255,0.35);
+  
+  }
+  
+  
+  /* click */
+  
+  .createTeamModal__btn:active {
+  
+    transform: translateY(0);
+  
+  }
+  
+  
+  /* ===== ERROR TEXT ===== */
+  
+  .createTeamModal .ant-form-item-explain-error {
+  
+    font-size: 12px;
+  
+    margin-top: 4px;
+  
+  }
+  
+  
+  /* ===== INPUT GROUP SPACING ===== */
+  
+  .createTeamModal .ant-form-item {
+  
+    margin-bottom: 18px;
+  
+  }
+  
+  
+  /* ===== RESPONSIVE ===== */
+  
+  @media (max-width: 768px) {
+  
+    .createTeamModal .ant-modal {
+  
+      width: 95% !important;
+  
+    }
+  
+  }

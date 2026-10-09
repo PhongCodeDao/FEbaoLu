@@ -1,0 +1,248 @@
+/* ================= CONTAINER ================= */
+
+.rm-container {
+    padding: 20px;
+    background: #f5f7fb;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* ================= HEADER ================= */
+  
+  .rm-header-fixed {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+  }
+  
+  .rm-header-fixed h3 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 700;
+  }
+  
+  .rm-header-fixed span {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1677ff;
+    background: #e6f4ff;
+    padding: 4px 10px;
+    border-radius: 8px;
+  }
+  
+  /* ================= LIST ================= */
+  
+  .rm-list-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 4px;
+  }
+  
+  /* ================= CARD ================= */
+  
+  .rm-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 14px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.05);
+    transition: all 0.25s ease;
+    border: 1px solid #f0f0f0;
+  }
+  
+  .rm-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 24px rgba(0,0,0,0.08);
+  }
+  
+  /* ================= TOP ================= */
+  
+  .rm-top {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  /* ================= AVATAR ================= */
+  
+  .rm-avatar {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1677ff, #69b1ff);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 14px;
+  }
+  
+  /* ================= CAMPAIGN ================= */
+  
+  .rm-top h4 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+  }
+  
+  .rm-campaign-info {
+    margin-top: 4px;
+    display: flex;
+    gap: 10px;
+    font-size: 12px;
+    color: #888;
+  }
+  
+  /* ================= ADDRESS ================= */
+  
+  .rm-address {
+    margin-top: 10px;
+    font-size: 13px;
+    color: #555;
+    background: #fafafa;
+    padding: 8px 10px;
+    border-radius: 8px;
+  }
+  
+  /* ================= META ================= */
+  
+  .rm-meta {
+    margin-top: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  /* ================= STATUS ================= */
+  
+  .status-badge {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px solid rgba(0,0,0,0.05);
+  }
+  
+  /* pending */
+  .status-badge.pending {
+    background: #fffbe6;
+    color: #faad14;
+  }
+  
+  /* accepted */
+  .status-badge.accepted {
+    background: #e6f4ff;
+    color: #1677ff;
+  }
+  
+  /* completed */
+  .status-badge.completed {
+    background: #f6ffed;
+    color: #52c41a;
+  }
+  
+  /* rejected */
+  .status-badge.rejected {
+    background: #fff1f0;
+    color: #ff4d4f;
+  }
+  
+  /* ================= TIME ================= */
+  
+  .time {
+    font-size: 12px;
+    color: #999;
+  }
+  
+  /* ================= ACTION ================= */
+  
+  .rm-actions {
+    margin-top: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  /* ================= BUTTON ================= */
+  
+  .rm-btn {
+    border: none;
+    padding: 6px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+    transition: 0.2s;
+  }
+  
+  /* complete */
+  .rm-btn.success {
+    background: #52c41a;
+    color: white;
+  }
+  
+  .rm-btn.success:hover {
+    background: #389e0d;
+  }
+  
+  /* reject */
+  .rm-btn.danger {
+    background: #ff4d4f;
+    color: white;
+  }
+  
+  .rm-btn.danger:hover {
+    background: #cf1322;
+  }
+  
+  /* detail */
+  .rm-btn-detail {
+    background: #1677ff;
+    color: white;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: 0.2s;
+  }
+  
+  .rm-btn-detail:hover {
+    background: #0958d9;
+  }
+  
+  /* ================= LOADING ================= */
+  
+  .rm-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 40px;
+    gap: 10px;
+    color: #1677ff;
+    font-weight: 500;
+  }
+  
+  /* ================= EMPTY ================= */
+  
+  .rm-empty {
+    text-align: center;
+    margin-top: 40px;
+    color: #999;
+  }
+  
+  /* ================= SCROLLBAR ================= */
+  
+  .rm-list-scroll::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .rm-list-scroll::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 10px;
+  }
