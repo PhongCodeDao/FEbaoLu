@@ -1,4 +1,16 @@
 import axiosInstance from "../../../axiosInstance";
+import {
+  getAllUrgencyLevels,
+  getUrgencyLevelDetail as getUrgencyLevelById,
+  createUrgencyLevel,
+  updateUrgencyLevel,
+  deleteUrgencyLevel,
+} from "../../UrgencyLevels/urgencyLevelsApi";
+import {
+  getAllRequestLogs as getRequestLogs,
+  createRequestLog,
+  getRequestLogById,
+} from "../../RequestLogs/requestLogsApi";
 
 /** ================= RESCUE REQUESTS ================= **/
 
@@ -62,7 +74,7 @@ export const verifyRescueRequest = async (id, data) => {
   try {
     const response = await axiosInstance.put(`/api/RescueRequests/${id}/verify`, {
       urgencyLevelId: data.urgencyLevelId,
-      note: data.note || ""
+      note: data.note || "",
     });
     return response.data;
   } catch (error) {
@@ -76,9 +88,9 @@ export const verifyRescueRequest = async (id, data) => {
  */
 export const rejectRescueRequest = async (id, rejectReason) => {
   try {
-    // API might expect { rejectReason: "..." } or { reason: "..." }
-    // Based on previous code, it was { reason: reason }
-    const response = await axiosInstance.put(`/api/RescueRequests/${id}/reject`, { reason: rejectReason });
+    const response = await axiosInstance.put(`/api/RescueRequests/${id}/reject`, {
+      reason: rejectReason,
+    });
     return response.data;
   } catch (error) {
     console.error(`Error rejecting rescue request ${id}:`, error);
@@ -152,122 +164,30 @@ export const updateRescueAssignment = async (id, payload) => {
     throw error;
   }
 };
-/**
- * Get all urgency levels.
- */
-export const getUrgencyLevels = async () => {
-  try {
-    const response = await axiosInstance.get("/api/urgency-levels");
-    return response.data;
-  } catch (error) {
-    console.error("Error fetching urgency levels:", error);
-    throw error;
-  }
+
+/** ================= RE-EXPORT URGENCY LEVELS (SINGLE SOURCE OF TRUTH) ================= **/
+export {
+  getAllUrgencyLevels,
+  getUrgencyLevelById,
+  createUrgencyLevel,
+  updateUrgencyLevel,
+  deleteUrgencyLevel,
 };
 
-/**
- * Create a new urgency level.
- */
-export const createUrgencyLevel = async (data) => {
-  try {
-    const response = await axiosInstance.post("/api/urgency-levels", data);
-    return response.data;
-  } catch (error) {
-    console.error("Error creating urgency level:", error);
-    throw error;
-  }
+export const getUrgencyLevels = getAllUrgencyLevels;
+
+/** ================= RE-EXPORT REQUEST LOGS (AUDIT) ================= **/
+export {
+  getRequestLogs,
+  createRequestLog,
+  getRequestLogById,
 };
 
-/**
- * Get urgency level by ID.
- */
-export const getUrgencyLevelById = async (id) => {
-  try {
-    const response = await axiosInstance.get(`/api/urgency-levels/${id}`);
-    return response.data;
-  } catch (error) {
-    console.error(`Error fetching urgency level ${id}:`, error);
-    throw error;
-  }
-};
+export const getAllRequestLogs = getRequestLogs;
 
-/**
- * Update an urgency level.
- */
-export const updateUrgencyLevel = async (id, data) => {
-  try {
-    const response = await axiosInstance.put(`/api/urgency-levels/${id}`, data);
-    return response.data;
-  } catch (error) {
-    console.error(`Error updating urgency level ${id}:`, error);
-    throw error;
-  }
-};
-
-/**
- * Delete an urgency level.
- */
-export const deleteUrgencyLevel = async (id) => {
-  try {
-    const response = await axiosInstance.delete(`/api/urgency-levels/${id}`);
-    return response.data;
-  } catch (error) {
-    console.error(`Error deleting urgency level ${id}:`, error);
-    throw error;
-  }
-};
-
-/** ================= REQUEST LOGS (AUDIT) ================= **/
-
-/**
- * Get list of logs for a specific rescue request.
- * @param {number} rescueRequestId 
- */
-export const getRequestLogs = async (rescueRequestId) => {
-  try {
-    const response = await axiosInstance.get("/api/request-logs", {
-      params: { rescueRequestId }
-    });
-    return response.data;
-  } catch (error) {
-    console.error(`Error fetching logs for request ${rescueRequestId}:`, error);
-    throw error;
-  }
-};
-
-/**
- * Create a new request log.
- * @param {Object} data - { rescueRequestId, action, performedBy }
- */
-export const createRequestLog = async (data) => {
-  try {
-    const response = await axiosInstance.post("/api/request-logs", data);
-    return response.data;
-  } catch (error) {
-    console.error("Error creating request log:", error);
-    throw error;
-  }
-};
-
-/**
- * Get detail of a specific log entry.
- */
-export const getRequestLogById = async (id) => {
-  try {
-    const response = await axiosInstance.get(`/api/request-logs/${id}`);
-    return response.data;
-  } catch (error) {
-    console.error(`Error fetching request log ${id}:`, error);
-    throw error;
-  }
-};
-
-/** ================= ALIASES FOR COMPATIBILITY ================= **/
-
+/** ================= ALIASES FOR BACKWARD COMPATIBILITY ================= **/
 export const getAllAssignments = getAllRescueAssignments;
 export const getPendingRescueRequests = getDispatchQueue;
 export const getDispatchingRescueRequests = getDispatchQueue;
 export const verifyAndDispatchRescueRequest = verifyRescueRequest;
 export const confirmDispatchRescueRequest = createRescueAssignment;
-export const getAllRequestLogs = getRequestLogs;
-export const getAllUrgencyLevels = getUrgencyLevels;

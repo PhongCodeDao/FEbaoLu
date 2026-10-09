@@ -241,27 +241,7 @@ export const getAllRescueTeams = async () => {
   }
 };
 
-export const getAllAidCampaigns = async () => {
-  try {
-
-    const response = await axiosInstance.get(
-      "/api/PeriodicAidCampaigns"
-    );
-
-    return response.data;
-
-  } catch (error) {
-
-    console.error("GET ALL AID CAMPAIGNS ERROR:", error);
-
-    throw new Error(
-      error.response?.data?.message ||
-      error.message ||
-      "Không thể tải danh sách chiến dịch cứu trợ"
-    );
-
-  }
-};
+export { getAllAidCampaigns } from "../AdminApi/suplyingApi";
 export const getAvailableRescueTeams = async () => {
   try {
     const response = await axiosInstance.get(

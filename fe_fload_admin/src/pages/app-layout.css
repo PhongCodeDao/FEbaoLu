@@ -1,15 +1,15 @@
 /* ================================================= */
-/* APP LAYOUT – ISOLATED (SAFE FOR ALL PAGES)        */
+/* APP LAYOUT – ULTRA MODERN & ISOLATED             */
 /* ================================================= */
 
 /* ===== ROOT ===== */
 .app-layout {
   height: 100vh;
-  overflow: hidden; /* khóa scroll toàn page */
+  overflow: hidden;
   background: #f8fafc;
 }
 
-/* ===== HEADER (chỉ layout, không style header bên trong) ===== */
+/* ===== HEADER ===== */
 .app-layout > header {
   position: fixed;
   top: 0;
@@ -17,15 +17,13 @@
   right: 0;
   height: 64px;
   z-index: 1000;
-  background: #ffffff;
-  border-bottom: 1px solid #e5e7eb;
 }
 
 /* ===== BODY ===== */
 .app-layout__body {
   display: flex;
   height: calc(100vh - 64px);
-  margin-top: 64px; /* chừa chỗ cho header */
+  margin-top: 64px;
 }
 
 /* ===== SIDEBAR ===== */
@@ -35,16 +33,36 @@
   left: 0;
   width: 260px;
   height: calc(100vh - 64px);
-  background: #0f172a;
-  overflow: hidden; /* sidebar KHÔNG scroll */
+  background: #060913;
+  overflow: hidden;
+  z-index: 999;
 }
 
 /* ===== MAIN CONTENT ===== */
 .app-layout__content {
-  margin-left: 260px; /* chừa sidebar */
+  margin-left: 260px;
   width: calc(100% - 260px);
   height: calc(100vh - 64px);
-
-  overflow-y: auto; /* CHỈ CONTENT scroll */
+  overflow-y: auto;
   background: #f8fafc;
+  scroll-behavior: smooth;
+}
+
+/* Polished Content Scrollbar */
+.app-layout__content::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.app-layout__content::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+.app-layout__content::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.app-layout__content::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }

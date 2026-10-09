@@ -1,107 +1,102 @@
 "use client";
 
-import { NavLink, useNavigate } from "react-router-dom";
-import {
-  LogoutOutlined,
-
-  /* ADMIN */
-  TeamOutlined,
-  SettingOutlined,
-  SafetyOutlined,
-  FileTextOutlined,
-  DeploymentUnitOutlined,
-
-  /* MANAGER */
-  AppstoreOutlined,
-  InboxOutlined,
-  CheckSquareOutlined,
-  UsergroupAddOutlined,
-  CarOutlined,
-  GiftOutlined,
-
-  /* RESCUE */
-  CarryOutOutlined,
-  HistoryOutlined,
-  AlertOutlined,
-  UserOutlined,
-
-  /* COORDINATOR */
-  CheckCircleOutlined,
-  GlobalOutlined,
-  AimOutlined,
-  BarChartOutlined,
-
-} from "@ant-design/icons";
-
 import { useState, useEffect } from "react";
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
+import {
+  Users,
+  Settings,
+  FileText,
+  Flame,
+  LayoutDashboard,
+  Truck,
+  Package,
+  ClipboardCheck,
+  MapPin,
+  Users2,
+  Shield,
+  CheckCircle2,
+  Radio,
+  Navigation,
+  BarChart3,
+  History,
+  UserCheck,
+  LogOut,
+  LifeBuoy,
+  ChevronRight,
+  ShieldAlert,
+  Sparkles,
+} from "lucide-react";
+
 import { getUserProfile } from "../../../api/axios/Auth/authApi";
 import UserProfileModal from "../../components/UserComponents/UserProfileModal";
 import "./Sidebar.css";
-import { useLocation } from "react-router-dom";
 
-/* ================= MENU BY ROLE ================= */
+/* ================= MENU CONFIGURATION BY ROLE ================= */
 
 const menuByRole = {
   admin: [
     {
       label: "Quản lý người dùng",
-      icon: <TeamOutlined />,
+      icon: <Users size={18} />,
       path: "/admin/user",
       end: true,
+      badge: "User",
     },
     {
       label: "Cấu hình tham số",
-      icon: <SettingOutlined />,
+      icon: <Settings size={18} />,
       path: "/admin/settings",
     },
     {
       label: "Logs hệ thống",
-      icon: <FileTextOutlined />,
+      icon: <FileText size={18} />,
       path: "/admin/logs",
+      badge: "Audit",
     },
-   
     {
       label: "Chiến dịch cứu trợ",
-      icon: <DeploymentUnitOutlined />,
+      icon: <Flame size={18} />,
       path: "/admin/chien-dich-cuu-tro",
+      badge: "Hot",
     },
   ],
 
   manager: [
     {
-      label: "Tổng quan",
-      icon: <AppstoreOutlined />,
+      label: "Tổng quan vận hành",
+      icon: <LayoutDashboard size={18} />,
       path: "/manager",
       end: true,
     },
     {
-      label: "Phương tiện",
-      icon: <CarOutlined />,
+      label: "Phương tiện cứu trợ",
+      icon: <Truck size={18} />,
       path: "/manager/vehicles",
     },
     {
-      label: "Kho hàng",
-      icon: <InboxOutlined />,
+      label: "Kho hàng cứu trợ",
+      icon: <Package size={18} />,
       path: "/manager/inventory",
     },
     {
-      label: "Phê duyệt",
-      icon: <CheckSquareOutlined />,
+      label: "Phê duyệt điều phối",
+      icon: <ClipboardCheck size={18} />,
       path: "/manager/approve",
+      badge: "Ưu tiên",
     },
     {
       label: "Kế hoạch cứu trợ",
-      icon: <DeploymentUnitOutlined />,
+      icon: <MapPin size={18} />,
       path: "/manager/ke-hoach-cuu-tro",
     },
     {
       label: "Phân đội cứu trợ",
-      icon: <UsergroupAddOutlined />,
+      icon: <Users2 size={18} />,
       path: "/manager/team-cuu-tro",
     },
     {
-      label: "Đội cứu hộ",
-      icon: <UsergroupAddOutlined />,
+      label: "Đội cứu hộ trực chiến",
+      icon: <Shield size={18} />,
       path: "/manager/rescue-team",
     },
   ],
@@ -109,62 +104,66 @@ const menuByRole = {
   coordinator: [
     {
       label: "Xác minh yêu cầu",
-      icon: <CheckCircleOutlined />,
+      icon: <CheckCircle2 size={18} />,
       path: "/coordinator",
       end: true,
+      badge: "Khẩn cấp",
     },
     {
       label: "Đang điều phối",
-      icon: <GlobalOutlined />,
+      icon: <Radio size={18} />,
       path: "/coordinator/dang",
+      badge: "Live",
     },
     {
       label: "Đang cứu hộ",
-      icon: <AimOutlined />,
+      icon: <Navigation size={18} />,
       path: "/coordinator/mina",
     },
     {
       label: "Báo cáo nhiệm vụ",
-      icon: <BarChartOutlined />,
+      icon: <BarChart3 size={18} />,
       path: "/coordinator/reports",
     },
- 
   ],
 
   rescueteam: [
-
-   
     {
-      label: "Thống kê nhiệm vụ ",
-      icon: <BarChartOutlined />,
+      label: "Thống kê nhiệm vụ",
+      icon: <BarChart3 size={18} />,
       path: "/rescueTeam/dashboard-task",
     },
-   
     {
-      label: "Nhiệm vụ ",
-      icon: <CarryOutOutlined />,
+      label: "Nhiệm vụ trực tiếp",
+      icon: <ClipboardCheck size={18} />,
       path: "/rescueTeam",
       end: true,
+      badge: "Mới",
     },
     {
       label: "Đang cứu hộ",
-      icon: <GlobalOutlined />,
+      icon: <Navigation size={18} />,
       path: "/rescueTeam/dangcuho/:id",
       isDynamic: true,
     },
     {
-      label: "Lịch sử nhiêm vụ ",
-      icon: <HistoryOutlined />,
+      label: "Lịch sử nhiệm vụ",
+      icon: <History size={18} />,
       path: "/rescueTeam/history",
     },
-  
     {
-      label: "Thành Viên Trong Đội",
-      icon: <UserOutlined />,
+      label: "Thành viên trong đội",
+      icon: <UserCheck size={18} />,
       path: "/rescueTeam/list-member",
     },
- 
   ],
+};
+
+const roleMeta = {
+  admin: { name: "Quản trị viên", color: "#ef4444" },
+  manager: { name: "Điều hành kho & đội", color: "#8b5cf6" },
+  coordinator: { name: "Điều phối viên", color: "#0284c7" },
+  rescueteam: { name: "Đội viên cứu nạn", color: "#10b981" },
 };
 
 export default function Sidebar() {
@@ -172,40 +171,36 @@ export default function Sidebar() {
   const location = useLocation();
   const [profileOpen, setProfileOpen] = useState(false);
 
-  /* USER LOCAL STORAGE */
-
   const user = JSON.parse(sessionStorage.getItem("user") || "{}");
-
   const role = (sessionStorage.getItem("role") || "admin").toLowerCase();
-
-  const roleName = user.roleName || role;
-
+  const currentRoleMeta = roleMeta[role] || { name: role, color: "#3b82f6" };
   const menus = menuByRole[role] || [];
 
-  /* PROFILE STATE */
-
   const [userProfile, setUserProfile] = useState({
-    fullName: "Loading...",
-    roleName: "",
+    fullName: user.fullName || "Tài khoản",
+    roleName: user.roleName || currentRoleMeta.name,
   });
-
-  /* LOAD PROFILE */
 
   const loadProfile = async () => {
     try {
       const data = await getUserProfile();
-      setUserProfile(data);
+      if (data) {
+        setUserProfile(data);
+      }
     } catch {
-      console.error("Load profile failed");
+      // Use existing user from storage if available
+      if (user.fullName) {
+        setUserProfile({
+          fullName: user.fullName,
+          roleName: user.roleName || currentRoleMeta.name,
+        });
+      }
     }
   };
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadProfile();
   }, []);
-
-  /* AVATAR TEXT */
 
   const avatarText =
     userProfile.fullName
@@ -213,9 +208,7 @@ export default function Sidebar() {
       ?.map((w) => w[0])
       ?.slice(0, 2)
       ?.join("")
-      ?.toUpperCase() || "U";
-
-  /* LOGOUT */
+      ?.toUpperCase() || "CH";
 
   const handleLogout = () => {
     sessionStorage.clear();
@@ -224,10 +217,30 @@ export default function Sidebar() {
 
   return (
     <aside className="sidebar">
-      {/* MENU */}
+      {/* BRAND / HUB HEADER */}
+      <div className="sidebar-brand">
+        <div className="sidebar-brand__logo-wrap">
+          <div className="sidebar-brand__glow-ring" />
+          <LifeBuoy className="sidebar-brand__icon" size={22} />
+        </div>
+        <div className="sidebar-brand__text">
+          <div className="sidebar-brand__title">
+            <span>RESCUE HUB</span>
+            <span className="sidebar-brand__live-tag">LIVE</span>
+          </div>
+          <p className="sidebar-brand__subtitle">Cứu Trợ & Ứng Cứu Bão Lũ</p>
+        </div>
+      </div>
 
+      {/* SECTION LABEL */}
+      <div className="sidebar-section-title">
+        <span>MENU ĐIỀU HÀNH</span>
+        <div className="sidebar-section-line" />
+      </div>
+
+      {/* NAVIGATION ITEMS */}
       <nav className="sidebar-menu">
-        {menus.map((item, index) => (
+        {menus.map((item) => (
           <NavLink
             key={item.path}
             to={item.path}
@@ -240,38 +253,59 @@ export default function Sidebar() {
               return `menu-item ${isActive || isDangCuuHo ? "active" : ""}`;
             }}
           >
-            <span className="menu-icon">{item.icon}</span>
+            <div className="menu-item__left">
+              <span className="menu-icon">{item.icon}</span>
+              <span className="menu-label">{item.label}</span>
+            </div>
 
-            <span className="menu-label">{item.label}</span>
+            <div className="menu-item__right">
+              {item.badge && (
+                <span className={`menu-badge ${item.badge === "Hot" || item.badge === "Khẩn cấp" ? "badge-danger" : "badge-info"}`}>
+                  {item.badge}
+                </span>
+              )}
+              <ChevronRight size={14} className="menu-arrow" />
+            </div>
           </NavLink>
         ))}
       </nav>
 
-      {/* FOOTER */}
-
+      {/* FOOTER USER CARD */}
       <div className="sidebar-footer">
         <div
-          className="user-info"
+          className="user-card"
           onClick={() => setProfileOpen(true)}
-          style={{ cursor: "pointer" }}
+          title="Nhấn để xem và chỉnh sửa thông tin cá nhân"
         >
-          <div className="avatar">{avatarText}</div>
+          <div className="avatar-wrap">
+            <div className="avatar">{avatarText}</div>
+            <span
+              className="avatar-status-dot"
+              style={{ background: currentRoleMeta.color }}
+            />
+          </div>
 
-          <div>
-            <strong>{userProfile.fullName}</strong>
-
-            <p>{roleName}</p>
+          <div className="user-details">
+            <span className="user-name">{userProfile.fullName}</span>
+            <div className="user-role-pill">
+              <span
+                className="role-color-dot"
+                style={{ background: currentRoleMeta.color }}
+              />
+              <span className="role-text">
+                {userProfile.roleName || currentRoleMeta.name}
+              </span>
+            </div>
           </div>
         </div>
 
-        <button className="logout-btn" onClick={handleLogout}>
-          <LogoutOutlined />
+        <button className="logout-btn" onClick={handleLogout} title="Đăng xuất khỏi hệ thống">
+          <LogOut size={16} />
           <span>Đăng xuất</span>
         </button>
       </div>
 
       {/* PROFILE MODAL */}
-
       <UserProfileModal
         open={profileOpen}
         onClose={() => {
