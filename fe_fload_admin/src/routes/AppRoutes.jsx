@@ -45,14 +45,17 @@ import TaskDistributionDetailPage from "../pages/RescueTeam/DistributionListCuuT
 
 
 export default function AppRoutes() {
-  const isAuth = sessionStorage.getItem("isAuth") === "true";
-   const role    = sessionStorage.getItem("role");
+  const isAuth = sessionStorage.getItem("isAuth") === "true" || localStorage.getItem("isAuth") === "true";
+  const rawRole = sessionStorage.getItem("role") || localStorage.getItem("role") || "";
+  const role = (rawRole === "rescuer" || rawRole === "rescue") ? "rescueteam" : rawRole.toLowerCase().trim();
 
   const redirectByRole = {
     admin: "/admin/user",
     manager: "/manager",
     coordinator: "/coordinator",
-    rescue: "/rescue",
+    rescueteam: "/rescueTeam",
+    rescuer: "/rescueTeam",
+    rescue: "/rescueTeam",
   };
 
   return (

@@ -1,21 +1,11 @@
-// import { defineConfig } from "vite";
-// import react from "@vitejs/plugin-react";
-// import path from "path";
-
-// export default defineConfig({
-//   plugins: [react()],
-//   resolve: {
-//     alias: {
-//       "@": path.resolve(__dirname, "./src"),
-//     },
-//   },
-// });
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
 
 export default defineConfig({
   plugins: [react()],
+
+  base: "/",
 
   resolve: {
     alias: {
@@ -25,17 +15,21 @@ export default defineConfig({
 
   server: {
     proxy: {
+      "/api": {
+        target: "http://localhost:8080",
+        changeOrigin: true,
+      },
       "/upload-api": {
-        target: "https://api-rescue.purintech.id.vn",
+        target: "http://localhost:8080",
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/upload-api/, ""),
       },
       "/uploads": {
-        target: "https://api-rescue.purintech.id.vn",
+        target: "http://localhost:8080",
         changeOrigin: true,
       },
       "/api/uploads": {
-        target: "https://api-rescue.purintech.id.vn",
+        target: "http://localhost:8080",
         changeOrigin: true,
       },
       "/geo": {
@@ -45,5 +39,4 @@ export default defineConfig({
       },
     },
   },
-
 });

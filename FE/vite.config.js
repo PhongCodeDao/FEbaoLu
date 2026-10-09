@@ -4,12 +4,12 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
 
-  base: "./",   // 👈 QUAN TRỌNG NHẤT
+  base: "/",
 
   server: {
     proxy: {
       '/api': {
-        target: 'https://api-rescue.purintech.id.vn',
+        target: 'http://localhost:8080',
         changeOrigin: true,
       },
     },

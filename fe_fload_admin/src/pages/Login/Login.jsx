@@ -30,6 +30,8 @@ export default function Login() {
     admin: "/admin",
     manager: "/manager",
     rescueteam: "/rescueTeam",
+    rescuer: "/rescueTeam",
+    rescue: "/rescueTeam",
     coordinator: "/coordinator",
   };
 
@@ -79,21 +81,29 @@ export default function Login() {
         return;
       }
 
-      /* LƯU SESSION */
+      /* LƯU SESSION VÀ LOCALSTORAGE */
+
+      const roleNormalized = (res.user.roleName || "").toLowerCase().trim();
 
       sessionStorage.setItem("accessToken", res.token);
+      sessionStorage.setItem("token", res.token);
       sessionStorage.setItem("user", JSON.stringify(res.user));
-      sessionStorage.setItem("role", res.user.roleName.toLowerCase());
+      sessionStorage.setItem("role", roleNormalized);
       sessionStorage.setItem("isAuth", "true");
+
+      localStorage.setItem("accessToken", res.token);
+      localStorage.setItem("token", res.token);
+      localStorage.setItem("user", JSON.stringify(res.user));
+      localStorage.setItem("role", roleNormalized);
+      localStorage.setItem("isAuth", "true");
 
       AuthNotify.success(
         "Đăng nhập thành công",
         `Chào mừng ${res.user.fullName}`
       );
 
-      const role = res.user.roleName.toLowerCase();
-
-      navigate(redirectByRole[role], { replace: true });
+      const targetPath = redirectByRole[roleNormalized] || "/admin";
+      navigate(targetPath, { replace: true });
     } catch (error) {
       console.error(error);
 
