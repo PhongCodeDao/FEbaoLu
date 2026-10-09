@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 
-import { Button, Spin, Pagination } from "antd";
+import { Button, Spin, Pagination, Tag } from "antd";
+import { CheckCircleOutlined, SyncOutlined, EnvironmentOutlined } from "@ant-design/icons";
 
 import {
   getAvailableRescueTeams,
@@ -117,23 +118,45 @@ export default function ScheduleList() {
 
       <div className="team-table">
         <div className="team-table-head">
-          <span>ID</span>
-          <span>TÊN ĐỘI</span>
-          <span>KHU VỰC</span>
-          <span>SỐ NHIỆM VỤ</span>
+          <span>MÃ ĐỘI</span>
+          <span>TÊN ĐỘI CỨU HỘ</span>
+          <span>KHU VỰC TRỰC</span>
+          <span style={{ textAlign: "right" }}>TRẠNG THÁI NHIỆM VỤ</span>
         </div>
 
-        {paginated.map((team) => (
-          <div key={team.rescueTeamId} className="team-table-row">
-            <div>{team.rescueTeamId}</div>
-
-            <div>{team.teamName}</div>
-
-            <div>{provinceMap[team.areaId] || "Không xác định"}</div>
-
-            <div>{activeTab === "available" ? "0" : team.activeTaskCount}</div>
+        {paginated.length === 0 ? (
+          <div style={{ padding: "32px 20px", textAlign: "center", color: "#64748b" }}>
+            Không có đội cứu hộ nào trong danh mục này.
           </div>
-        ))}
+        ) : (
+          paginated.map((team) => (
+            <div key={team.rescueTeamId} className="team-table-row">
+              <div className="team-id-badge">#{team.rescueTeamId}</div>
+
+              <div className="team-name-cell">
+                <span className="team-indicator-dot"></span>
+                <strong>{team.teamName}</strong>
+              </div>
+
+              <div className="team-area-cell">
+                <EnvironmentOutlined style={{ color: "#0284c7", marginRight: 6 }} />
+                <span>{provinceMap[team.areaId] || "Toàn khu vực"}</span>
+              </div>
+
+              <div style={{ textAlign: "right" }}>
+                {activeTab === "available" ? (
+                  <Tag color="success" icon={<CheckCircleOutlined />}>
+                    Sẵn sàng (0 nhiệm vụ)
+                  </Tag>
+                ) : (
+                  <Tag color="warning" icon={<SyncOutlined spin />}>
+                    Đang thực hiện ({team.activeTaskCount} nhiệm vụ)
+                  </Tag>
+                )}
+              </div>
+            </div>
+          ))
+        )}
       </div>
 
       {/* PAGINATION */}

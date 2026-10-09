@@ -1,18 +1,30 @@
 import { useEffect, useMemo, useState } from "react";
-import { Table, Tag, Input, Select, Button } from "antd";
-
-import {
-  getAllAidCampaigns,
-} from "../../../../api/axios/AdminApi/suplyingApi";
-
-import AuthNotify from "../../../utils/Common/AuthNotify";
+import { Table, Tag, Input, Select, Button, Spin, Row, Col } from "antd";
 import { useNavigate } from "react-router-dom";
-
+import {
+  Package,
+  Calendar,
+  Search,
+  Filter,
+  RotateCcw,
+  CheckCircle2,
+  Clock,
+  ExternalLink,
+  Flame,
+  ArrowRight,
+  Layers,
+  Sparkles,
+  Award,
+} from "lucide-react";
+import { getAllAidCampaigns } from "../../../../api/axios/AdminApi/suplyingApi";
+import AuthNotify from "../../../utils/Common/AuthNotify";
 import "./CampaignPageManagerSuply.css";
 
 export default function CampaignPageManagerSuply() {
   const [list, setList] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [lastRefreshed, setLastRefreshed] = useState(new Date());
 
   const navigate = useNavigate();
 
@@ -23,25 +35,21 @@ export default function CampaignPageManagerSuply() {
   const [yearFilter, setYearFilter] = useState(null);
 
   /* ================= LOAD ================= */
-
-  const fetchData = async () => {
+  const fetchData = async (isManual = false) => {
     try {
-      setLoading(true);
+      if (isManual) setRefreshing(true);
+      else setLoading(true);
 
       const res = await getAllAidCampaigns();
-
-      const data =
-        res?.items ||
-        res?.data ||
-        res ||
-        [];
-
-      setList(data);
-
+      const data = res?.items || res?.data || res || [];
+      const campList = Array.isArray(data) ? data : [];
+      setList(campList);
+      setLastRefreshed(new Date());
     } catch {
-      AuthNotify.error("Lỗi tải dữ liệu");
+      AuthNotify.error("Lỗi tải danh sách chiến dịch cứu trợ");
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
@@ -49,66 +57,79 @@ export default function CampaignPageManagerSuply() {
     fetchData();
   }, []);
 
-  /* ================= STATUS ================= */
-
+  /* ================= STATUS RENDER ================= */
   const renderStatus = (status) => {
     const map = {
-      accepted: { text: "Đã nhận", color: "blue" },
-      rejected: { text: "Từ chối", color: "red" },
-      "in progress": { text: "Đang thực hiện", color: "processing" },
-      completed: { text: "Hoàn thành", color: "green" },
-
-      pending: { text: "Đang chờ", color: "gold" },
-      active: { text: "Đang hoạt động", color: "blue" },
-
-      "đã nhận": { text: "Đã nhận", color: "blue" },
-      "từ chối": { text: "Từ chối", color: "red" },
-      "đang thực hiện": { text: "Đang thực hiện", color: "processing" },
-      "hoàn thành": { text: "Hoàn thành", color: "green" },
+      accepted: { text: "Đã nhận", color: "blue", bg: "#eff6ff", border: "#93c5fd" },
+      rejected: { text: "Từ chối", color: "red", bg: "#fef2f2", border: "#fca5a5" },
+      "in progress": { text: "Đang thực hiện", color: "purple", bg: "#faf5ff", border: "#d8b4fe" },
+      completed: { text: "Hoàn thành", color: "green", bg: "#f0fdf4", border: "#86efac" },
+      pending: { text: "Đang chờ duyệt", color: "gold", bg: "#fffbeb", border: "#fde68a" },
+      active: { text: "Đang hoạt động", color: "blue", bg: "#eff6ff", border: "#93c5fd" },
+      "đã nhận": { text: "Đã nhận", color: "blue", bg: "#eff6ff", border: "#93c5fd" },
+      "từ chối": { text: "Từ chối", color: "red", bg: "#fef2f2", border: "#fca5a5" },
+      "đang thực hiện": { text: "Đang thực hiện", color: "purple", bg: "#faf5ff", border: "#d8b4fe" },
+      "hoàn thành": { text: "Hoàn thành", color: "green", bg: "#f0fdf4", border: "#86efac" },
     };
 
     const key = status?.toLowerCase()?.trim();
+    const s = map[key] || { text: status || "Không rõ", color: "default", bg: "#f1f5f9", border: "#cbd5e1" };
 
-    const s = map[key] || {
-      text: status || "Không rõ",
-      color: "default",
-    };
-
-    return <Tag color={s.color}>{s.text}</Tag>;
+    return (
+      <span
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          gap: 6,
+          padding: "4px 10px",
+          borderRadius: 999,
+          fontSize: 12,
+          fontWeight: 700,
+          background: s.bg,
+          border: `1px solid ${s.border}`,
+          color: s.color === "green" ? "#16a34a" : s.color === "purple" ? "#7c3aed" : s.color === "gold" ? "#d97706" : s.color === "red" ? "#dc2626" : "#2563eb",
+        }}
+      >
+        {s.text}
+      </span>
+    );
   };
 
   const getStatusText = (status) => {
     const map = {
-      accepted: { text: "Đã nhận" },
-      rejected: { text: "Từ chối" },
-      "in progress": { text: "Đang thực hiện" },
-      completed: { text: "Hoàn thành" },
-      pending: { text: "Đang chờ" },
-      active: { text: "Đang hoạt động" },
-      "đã nhận": { text: "Đã nhận" },
-      "từ chối": { text: "Từ chối" },
-      "đang thực hiện": { text: "Đang thực hiện" },
-      "hoàn thành": { text: "Hoàn thành" },
+      accepted: "Đã nhận",
+      rejected: "Từ chối",
+      "in progress": "Đang thực hiện",
+      completed: "Hoàn thành",
+      pending: "Đang chờ duyệt",
+      active: "Đang hoạt động",
+      "đã nhận": "Đã nhận",
+      "từ chối": "Từ chối",
+      "đang thực hiện": "Đang thực hiện",
+      "hoàn thành": "Hoàn thành",
     };
-
     const key = status?.toLowerCase?.()?.trim?.();
-    return map[key]?.text || status || "Không rõ";
+    return map[key] || status || "Không rõ";
   };
 
   const monthOptions = useMemo(() => {
     const months = Array.from(new Set(list.map((x) => x.month).filter((m) => m != null)));
-    return months.sort((a, b) => Number(a) - Number(b)).map((m) => ({
-      value: m,
-      label: `Tháng ${m}`,
-    }));
+    return months
+      .sort((a, b) => Number(a) - Number(b))
+      .map((m) => ({
+        value: m,
+        label: `Tháng ${m}`,
+      }));
   }, [list]);
 
   const yearOptions = useMemo(() => {
     const years = Array.from(new Set(list.map((x) => x.year).filter((y) => y != null)));
-    return years.sort((a, b) => Number(b) - Number(a)).map((y) => ({
-      value: y,
-      label: `${y}`,
-    }));
+    return years
+      .sort((a, b) => Number(b) - Number(a))
+      .map((y) => ({
+        value: y,
+        label: `Năm ${y}`,
+      }));
   }, [list]);
 
   const statusOptions = useMemo(() => {
@@ -135,126 +156,250 @@ export default function CampaignPageManagerSuply() {
     });
   }, [list, query, statusFilter, monthFilter, yearFilter]);
 
-  /* ================= TABLE ================= */
+  // Summary statistics
+  const stats = useMemo(() => {
+    return {
+      total: list.length,
+      inProgress: list.filter((c) => (c.status || "").toLowerCase().includes("progress") || (c.status || "").toLowerCase().includes("thực hiện")).length,
+      completed: list.filter((c) => (c.status || "").toLowerCase().includes("completed") || (c.status || "").toLowerCase().includes("hoàn thành")).length,
+      pending: list.filter((c) => (c.status || "").toLowerCase().includes("pending") || (c.status || "").toLowerCase().includes("chờ")).length,
+    };
+  }, [list]);
 
+  /* ================= TABLE COLUMNS ================= */
   const columns = [
     {
-      title: "ID",
+      title: "Mã Chiến Dịch",
       dataIndex: "campaignID",
-      width: 80,
-    },
-    {
-      title: "Tên chiến dịch",
-      dataIndex: "campaignName",
-      render: (text, record) => (
-        <span
-          className="link"
-          onClick={() =>
-            navigate(`/manager/ke-hoach-cuu-tro/${record.campaignID}`)
-          }
-        >
-          {text}
+      width: 130,
+      render: (id) => (
+        <span className="cp-id-tag">
+          <Package size={13} />
+          <strong>#{id}</strong>
         </span>
       ),
     },
     {
-      title: "Thời gian",
-      render: (_, record) =>
-        `Tháng ${record.month}/${record.year}`,
+      title: "Tên Kế Hoạch / Chiến Dịch Cứu Trợ",
+      dataIndex: "campaignName",
+      render: (text, record) => (
+        <div
+          className="cp-title-cell"
+          onClick={() => navigate(`/manager/ke-hoach-cuu-tro/${record.campaignID}`)}
+        >
+          <span className="cp-name">{text}</span>
+          <span className="cp-sub">Bấm để xem danh mục nhu yếu phẩm chi tiết</span>
+        </div>
+      ),
     },
     {
-      title: "Người tạo",
+      title: "Thời Gian Chiến Dịch",
+      width: 160,
+      render: (_, record) => (
+        <span className="cp-time-cell">
+          <Calendar size={13} />
+          <span>Tháng {record.month}/{record.year}</span>
+        </span>
+      ),
+    },
+    {
+      title: "Cán Bộ Khởi Tạo",
       dataIndex: "adminName",
+      width: 170,
+      render: (name) => (
+        <span className="cp-admin-cell">
+          <strong>{name || "Hệ Thống Quản Trị"}</strong>
+        </span>
+      ),
     },
     {
-      title: "Ngày tạo",
+      title: "Ngày Lập",
       dataIndex: "createdAt",
-      render: (date) =>
-        new Date(date).toLocaleString("vi-VN"),
+      width: 160,
+      render: (date) => (
+        <span className="cp-date-cell">
+          {new Date(date).toLocaleDateString("vi-VN")}
+        </span>
+      ),
     },
     {
-      title: "Trạng thái",
+      title: "Trạng Thái",
       dataIndex: "status",
+      width: 150,
       render: renderStatus,
+    },
+    {
+      title: "Thao Tác",
+      width: 130,
+      render: (_, record) => (
+        <button
+          className="btn-view-plan"
+          onClick={() => navigate(`/manager/ke-hoach-cuu-tro/${record.campaignID}`)}
+          title="Xem kế hoạch phân bổ chi tiết"
+        >
+          <span>Xem chi tiết</span>
+          <ArrowRight size={13} />
+        </button>
+      ),
     },
   ];
 
-  /* ================= UI ================= */
-
   return (
-    <div className="campaign-page">
+    <div className="campaignPage">
+      {/* 1. HERO OPERATIONAL BANNER */}
+      <section className="cpNav__hero">
+        <div className="cpNav__hero-glow cpNav__hero-glow--1" />
+        <div className="cpNav__hero-glow cpNav__hero-glow--2" />
 
-      {/* HEADER */}
-      <div className="campaign-header">
-        <div className="left">
-          <h2>Danh sách chiến dịch</h2>
+        <div className="cpNav__hero-inner">
+          <div className="cpNav__info">
+            <div className="cp-badge-icon">
+              <Package size={34} />
+              <span className="live-pulse-dot" title="Kế hoạch cứu trợ 24/7" />
+            </div>
 
-          <span className="count">
-            {filteredList.length} chiến dịch
-          </span>
+            <div className="cp-text-group">
+              <div className="cp-status-row">
+                <span className="operational-badge">
+                  <span className="pulse-point" /> ĐIỀU PHỐI NHU YẾU PHẨM
+                </span>
+                <span className="team-code-badge">
+                  <Flame size={12} /> {stats.total} CHIẾN DỊCH ĐÃ KHỞI LẬP
+                </span>
+              </div>
+
+              <h1 className="hero-main-title">
+                Kế Hoạch & Chiến Dịch Cứu Trợ Nhu Yếu Phẩm
+              </h1>
+
+              <div className="hero-sub-meta">
+                <span className="meta-pill">
+                  Đang thực hiện: <strong>{stats.inProgress} chiến dịch</strong>
+                </span>
+                <span className="meta-separator">•</span>
+                <span className="meta-pill">
+                  Đã hoàn thành: <strong>{stats.completed} chiến dịch</strong>
+                </span>
+                <span className="meta-separator">•</span>
+                <span className="meta-pill">
+                  Đồng bộ lúc: <span>{lastRefreshed.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })}</span>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="cpNav__hero-actions">
+            <button
+              className={`btn-hero-refresh ${refreshing ? "btn-hero-refresh--active" : ""}`}
+              onClick={() => fetchData(true)}
+              title="Làm mới danh sách chiến dịch"
+            >
+              <RotateCcw size={15} />
+              <span>Đồng bộ</span>
+            </button>
+          </div>
         </div>
-      </div>
 
-      {/* FILTER BAR */}
-      <div style={{ marginBottom: 16, display: "flex", gap: 8, flexWrap: "wrap" }}>
-        <Input
-          allowClear
-          placeholder="Tìm theo ID / tên / người tạo"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          style={{ width: 280 }}
-        />
-        <Select
-          allowClear
-          placeholder="Trạng thái"
-          value={statusFilter}
-          onChange={setStatusFilter}
-          style={{ width: 200 }}
-          options={statusOptions}
-          showSearch
-          optionFilterProp="label"
-        />
-        <Select
-          allowClear
-          placeholder="Tháng"
-          value={monthFilter}
-          onChange={setMonthFilter}
-          style={{ width: 150 }}
-          options={monthOptions}
-        />
-        <Select
-          allowClear
-          placeholder="Năm"
-          value={yearFilter}
-          onChange={setYearFilter}
-          style={{ width: 120 }}
-          options={yearOptions}
-        />
-        <Button
-          onClick={() => {
-            setQuery("");
-            setStatusFilter(null);
-            setMonthFilter(null);
-            setYearFilter(null);
+        {/* SUMMARY STATS BAR */}
+        <div className="cpNav__stat-strip">
+          <div className="stat-strip-box">
+            <span className="stat-strip-title">Tổng chiến dịch</span>
+            <span className="stat-strip-value text-cyan">{stats.total} chiến dịch</span>
+          </div>
+          <div className="stat-strip-box">
+            <span className="stat-strip-title">Đang triển khai phát quà</span>
+            <span className="stat-strip-value text-purple">{stats.inProgress} chiến dịch</span>
+          </div>
+          <div className="stat-strip-box">
+            <span className="stat-strip-title">Hoàn tất phân phối</span>
+            <span className="stat-strip-value text-green">{stats.completed} chiến dịch</span>
+          </div>
+          <div className="stat-strip-box">
+            <span className="stat-strip-title">Đang chờ phê duyệt</span>
+            <span className="stat-strip-value text-amber">{stats.pending} chiến dịch</span>
+          </div>
+        </div>
+      </section>
+
+      {/* 2. TOOLBAR FILTERS */}
+      <section className="cpNav__toolbar">
+        <div className="toolbar-search-wrap">
+          <Search size={18} className="search-icon-left" />
+          <input
+            type="text"
+            className="modern-search-input"
+            placeholder="Tìm theo mã chiến dịch, tên chiến dịch, người phụ trách..."
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+          {query && (
+            <button className="btn-clear-query" onClick={() => setQuery("")}>
+              ×
+            </button>
+          )}
+        </div>
+
+        <div className="toolbar-filters-row">
+          <Select
+            allowClear
+            placeholder="Trạng thái thực hiện"
+            value={statusFilter}
+            onChange={setStatusFilter}
+            style={{ width: 190 }}
+            options={statusOptions}
+            showSearch
+            optionFilterProp="label"
+          />
+
+          <Select
+            allowClear
+            placeholder="Theo tháng"
+            value={monthFilter}
+            onChange={setMonthFilter}
+            style={{ width: 140 }}
+            options={monthOptions}
+          />
+
+          <Select
+            allowClear
+            placeholder="Theo năm"
+            value={yearFilter}
+            onChange={setYearFilter}
+            style={{ width: 120 }}
+            options={yearOptions}
+          />
+
+          {(query || statusFilter || monthFilter || yearFilter) && (
+            <button
+              className="btn-filter-reset"
+              onClick={() => {
+                setQuery("");
+                setStatusFilter(null);
+                setMonthFilter(null);
+                setYearFilter(null);
+              }}
+            >
+              Đặt lại bộ lọc
+            </button>
+          )}
+        </div>
+      </section>
+
+      {/* 3. TABLE */}
+      <section className="cpNav__table-container">
+        <Table
+          rowKey="campaignID"
+          columns={columns}
+          dataSource={filteredList}
+          loading={loading}
+          pagination={{
+            pageSize: 6,
+            showSizeChanger: true,
+            showTotal: (total) => `Tổng cộng ${total} chiến dịch cứu trợ`,
           }}
-        >
-          Xóa filter
-        </Button>
-      </div>
-
-      {/* TABLE */}
-      <Table
-        rowKey="campaignID"
-        columns={columns}
-        dataSource={filteredList}
-        loading={loading}
-        pagination={{
-          pageSize: 6,
-          showSizeChanger: true,
-          showTotal: (total) => `Tổng ${total} chiến dịch`,
-        }}
-      />
-
+          className="modern-cp-table"
+        />
+      </section>
     </div>
   );
 }

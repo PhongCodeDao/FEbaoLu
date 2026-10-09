@@ -374,39 +374,71 @@ export default function InventoryManagement() {
     new Set(items.map((x) => (x.unit ?? "").toString()).filter((u) => u.trim().length > 0))
   ).map((u) => ({ value: u, label: u }));
 
+  const totalBudget = useMemo(() => {
+    return warehouses.reduce(
+      (sum, w) => sum + (Number(w.availableBudget) || 0),
+      0
+    );
+  }, [warehouses]);
+
   return (
-    <div style={{ padding: 20 }}>
-    
+    <div className="inventory-mgmt-container">
+      {/* 3 KPI SUMMARY CARDS */}
+      <div className="inventory-stat-grid">
+        <div className="inventory-stat-card card-warehouse">
+          <div className="inv-stat-header">
+            <span className="inv-stat-label">Tổng số kho hàng</span>
+            <div className="inv-stat-icon-box icon-blue">
+              🏢
+            </div>
+          </div>
+          <div className="inv-stat-number">{warehouses.length}</div>
+          <div className="inv-stat-hint">Điểm tiếp nhận & phân phối</div>
+        </div>
 
-      {/* <Space style={{ marginBottom: 16 }}>
-        <Select
-          style={{ width: 250 }}
-          placeholder="Chọn kho để xem tồn kho"
-          value={selectedWarehouseId}
-          options={warehouses.map((w) => ({
-            value: w.id,
-            label: w.warehouseName,
-          }))}
-          onChange={handleSelectWarehouse}
-        />
-      </Space> */}
+        <div className="inventory-stat-card card-items">
+          <div className="inv-stat-header">
+            <span className="inv-stat-label">Danh mục vật phẩm</span>
+            <div className="inv-stat-icon-box icon-amber">
+              📦
+            </div>
+          </div>
+          <div className="inv-stat-number">{items.length}</div>
+          <div className="inv-stat-hint">Nhu yếu phẩm, thiết bị, thuốc men</div>
+        </div>
 
-      <Tabs
-        activeKey={activeTab}
-        onChange={(key) => {
-          setActiveTab(key);
+        <div className="inventory-stat-card card-budget">
+          <div className="inv-stat-header">
+            <span className="inv-stat-label">Tổng ngân sách định mức</span>
+            <div className="inv-stat-icon-box icon-emerald">
+              💰
+            </div>
+          </div>
+          <div className="inv-stat-number inv-stat-currency">
+            {totalBudget.toLocaleString("vi-VN")} ₫
+          </div>
+          <div className="inv-stat-hint">Hạn mức toàn bộ các kho</div>
+        </div>
+      </div>
 
-          // 👉 Khi click tab kho → load inventory
-          if (key.startsWith("warehouse-")) {
-            const id = key.split("-")[1];
-            loadInventory(id);
-          }
-        }}
-        items={[
-          {
-            key: "warehouses",
-            label: "Danh sách kho",
-            children: (
+      <div className="inventory-tabs-card">
+        <Tabs
+          activeKey={activeTab}
+          className="inventory-main-tabs"
+          onChange={(key) => {
+            setActiveTab(key);
+
+            // 👉 Khi click tab kho → load inventory
+            if (key.startsWith("warehouse-")) {
+              const id = key.split("-")[1];
+              loadInventory(id);
+            }
+          }}
+          items={[
+            {
+              key: "warehouses",
+              label: "🏢 Danh sách kho",
+              children: (
               <div>
                 <Space style={{ marginBottom: 16, width: "100%" }} wrap>
                   <Button
@@ -531,6 +563,7 @@ export default function InventoryManagement() {
           ...warehouseTabs,
         ]}
       />
+      </div>
 
       {/* CREATE WAREHOUSE MODAL */}
       <CreateWarehouseModal

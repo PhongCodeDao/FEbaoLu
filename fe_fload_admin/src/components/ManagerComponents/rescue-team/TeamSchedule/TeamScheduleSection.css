@@ -1,191 +1,191 @@
 /* ================= CARD ================= */
 
-.card{
-  background:#ffffff;
-  border-radius:18px;
-  padding:26px;
-  margin-top:20px;
-  box-shadow:
-  0 10px 30px rgba(0,0,0,.05),
-  0 2px 6px rgba(0,0,0,.04);
-  transition:.3s;
-  }
-  
-  .card:hover{
-  box-shadow:
-  0 16px 40px rgba(0,0,0,.08),
-  0 4px 10px rgba(0,0,0,.05);
-  }
-  
-  /* ================= HEADER ================= */
-  
-  .schedule-header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-bottom:22px;
-  }
-  
-  .schedule-header h3{
-  font-size:18px;
-  font-weight:700;
-  color:#111827;
-  margin:0;
-  }
-  
-  /* ================= NAV BUTTON ================= */
-  
-  .nav-buttons{
-  display:flex;
-  gap:10px;
-  background:#f3f4f6;
-  padding:4px;
-  border-radius:10px;
-  }
-  
-  .nav-buttons .ant-btn{
-  border:none;
-  border-radius:8px;
-  font-weight:500;
-  }
-  
-  .nav-buttons .ant-btn-primary{
-  background:#2563eb;
-  box-shadow:0 4px 12px rgba(37,99,235,.25);
-  }
-  
-  /* ================= TABLE ================= */
-  
-  .team-table{
-  border:1px solid #eef2f7;
-  border-radius:14px;
-  overflow:hidden;
-  }
-  
-  /* header */
-  
-  .team-table-head{
-  display:grid;
-  grid-template-columns:
-  80px
-  2fr
-  1.2fr
-  1fr;
-  padding:16px 20px;
-  background:linear-gradient(90deg,#f9fafb,#f3f4f6);
-  font-weight:600;
-  font-size:13px;
-  color:#374151;
-  letter-spacing:.3px;
-  }
-  
-  /* row */
-  
-  .team-table-row{
-  display:grid;
-  grid-template-columns:
-  80px
-  2fr
-  1.2fr
-  1fr;
-  padding:15px 20px;
-  align-items:center;
-  border-top:1px solid #f1f5f9;
-  background:#fff;
-  transition:all .25s ease;
-  }
-  
-  .team-table-row:hover{
-  background:#f9fafb;
-  transform:translateY(-1px);
-  }
-  
-  /* first column */
-  
-  .team-table-row div:first-child{
-  font-weight:600;
-  color:#6b7280;
-  }
-  
-  /* team name */
-  
-  .team-table-row div:nth-child(2){
-  font-weight:600;
-  color:#111827;
-  }
-  
-  /* ================= STATUS BADGE ================= */
-  
-  .team-status{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  padding:4px 10px;
-  border-radius:999px;
-  font-size:12px;
-  font-weight:600;
-  }
-  
-  /* available */
-  
-  .status-ready{
-  background:#dcfce7;
-  color:#15803d;
-  }
-  
-  /* busy */
-  
-  .status-busy{
-  background:#fee2e2;
-  color:#b91c1c;
-  }
-  
-  /* ================= PAGINATION ================= */
-  
-  .table-pagination{
-  display:flex;
-  justify-content:center;
-  margin-top:22px;
-  padding-top:10px;
-  border-top:1px solid #f3f4f6;
-  }
-  
-  /* ================= LOADING ================= */
-  
-  .card.loading{
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  min-height:220px;
-  }
-  
-  /* ================= RESPONSIVE ================= */
-  
-  @media (max-width:768px){
-  
+.card {
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 24px 28px;
+  margin-top: 20px;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05);
+  border: 1px solid #e2e8f0;
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+}
+
+/* ================= HEADER ================= */
+
+.schedule-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.schedule-header h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ================= NAV BUTTON ================= */
+
+.nav-buttons {
+  display: flex;
+  gap: 8px;
+  background: #f1f5f9;
+  padding: 4px;
+  border-radius: 12px;
+}
+
+.nav-buttons .ant-btn {
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 13px;
+  height: 36px;
+  padding: 0 16px;
+  transition: all 0.2s ease;
+}
+
+.nav-buttons .ant-btn-primary {
+  background: #0284c7 !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.3) !important;
+}
+
+.nav-buttons .ant-btn-default {
+  background: transparent !important;
+  color: #64748b !important;
+}
+
+.nav-buttons .ant-btn-default:hover {
+  color: #0f172a !important;
+  background: rgba(255, 255, 255, 0.6) !important;
+}
+
+/* ================= TABLE ================= */
+
+.team-table {
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+/* header */
+
+.team-table-head {
+  display: grid;
+  grid-template-columns: 90px 2fr 1.6fr 1.5fr;
+  padding: 14px 20px;
+  background: #f8fafc;
+  font-weight: 700;
+  font-size: 12px;
+  color: #475569;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+/* row */
+
+.team-table-row {
+  display: grid;
+  grid-template-columns: 90px 2fr 1.6fr 1.5fr;
+  padding: 14px 20px;
+  align-items: center;
+  border-bottom: 1px solid #f1f5f9;
+  background: #ffffff;
+  transition: all 0.2s ease;
+  font-size: 14px;
+}
+
+.team-table-row:hover {
+  background: #f8fafc;
+}
+
+.team-id-badge {
+  font-family: monospace;
+  font-weight: 700;
+  color: #0284c7;
+  background: #f0f9ff;
+  padding: 2px 8px;
+  border-radius: 6px;
+  display: inline-block;
+  width: fit-content;
+  border: 1px solid #bae6fd;
+}
+
+.team-name-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.team-indicator-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #0ea5e9;
+  flex-shrink: 0;
+}
+
+.team-area-cell {
+  display: flex;
+  align-items: center;
+  color: #334155;
+  font-weight: 500;
+}
+
+/* ================= PAGINATION ================= */
+
+.table-pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+  padding-top: 14px;
+}
+
+/* ================= LOADING ================= */
+
+.card.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 220px;
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media (max-width: 768px) {
   .team-table-head,
-  .team-table-row{
-  grid-template-columns:
-  50px
-  1.5fr
-  1fr
-  1fr;
-  padding:12px;
-  font-size:13px;
+  .team-table-row {
+    grid-template-columns: 60px 1.5fr 1fr 1fr;
+    padding: 12px 14px;
+    font-size: 13px;
   }
-  
-  .schedule-header{
-  flex-direction:column;
-  align-items:flex-start;
-  gap:12px;
+
+  .schedule-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
   }
-  
-  .nav-buttons{
-  width:100%;
+
+  .nav-buttons {
+    width: 100%;
   }
-  
-  .nav-buttons .ant-btn{
-  flex:1;
+
+  .nav-buttons .ant-btn {
+    flex: 1;
   }
-  
-  }
+}

@@ -1,41 +1,41 @@
-import { useEffect, useState } from "react";
-import { Table, Tag, Button } from "antd";
+import { useEffect, useState, useMemo } from "react";
+import { Table, Tag, Button, Select, Tabs, Spin, message, Tooltip } from "antd";
+import {
+  CheckCircle2,
+  Clock3,
+  RotateCcw,
+  Warehouse,
+  ArrowDownLeft,
+  ArrowUpRight,
+  Plus,
+  Package,
+  Calendar,
+  Filter,
+  Layers,
+  Sparkles,
+} from "lucide-react";
 import AuthNotify from "../../../utils/Common/AuthNotify";
-import { Select } from "antd";
+import "./ApprovalManagement.css";
 
 import {
   getInventoryTransactions,
   confirmInventoryTransaction,
+  getAllWarehouses,
 } from "../../../../api/axios/ManagerApi/inventoryApi";
 
-import { getAllWarehouses } from "../../../../api/axios/ManagerApi/inventoryApi";
-
 import CreateTransactionModal from "../../../components/ManagerComponents/Approval/CreateTransactionModal";
-
-import { Tabs } from "antd";
 
 export default function ApprovalManagement() {
   const [data, setData] = useState([]);
   const [warehouses, setWarehouses] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [lastRefreshed, setLastRefreshed] = useState(new Date());
+
   const [openCreate, setOpenCreate] = useState(false);
-  const [filter, setFilter] = useState("all");
-  const [warehouseFilter, setWarehouseFilter] = useState(null); // New state for warehouse filter
-  const [transactionTypeFilter, setTransactionTypeFilter] = useState(null); // New state for IN/OUT filter
-
-  const handleWarehouseChange = (value) => {
-    setWarehouseFilter(value);
-  };
-
-  const handleTransactionTypeChange = (value) => {
-    setTransactionTypeFilter(value);
-  };
-
-  const resetFilters = () => {
-    setFilter("all");
-    setWarehouseFilter(null);
-    setTransactionTypeFilter(null);
-  };
+  const [warehouseFilter, setWarehouseFilter] = useState(null);
+  const [transactionTypeFilter, setTransactionTypeFilter] = useState(null);
+  const [confirmingId, setConfirmingId] = useState(null);
 
   /* ================= NORMALIZE ================= */
   const normalize = (res) => {
@@ -45,9 +45,10 @@ export default function ApprovalManagement() {
   };
 
   /* ================= LOAD ================= */
-  const fetchData = async () => {
+  const fetchData = async (isManual = false) => {
     try {
-      setLoading(true);
+      if (isManual) setRefreshing(true);
+      else setLoading(true);
 
       const [resTran, resWh] = await Promise.all([
         getInventoryTransactions(),
@@ -68,13 +69,15 @@ export default function ApprovalManagement() {
         .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
       setData(mapped);
+      setLastRefreshed(new Date());
     } catch (err) {
       console.error("LOAD ERROR:", err);
       AuthNotify.error(
-        err?.response?.data?.message || "Load dữ liệu thất bại"
+        err?.response?.data?.message || "Tải danh sách giao dịch kho thất bại"
       );
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
@@ -82,183 +85,349 @@ export default function ApprovalManagement() {
     fetchData();
   }, []);
 
-  /* ================= HELPER ================= */
-
   const getWarehouseName = (id) => {
     const w = warehouses.find((x) => x.warehouseId === id);
-    return w?.warehouseName || `WH-${id}`;
+    return w?.warehouseName || `Kho #${id}`;
+  };
+
+  const resetFilters = () => {
+    setWarehouseFilter(null);
+    setTransactionTypeFilter(null);
   };
 
   /* ================= FILTER ================= */
+  const filteredData = useMemo(() => {
+    return data.filter((t) => {
+      if (warehouseFilter && t.warehouseId !== warehouseFilter) return false;
+      if (transactionTypeFilter && t.transactionType !== transactionTypeFilter) return false;
+      return true;
+    });
+  }, [data, warehouseFilter, transactionTypeFilter]);
 
-  const filteredData = data.filter((t) => {
-    if (filter === "pending" && !t.isPending) return false;
-    if (filter === "confirmed" && t.isPending) return false;
-    if (warehouseFilter && t.warehouseId !== warehouseFilter) return false;
-    if (transactionTypeFilter && t.transactionType !== transactionTypeFilter) return false;
-    return true;
-  });
+  const pendingList = useMemo(() => filteredData.filter((t) => t.isPending), [filteredData]);
+  const approvedList = useMemo(() => filteredData.filter((t) => !t.isPending), [filteredData]);
 
   /* ================= CONFIRM ================= */
-
   const handleConfirm = async (id) => {
     try {
+      setConfirmingId(id);
       await confirmInventoryTransaction(id);
 
       setData((prev) =>
         prev.map((t) =>
           t.transactionId === id
-            ? { ...t, confirmedAt: new Date().toISOString() }
+            ? { ...t, confirmedAt: new Date().toISOString(), isPending: false }
             : t
         )
       );
 
-      AuthNotify.success("Xác nhận thành công");
+      AuthNotify.success("Phê duyệt thành công", `Giao dịch #${id} đã được xác nhận vào kho.`);
     } catch (err) {
       console.error(err);
-
       AuthNotify.error(
-        err?.response?.data?.message || "Xác nhận thất bại"
+        err?.response?.data?.message || "Phê duyệt giao dịch thất bại"
       );
+    } finally {
+      setConfirmingId(null);
     }
   };
 
   /* ================= COLUMNS ================= */
-
   const columns = [
     {
-      title: "Mã",
+      title: "Mã Giao Dịch",
       dataIndex: "transactionId",
-      render: (id) => <strong>#{id}</strong>,
+      width: 130,
+      render: (id) => (
+        <span className="tx-id-badge">
+          <Package size={13} />
+          <strong>#{id}</strong>
+        </span>
+      ),
     },
     {
-      title: "Kho",
+      title: "Kho Hàng Thực Hiện",
       dataIndex: "warehouseId",
-      render: (id) => getWarehouseName(id),
+      render: (id) => (
+        <div className="tx-warehouse-cell">
+          <Warehouse size={15} className="wh-icon" />
+          <span>{getWarehouseName(id)}</span>
+        </div>
+      ),
     },
     {
-      title: "Loại",
+      title: "Loại Giao Dịch",
       dataIndex: "transactionType",
+      width: 140,
       render: (type) => {
-        const map = {
-          IN: { text: "Nhập", color: "green" },
-          OUT: { text: "Xuất", color: "red" },
-        };
-        const t = map[type] || { text: type };
-        return <Tag color={t.color}>{t.text}</Tag>;
+        const isIN = type === "IN";
+        return (
+          <span className={`tx-type-chip ${isIN ? "tx-type-in" : "tx-type-out"}`}>
+            {isIN ? <ArrowDownLeft size={13} /> : <ArrowUpRight size={13} />}
+            <span>{isIN ? "Nhập Kho" : "Xuất Kho"}</span>
+          </span>
+        );
       },
     },
     {
-      title: "Hàng hóa",
+      title: "Danh Sách Hàng Hóa",
       dataIndex: "lines",
       render: (lines) => (
-        <div>
+        <div className="tx-items-list">
           {lines?.map((l, i) => (
-            <div key={i}>
-              {l.itemName} ({l.quantity} {l.unit})
-            </div>
+            <span key={i} className="tx-item-tag">
+              <span className="item-name">{l.itemName}</span>
+              <span className="item-qty">
+                +{l.quantity} {l.unit}
+              </span>
+            </span>
           ))}
         </div>
       ),
     },
     {
-      title: "Trạng thái",
+      title: "Trạng Thái",
       dataIndex: "confirmedAt",
+      width: 140,
       render: (confirmedAt) =>
         confirmedAt ? (
-          <Tag color="green">Đã duyệt</Tag>
+          <span className="tx-status-badge tx-status-confirmed">
+            <CheckCircle2 size={13} /> Đã Phê Duyệt
+          </span>
         ) : (
-          <Tag color="orange">Chờ duyệt</Tag>
+          <span className="tx-status-badge tx-status-pending">
+            <Clock3 size={13} /> Chờ Phê Duyệt
+          </span>
         ),
     },
     {
-      title: "Thời gian",
+      title: "Thời Gian Khởi Tạo",
       dataIndex: "createdAt",
-      render: (d) =>
-        new Date(d).toLocaleString("vi-VN"),
+      width: 170,
+      render: (d) => (
+        <span className="tx-date-cell">
+          <Calendar size={13} />
+          {new Date(d).toLocaleString("vi-VN", {
+            hour: "2-digit",
+            minute: "2-digit",
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+          })}
+        </span>
+      ),
     },
     {
-      title: "Hành động",
+      title: "Thao Tác",
+      width: 130,
       render: (_, record) =>
-        !record.confirmedAt ? (
+        record.isPending ? (
           <Button
             type="primary"
-            size="small"
+            className="btn-approve-action"
+            loading={confirmingId === record.transactionId}
             onClick={() => handleConfirm(record.transactionId)}
           >
-            Xác nhận
+            Phê duyệt
           </Button>
-        ) : null,
+        ) : (
+          <span className="text-muted-check">
+            <CheckCircle2 size={16} /> Hoàn tất
+          </span>
+        ),
     },
   ];
 
-  const pendingCount = data.filter((t) => t.isPending).length;
-  const approvedCount = data.filter((t) => !t.isPending).length;
-
-  /* ================= UI ================= */
-
   return (
-    <div style={{ padding: 20, background: "#eff3f7", minHeight: "100vh" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 16 }}>
-        <h2>Quản lý giao dịch kho</h2>
+    <div className="approvalPage">
+      {/* 1. HERO OPERATIONAL BANNER */}
+      <section className="apprNav__hero">
+        <div className="apprNav__hero-glow apprNav__hero-glow--1" />
+        <div className="apprNav__hero-glow apprNav__hero-glow--2" />
 
-        <Button type="primary" onClick={() => setOpenCreate(true)}>
-          + Tạo giao dịch
-        </Button>
-      </div>
+        <div className="apprNav__hero-inner">
+          <div className="apprNav__team-info">
+            <div className="team-badge-icon">
+              <CheckCircle2 size={34} />
+              <span className="live-pulse-dot" title="Trung tâm phê duyệt thời gian thực" />
+            </div>
 
-      <div style={{ display: "flex", gap: 16, marginBottom: 16 }}>
-        <Select
-          placeholder="Chọn kho hàng"
-          onChange={handleWarehouseChange}
-          style={{ width: 200 }}
-          value={warehouseFilter}
-        >
-          {warehouses.map((wh) => (
-            <Select.Option key={wh.warehouseId} value={wh.warehouseId}>
-              {wh.warehouseName}
-            </Select.Option>
-          ))}
-        </Select>
+            <div className="team-text-group">
+              <div className="team-status-row">
+                <span className="operational-badge">
+                  <span className="pulse-point" /> HỆ THỐNG PHÊ DUYỆT XUẤT NHẬP KHO
+                </span>
+                <span className="team-code-badge">
+                  <Warehouse size={12} /> {warehouses.length} KHO BÃI ĐANG QUẢN LÝ
+                </span>
+              </div>
 
-        <Select
-          placeholder="Chọn loại giao dịch"
-          onChange={handleTransactionTypeChange}
-          style={{ width: 200 }}
-          value={transactionTypeFilter}
-        >
-          <Select.Option value="IN">Nhập</Select.Option>
-          <Select.Option value="OUT">Xuất</Select.Option>
-        </Select>
+              <h1 className="hero-main-title">
+                Kiểm Soát & Phê Duyệt Giao Dịch Kho Nhu Yếu Phẩm
+              </h1>
 
-        <Button onClick={resetFilters}>Quay lại</Button>
-      </div>
+              <div className="hero-sub-meta">
+                <span className="meta-pill">
+                  Đang chờ duyệt: <strong>{data.filter((t) => t.isPending).length} phiếu</strong>
+                </span>
+                <span className="meta-separator">•</span>
+                <span className="meta-pill">
+                  Đã duyệt hoàn tất: <strong>{data.filter((t) => !t.isPending).length} phiếu</strong>
+                </span>
+                <span className="meta-separator">•</span>
+                <span className="meta-pill">
+                  Cập nhật: <span>{lastRefreshed.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })}</span>
+                </span>
+              </div>
+            </div>
+          </div>
 
-      <Tabs defaultActiveKey="1">
-        <Tabs.TabPane tab={`Chờ phê duyệt (${pendingCount})`} key="1">
-          <Table
-            columns={columns}
-            dataSource={filteredData.filter((t) => t.isPending)}
-            loading={loading}
-            pagination={{ pageSize: 8 }}
-            bordered
-          />
-        </Tabs.TabPane>
-        <Tabs.TabPane tab={`Đã phê duyệt (${approvedCount})`} key="2">
-          <Table
-            columns={columns}
-            dataSource={filteredData.filter((t) => !t.isPending)}
-            loading={loading}
-            pagination={{ pageSize: 8 }}
-            bordered
-          />
-        </Tabs.TabPane>
-      </Tabs>
+          <div className="apprNav__hero-actions">
+            <Button
+              type="primary"
+              className="btn-create-tx"
+              icon={<Plus size={16} />}
+              onClick={() => setOpenCreate(true)}
+            >
+              Tạo giao dịch mới
+            </Button>
 
+            <button
+              className={`btn-hero-refresh ${refreshing ? "btn-hero-refresh--active" : ""}`}
+              onClick={() => fetchData(true)}
+              title="Làm mới danh sách giao dịch"
+            >
+              <RotateCcw size={15} />
+              <span>Đồng bộ</span>
+            </button>
+          </div>
+        </div>
+
+        {/* SUMMARY STATS BAR */}
+        <div className="apprNav__stat-strip">
+          <div className="stat-strip-box">
+            <span className="stat-strip-title">Phiếu chờ phê duyệt</span>
+            <span className="stat-strip-value text-amber">
+              {data.filter((t) => t.isPending).length} phiếu
+            </span>
+          </div>
+          <div className="stat-strip-box">
+            <span className="stat-strip-title">Phiếu đã duyệt xong</span>
+            <span className="stat-strip-value text-green">
+              {data.filter((t) => !t.isPending).length} phiếu
+            </span>
+          </div>
+          <div className="stat-strip-box">
+            <span className="stat-strip-title">Tổng đợt nhập kho</span>
+            <span className="stat-strip-value text-cyan">
+              {data.filter((t) => t.transactionType === "IN").length} lượt
+            </span>
+          </div>
+          <div className="stat-strip-box">
+            <span className="stat-strip-title">Tổng đợt xuất cứu trợ</span>
+            <span className="stat-strip-value text-purple">
+              {data.filter((t) => t.transactionType === "OUT").length} lượt
+            </span>
+          </div>
+        </div>
+      </section>
+
+      {/* 2. TOOLBAR FILTERS */}
+      <section className="apprNav__toolbar">
+        <div className="toolbar-filters-row">
+          <div className="filter-item">
+            <span className="filter-label">
+              <Warehouse size={14} /> Kho hàng:
+            </span>
+            <Select
+              placeholder="Tất cả kho hàng"
+              allowClear
+              onChange={(val) => setWarehouseFilter(val)}
+              value={warehouseFilter}
+              style={{ width: 220 }}
+            >
+              {warehouses.map((wh) => (
+                <Select.Option key={wh.warehouseId} value={wh.warehouseId}>
+                  {wh.warehouseName}
+                </Select.Option>
+              ))}
+            </Select>
+          </div>
+
+          <div className="filter-item">
+            <span className="filter-label">
+              <Filter size={14} /> Loại giao dịch:
+            </span>
+            <Select
+              placeholder="Tất cả loại giao dịch"
+              allowClear
+              onChange={(val) => setTransactionTypeFilter(val)}
+              value={transactionTypeFilter}
+              style={{ width: 200 }}
+            >
+              <Select.Option value="IN">Nhập kho cứu trợ</Select.Option>
+              <Select.Option value="OUT">Xuất kho phân phát</Select.Option>
+            </Select>
+          </div>
+
+          {(warehouseFilter || transactionTypeFilter) && (
+            <button className="btn-filter-reset" onClick={resetFilters}>
+              Đặt lại bộ lọc
+            </button>
+          )}
+        </div>
+      </section>
+
+      {/* 3. TABS & TABLE */}
+      <section className="apprNav__table-container">
+        <Tabs defaultActiveKey="1" className="modern-approval-tabs">
+          <Tabs.TabPane
+            tab={
+              <span className="tab-title-wrap">
+                <Clock3 size={15} />
+                <span>Chờ phê duyệt</span>
+                <span className="tab-badge tab-badge--pending">{pendingList.length}</span>
+              </span>
+            }
+            key="1"
+          >
+            <Table
+              columns={columns}
+              dataSource={pendingList}
+              loading={loading}
+              pagination={{ pageSize: 8, showSizeChanger: false }}
+              className="modern-tx-table"
+              rowKey="transactionId"
+            />
+          </Tabs.TabPane>
+
+          <Tabs.TabPane
+            tab={
+              <span className="tab-title-wrap">
+                <CheckCircle2 size={15} />
+                <span>Đã phê duyệt</span>
+                <span className="tab-badge tab-badge--approved">{approvedList.length}</span>
+              </span>
+            }
+            key="2"
+          >
+            <Table
+              columns={columns}
+              dataSource={approvedList}
+              loading={loading}
+              pagination={{ pageSize: 8, showSizeChanger: false }}
+              className="modern-tx-table"
+              rowKey="transactionId"
+            />
+          </Tabs.TabPane>
+        </Tabs>
+      </section>
+
+      {/* MODAL */}
       <CreateTransactionModal
         open={openCreate}
         onClose={() => setOpenCreate(false)}
-        onSuccess={fetchData}
+        onSuccess={() => fetchData(true)}
       />
     </div>
   );

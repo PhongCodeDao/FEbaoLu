@@ -341,133 +341,199 @@ export default function VehicleManagementContainer() {
   return (
     <div className="vehicle-page">
 
-      {/* PERFORMANCE */}
-
-      <div className="vehicle-performance">
-
+      {/* PERFORMANCE & QUICK METRICS */}
+      <div className="vehicle-performance-box">
         <div className="performance-header">
-
           <div>
-            <h3>Hiệu suất Phương Tiện</h3>
-            <p>Tổng: {total}</p>
+            <h3>Tỷ Lệ Sẵn Sàng Vận Hành</h3>
+            <p>Tổng số phương tiện quản lý: <strong>{total} phương tiện</strong></p>
           </div>
-
           <span className="percentage">{progressPercent}%</span>
-
         </div>
 
-        <Progress percent={progressPercent} showInfo={false} />
+        <Progress
+          percent={progressPercent}
+          strokeColor={{
+            '0%': '#0284c7',
+            '100%': '#10b981',
+          }}
+          showInfo={false}
+          strokeWidth={10}
+        />
 
+        <div className="vehicle-quick-stats">
+          <div className="quick-stat-item stat-ready" onClick={() => setFilterStatus("ready")}>
+            <span className="stat-dot green-dot"></span>
+            <div className="stat-text">
+              <span className="stat-val">{count("ready")}</span>
+              <span className="stat-lbl">Sẵn sàng điều động</span>
+            </div>
+          </div>
+          <div className="quick-stat-item stat-action" onClick={() => setFilterStatus("ready-action")}>
+            <span className="stat-dot blue-dot"></span>
+            <div className="stat-text">
+              <span className="stat-val">{count("ready-action")}</span>
+              <span className="stat-lbl">Đang làm nhiệm vụ</span>
+            </div>
+          </div>
+          <div className="quick-stat-item stat-maintenance" onClick={() => setFilterStatus("maintenance")}>
+            <span className="stat-dot amber-dot"></span>
+            <div className="stat-text">
+              <span className="stat-val">{count("maintenance")}</span>
+              <span className="stat-lbl">Đang bảo trì / sửa chữa</span>
+            </div>
+          </div>
+          <div className="quick-stat-item stat-stop" onClick={() => setFilterStatus("stop")}>
+            <span className="stat-dot red-dot"></span>
+            <div className="stat-text">
+              <span className="stat-val">{count("stop")}</span>
+              <span className="stat-lbl">Tạm ngưng hoạt động</span>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* SEARCH UI */}
+      <div className="vehicle-search-bar">
+        <div className="vehicle-search-inputs">
+          <Input
+            prefix={<SearchOutlined style={{ color: "#94a3b8" }} />}
+            placeholder="Tìm theo tên xe hoặc biển số..."
+            value={search}
+            allowClear
+            onChange={(e) => setSearch(e.target.value)}
+            style={{ width: 280 }}
+          />
 
-      <div className="vehicle-search">
+          <Select
+            placeholder="Loại phương tiện"
+            allowClear
+            options={typeOptions}
+            value={filterType}
+            onChange={(v) => setFilterType(v)}
+            style={{ width: 180 }}
+          />
 
-        <Input
-          prefix={<SearchOutlined />}
-          placeholder="Tìm theo tên hoặc biển số..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+          <Select
+            placeholder="Trạng thái"
+            allowClear
+            value={filterStatus}
+            onChange={(v) => setFilterStatus(v || "all")}
+            options={[
+              { value: "all", label: "Tất cả trạng thái" },
+              { value: "ready", label: "Sẵn sàng" },
+              { value: "ready-action", label: "Đang nhiệm vụ" },
+              { value: "maintenance", label: "Bảo trì" },
+              { value: "stop", label: "Dừng" },
+            ]}
+            style={{ width: 180 }}
+          />
 
-        <Select
-          placeholder="Loại xe"
-          allowClear
-          options={typeOptions}
-          onChange={(v) => setFilterType(v)}
-        />
+          <Button
+            onClick={() => {
+              setSearch("");
+              setFilterType(null);
+              setFilterStatus("all");
+            }}
+          >
+            Đặt lại bộ lọc
+          </Button>
+        </div>
 
-        <Select
-          placeholder="Trạng thái"
-          allowClear
-          onChange={(v) => setFilterStatus(v || "all")}
-          options={[
-            { value: "ready", label: "Sẵn sàng" },
-            { value: "ready-action", label: "Ready Action" },
-            { value: "maintenance", label: "Bảo trì" },
-            { value: "stop", label: "Dừng" },
-          ]}
-        />
-
-        <Button type="primary" onClick={handleSearch}>
-          Tìm kiếm
+        <Button
+          type="primary"
+          onClick={handleCreate}
+          className="vehicle-create-btn"
+        >
+          + Thêm phương tiện mới
         </Button>
-
-        <Button onClick={handleCreate}>
-          Thêm phương tiện
-        </Button>
-
       </div>
 
       {/* CARD GRID */}
-
-      <div className="vehicle-grid">
-
-        {paginatedVehicles.map((v) => (
-
-          <Card
-            key={getVehicleId(v)}
-            className="vehicle-card"
-            hoverable
-            onClick={() => openDrawer(v)}
-          >
-
-            {v.vehicleImg && (
-              <Image
-                src={toDevProxiedImageUrl(v.vehicleImg) || toAbsoluteImageUrl(v.vehicleImg)}
-                fallback={
-                  toDevProxiedImageUrl(v.vehicleImg, true) ||
-                  toAbsoluteImageUrl(v.vehicleImg, true)
-                }
-                referrerPolicy="no-referrer"
-                alt={v.vehicleName}
-                width="100%"
-                height={180}
-                style={{ objectFit: "cover", borderRadius: 8, marginBottom: 12 }}
-                preview={false}
-              />
-            )}
-
-            <div className="vehicle-card-header">
-
-              <h3>{v.vehicleName}</h3>
-
-              <div onClick={(e) => e.stopPropagation()}>
-                <IconButton
-                  size="small"
-                  onClick={(e) => handleOpenActionMenu(e, v)}
-                >
-                  <MoreVertIcon fontSize="small" />
-                </IconButton>
+      {paginatedVehicles.length === 0 ? (
+        <div className="vehicle-empty-state">
+          <p>Không tìm thấy phương tiện nào phù hợp với điều kiện tìm kiếm.</p>
+        </div>
+      ) : (
+        <div className="vehicle-grid">
+          {paginatedVehicles.map((v) => (
+            <Card
+              key={getVehicleId(v)}
+              className="vehicle-card"
+              hoverable
+              onClick={() => openDrawer(v)}
+            >
+              <div className="vehicle-card-image-wrap">
+                {v.vehicleImg ? (
+                  <Image
+                    src={toDevProxiedImageUrl(v.vehicleImg) || toAbsoluteImageUrl(v.vehicleImg)}
+                    fallback={
+                      toDevProxiedImageUrl(v.vehicleImg, true) ||
+                      toAbsoluteImageUrl(v.vehicleImg, true)
+                    }
+                    referrerPolicy="no-referrer"
+                    alt={v.vehicleName}
+                    width="100%"
+                    height={160}
+                    style={{ objectFit: "cover", borderRadius: "10px 10px 0 0" }}
+                    preview={false}
+                  />
+                ) : (
+                  <div className="vehicle-placeholder-image">
+                    <span style={{ fontSize: 40 }}>🚐</span>
+                  </div>
+                )}
+                <div className="vehicle-status-badge-overlay">
+                  {getStatusTag(v.vehicleStatus)}
+                </div>
               </div>
 
-            </div>
+              <div className="vehicle-card-content">
+                <div className="vehicle-card-header">
+                  <div className="vehicle-card-title-box">
+                    <h3 className="vehicle-name">{v.vehicleName}</h3>
+                    {v.plateNumber && (
+                      <span className="vehicle-plate-pill">{v.plateNumber}</span>
+                    )}
+                  </div>
 
-            <div className="vehicle-card-body">
+                  <div onClick={(e) => e.stopPropagation()}>
+                    <IconButton
+                      size="small"
+                      onClick={(e) => handleOpenActionMenu(e, v)}
+                    >
+                      <MoreVertIcon fontSize="small" />
+                    </IconButton>
+                  </div>
+                </div>
 
-              <p><b>Loại:</b> {v.vehicleType}</p>
-              <p><b>Vị trí:</b> {v.vehicleLocation}</p>
-
-              <div style={{ marginTop: 10 }}>
-                {getStatusTag(v.vehicleStatus)}
+                <div className="vehicle-card-body">
+                  <div className="vehicle-info-row">
+                    <span className="info-label">Loại:</span>
+                    <span className="info-val">{v.vehicleType || "Chưa xác định"}</span>
+                  </div>
+                  <div className="vehicle-info-row">
+                    <span className="info-label">Vị trí:</span>
+                    <span className="info-val" title={v.vehicleLocation}>
+                      {v.vehicleLocation || "Chưa gán vị trí"}
+                    </span>
+                  </div>
+                </div>
               </div>
+            </Card>
+          ))}
+        </div>
+      )}
 
-            </div>
-
-          </Card>
-
-        ))}
-
+      <div className="vehicle-pagination-wrap">
+        <Pagination
+          current={currentPage}
+          pageSize={pageSize}
+          total={filteredVehicles.length}
+          onChange={(page) => setCurrentPage(page)}
+          showSizeChanger={false}
+        />
       </div>
-
-      <Pagination
-        style={{ marginTop: 20 }}
-        current={currentPage}
-        pageSize={pageSize}
-        total={filteredVehicles.length}
-        onChange={(page) => setCurrentPage(page)}
-      />
 
       {/* MODAL */}
 

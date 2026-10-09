@@ -14,6 +14,22 @@ import {
 } from "antd";
 import { useNavigate } from "react-router-dom";
 import {
+  Package,
+  Users,
+  RotateCcw,
+  Plus,
+  Flame,
+  Search,
+  ArrowRight,
+  Truck,
+  Calendar,
+  Layers,
+  Sparkles,
+  MapPin,
+  Clock,
+} from "lucide-react";
+import "./DistributionPage.css";
+import {
   getAllDistributions,
   deleteDistribution,
   getAllRescueTeams,
@@ -381,94 +397,221 @@ export default function DistributionPage() {
 
   const columns = [
     {
-      title: "ID",
+      title: "Mã Đợt",
       dataIndex: "distributionId",
-      width: 80,
+      width: 110,
       render: (id) => (
         <span
-          style={{ color: "#1677ff", cursor: "pointer" }}
+          className="dist-id-tag"
+          style={{ cursor: "pointer" }}
           onClick={() => navigate(`/manager/team-cuu-tro/${id}`)}
+          title="Bấm để xem chi tiết đợt phát"
         >
-          #{id}
+          <Package size={12} />
+          <strong>#{id}</strong>
         </span>
       ),
     },
     {
-      title: "Chiến dịch",
-      render: (_, record) =>
-        campaignMap[record.campaignId] || `#${record.campaignId}`,
+      title: "Chiến Dịch Cứu Trợ",
+      render: (_, record) => (
+        <span
+          className="dist-camp-name"
+          style={{ cursor: "pointer", color: "#0284c7" }}
+          onClick={() => navigate(`/manager/team-cuu-tro/${record.distributionId}`)}
+        >
+          {campaignMap[record.campaignId] || `#${record.campaignId}`}
+        </span>
+      ),
     },
     {
-      title: "Đội cứu trợ",
-      render: (_, record) =>
-        teamMap[record.rescueTeamId] || `#${record.rescueTeamId}`,
+      title: "Đội Cứu Trợ Phụ Trách",
+      render: (_, record) => (
+        <span className="dist-team-tag">
+          <Truck size={13} style={{ color: "#0284c7" }} />
+          <span>{teamMap[record.rescueTeamId] || `Đội #${record.rescueTeamId}`}</span>
+        </span>
+      ),
     },
     {
-      title: "Thời gian",
+      title: "Thời Gian",
       dataIndex: "distributedAt",
       render: (d) =>
-        d ? new Date(d).toLocaleString("vi-VN") : "—",
+        d ? (
+          <span className="dist-time-cell">
+            {new Date(d).toLocaleString("vi-VN", {
+              hour: "2-digit",
+              minute: "2-digit",
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
+            })}
+          </span>
+        ) : (
+          "—"
+        ),
     },
     {
-      title: "Trạng thái",
+      title: "Trạng Thái",
       dataIndex: "status",
+      width: 140,
       render: renderStatus,
     },
     {
-      title: "Ghi chú",
+      title: "Ghi Chú",
       dataIndex: "note",
+      render: (t) => t || <span style={{ color: "#94a3b8" }}>Không có ghi chú</span>,
     },
     {
-      title: "Hành động",
+      title: "Thao Tác",
+      width: 160,
       render: (_, record) => (
         <div style={{ display: "flex", gap: 8 }}>
           <Button
+            size="small"
+            className="btn-table-edit"
             onClick={() => {
               setSelected(record);
               setOpenEdit(true);
             }}
           >
-            Sửa
+            Chỉnh sửa
           </Button>
 
           <Popconfirm
-            title="Xóa?"
+            title="Xác nhận xóa đợt phân phối này?"
             onConfirm={() => handleDelete(record)}
+            okText="Xóa"
+            cancelText="Hủy"
           >
-            <Button danger>Xóa</Button>
+            <Button size="small" danger className="btn-table-del">
+              Xóa
+            </Button>
           </Popconfirm>
         </div>
       ),
     },
   ];
 
+  const distStats = useMemo(() => {
+    return {
+      total: list.length,
+      inProgress: list.filter((d) => (d.status || "").toLowerCase() === "in progress").length,
+      completed: list.filter((d) => (d.status || "").toLowerCase() === "completed").length,
+      pending: list.filter((d) => (d.status || "").toLowerCase() === "pending").length,
+    };
+  }, [list]);
+
   /* ================= UI ================= */
 
   return (
-    <div style={{ padding: 20 }}>
+    <div className="distributionPage">
+      {/* 1. HERO OPERATIONAL BANNER */}
+      <section className="distNav__hero">
+        <div className="distNav__hero-glow distNav__hero-glow--1" />
+        <div className="distNav__hero-glow distNav__hero-glow--2" />
 
-      <div style={{
-        marginBottom: 16,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        gap: 12,
-        flexWrap: "wrap"
-      }}>
-        <h2 style={{ margin: 0 }}>Phân phối cứu trợ ({filteredList.length})</h2>
+        <div className="distNav__hero-inner">
+          <div className="distNav__info">
+            <div className="dist-badge-icon">
+              <Package size={34} />
+              <span className="live-pulse-dot" title="Phân phối cứu trợ trực chiến 24/7" />
+            </div>
 
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
-          <Input
-            allowClear
-            placeholder="Tìm theo ID / ghi chú"
+            <div className="dist-text-group">
+              <div className="dist-status-row">
+                <span className="operational-badge">
+                  <span className="pulse-point" /> ĐIỀU PHỐI CỨU TRỢ TIỀN TUYẾN
+                </span>
+                <span className="team-code-badge">
+                  <Flame size={12} /> {distStats.total} ĐỢT PHÂN PHỐI ĐÃ LẬP
+                </span>
+              </div>
+
+              <h1 className="hero-main-title">
+                Kế Hoạch & Các Đợt Phân Phối Cứu Trợ
+              </h1>
+
+              <div className="hero-sub-meta">
+                <span className="meta-pill">
+                  Đang phát hàng: <strong>{distStats.inProgress} đợt</strong>
+                </span>
+                <span className="meta-separator">•</span>
+                <span className="meta-pill">
+                  Đã hoàn thành: <strong>{distStats.completed} đợt</strong>
+                </span>
+                <span className="meta-separator">•</span>
+                <span className="meta-pill">
+                  Đang chờ duyệt: <strong>{distStats.pending} đợt</strong>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="distNav__hero-actions">
+            <Button
+              type="primary"
+              className="btn-create-dist"
+              icon={<Plus size={16} />}
+              onClick={() => setOpenCreate(true)}
+            >
+              Tạo đợt phân phối
+            </Button>
+
+            <button
+              className="btn-hero-refresh"
+              onClick={() => fetchAll()}
+              title="Làm mới danh sách"
+            >
+              <RotateCcw size={15} />
+              <span>Đồng bộ</span>
+            </button>
+          </div>
+        </div>
+
+        {/* SUMMARY STATS BAR */}
+        <div className="distNav__stat-strip">
+          <div className="stat-strip-box">
+            <span className="stat-strip-title">Tổng đợt phân phối</span>
+            <span className="stat-strip-value text-cyan">{distStats.total} đợt</span>
+          </div>
+          <div className="stat-strip-box">
+            <span className="stat-strip-title">Đang phát thực tế</span>
+            <span className="stat-strip-value text-purple">{distStats.inProgress} đợt</span>
+          </div>
+          <div className="stat-strip-box">
+            <span className="stat-strip-title">Hoàn thành phát quà</span>
+            <span className="stat-strip-value text-green">{distStats.completed} đợt</span>
+          </div>
+          <div className="stat-strip-box">
+            <span className="stat-strip-title">Đang chờ triển khai</span>
+            <span className="stat-strip-value text-amber">{distStats.pending} đợt</span>
+          </div>
+        </div>
+      </section>
+
+      {/* 2. TOOLBAR FILTERS */}
+      <section className="distNav__toolbar">
+        <div className="toolbar-search-wrap">
+          <Search size={18} className="search-icon-left" />
+          <input
+            type="text"
+            className="modern-search-input"
+            placeholder="Tìm theo ID đợt phát, ghi chú..."
             value={planQuery}
             onChange={(e) => setPlanQuery(e.target.value)}
-            style={{ width: 260 }}
           />
+          {planQuery && (
+            <button className="btn-clear-query" onClick={() => setPlanQuery("")}>
+              ×
+            </button>
+          )}
+        </div>
 
+        <div className="toolbar-filters-row">
           <Select
             allowClear
-            placeholder="Chiến dịch"
+            placeholder="Theo chiến dịch"
             value={campaignFilterId}
             onChange={setCampaignFilterId}
             style={{ width: 220 }}
@@ -482,7 +625,7 @@ export default function DistributionPage() {
 
           <Select
             allowClear
-            placeholder="Đội cứu trợ"
+            placeholder="Đội cứu trợ phụ trách"
             value={teamFilterId}
             onChange={setTeamFilterId}
             style={{ width: 200 }}
@@ -499,7 +642,7 @@ export default function DistributionPage() {
             placeholder="Trạng thái"
             value={statusFilter}
             onChange={setStatusFilter}
-            style={{ width: 180 }}
+            style={{ width: 170 }}
             options={[
               { value: "pending", label: "Đang chờ" },
               { value: "accepted", label: "Đã nhận" },
@@ -509,42 +652,44 @@ export default function DistributionPage() {
             ]}
           />
 
-          <Button
-            onClick={() => {
-              setPlanQuery("");
-              setCampaignFilterId(null);
-              setTeamFilterId(null);
-              setStatusFilter(null);
-            }}
-          >
-            Xóa filter
-          </Button>
-
-          <Button type="primary" onClick={() => setOpenCreate(true)}>
-            + Tạo
-          </Button>
+          {(planQuery || campaignFilterId || teamFilterId || statusFilter) && (
+            <button
+              className="btn-filter-reset"
+              onClick={() => {
+                setPlanQuery("");
+                setCampaignFilterId(null);
+                setTeamFilterId(null);
+                setStatusFilter(null);
+              }}
+            >
+              Đặt lại bộ lọc
+            </button>
+          )}
         </div>
-      </div>
+      </section>
 
-      <Table
-        rowKey="distributionId"
-        columns={columns}
-        dataSource={filteredList}
-        loading={loading}
-        expandable={{
-          expandedRowRender,
-          onExpand: (expanded, record) => {
-            if (expanded && !expandedDetails[record.distributionId]) {
-              loadExpandedDetails(record.distributionId);
-            }
-          },
-        }}
-        pagination={{
-          pageSize: 6,
-          showSizeChanger: true,
-          showTotal: (t) => `Tổng ${t}`,
-        }}
-      />
+      {/* 3. TABLE */}
+      <section className="distNav__table-container">
+        <Table
+          rowKey="distributionId"
+          columns={columns}
+          dataSource={filteredList}
+          loading={loading}
+          expandable={{
+            expandedRowRender,
+            onExpand: (expanded, record) => {
+              if (expanded && !expandedDetails[record.distributionId]) {
+                loadExpandedDetails(record.distributionId);
+              }
+            },
+          }}
+          pagination={{
+            pageSize: 6,
+            showSizeChanger: true,
+            showTotal: (t) => `Tổng cộng ${t} đợt phân phối`,
+          }}
+        />
+      </section>
 
       <CreateDistribution
         open={openCreate}
@@ -585,7 +730,6 @@ export default function DistributionPage() {
           }
         }}
       />
-
     </div>
   );
 }

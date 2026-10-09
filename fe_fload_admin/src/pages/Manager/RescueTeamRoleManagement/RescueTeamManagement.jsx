@@ -21,9 +21,13 @@ export default function RescueTeamManagement() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [areaFilterId, setAreaFilterId] = useState(null);
-  const fetchTeams = async () => {
+  const [refreshing, setRefreshing] = useState(false);
+  const [lastRefreshed, setLastRefreshed] = useState(new Date());
+
+  const fetchTeams = async (isManual = false) => {
     try {
-      setLoading(true);
+      if (isManual) setRefreshing(true);
+      else setLoading(true);
 
       const response = await getAllRescueTeams();
       const data = response.data;
@@ -37,10 +41,12 @@ export default function RescueTeamManagement() {
       } else {
         setTeams([]);
       }
+      setLastRefreshed(new Date());
     } catch (error) {
-      message.error("Không thể tải danh sách đội");
+      message.error("Không thể tải danh sách đội cứu hộ");
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
   const normalizeStatus = (status) => {
@@ -126,69 +132,120 @@ export default function RescueTeamManagement() {
 
   return (
     <div className="rescue-page">
-      <div className="page-header">
-        <div>
-          <h2>Quản lý Đội cứu hộ</h2>
-          <p>
-            Giám sát và sắp xếp nhân sự cho các đội cứu hộ dưới quyền (UC-M08,
-            UC-M18)
-          </p>
-        </div>
+      {/* EXECUTIVE COMMAND HERO BANNER */}
+      <div className="rescue-hero-banner">
+        <div className="rescue-hero-backdrop"></div>
+        <div className="rescue-hero-content">
+          <div className="rescue-hero-top">
+            <div className="rescue-hero-status-pill">
+              <span className="rescue-pulse-dot"></span>
+              <span className="rescue-status-text">RADAR ĐIỀU HÀNH 24/7</span>
+              <span className="rescue-status-divider">•</span>
+              <span className="rescue-time-text">
+                Cập nhật lúc {lastRefreshed.toLocaleTimeString("vi-VN")}
+              </span>
+            </div>
 
-        {/* <div className="header-actions">
-          <Button icon={<FilterOutlined />}>Lọc nâng cao</Button>
-          <Button icon={<DownloadOutlined />}>Xuất báo cáo</Button>
-        </div> */}
+            <Button
+              className="rescue-sync-btn"
+              icon={<ThunderboltOutlined spin={refreshing} />}
+              onClick={() => fetchTeams(true)}
+              loading={refreshing}
+            >
+              Làm mới dữ liệu
+            </Button>
+          </div>
+
+          <div className="rescue-hero-main">
+            <div className="rescue-hero-title-group">
+              <div className="rescue-hero-icon-wrap">
+                <TeamOutlined />
+              </div>
+              <div>
+                <h1 className="rescue-hero-title">
+                  Trung Tâm Điều Phối Đội Cứu Hộ
+                </h1>
+                <p className="rescue-hero-subtitle">
+                  Giám sát thời gian thực năng lực ứng phó, sắp xếp nhân sự và phân bổ đội hình tác chiến vùng lũ
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div className="stat-grid">
+      {/* 4 KPI METRIC CARDS */}
+      <div className="rescue-stat-grid">
         <div
+          className={`rescue-stat-card card-total ${filterStatus === "all" ? "active" : ""}`}
           onClick={() => setFilterStatus("all")}
-          style={{ cursor: "pointer" }}
         >
-          {/* <StatCard
-            title="TỔNG SỐ ĐỘI"
-            value={getTeamCount("all")}
-            icon={<TeamOutlined />}
-            active={filterStatus === "all"}
-          /> */}
+          <div className="rescue-stat-header">
+            <span className="rescue-stat-label">Tổng số đội</span>
+            <div className="rescue-stat-icon-box icon-blue">
+              <TeamOutlined />
+            </div>
+          </div>
+          <div className="rescue-stat-number">{getTeamCount("all")}</div>
+          <div className="rescue-stat-footer">
+            <span className="rescue-stat-hint">Toàn bộ lực lượng</span>
+            {filterStatus === "all" && <span className="rescue-active-tag">Đang chọn</span>}
+          </div>
         </div>
+
         <div
+          className={`rescue-stat-card card-active ${filterStatus === "active" ? "active" : ""}`}
           onClick={() => setFilterStatus("active")}
-          style={{ cursor: "pointer" }}
         >
-          {/* <StatCard
-            title="Sẵng Sàng"
-            value={getTeamCount("active")}
-            icon={<ThunderboltOutlined />}
-            green
-            active={filterStatus === "active"}
-          /> */}
+          <div className="rescue-stat-header">
+            <span className="rescue-stat-label">Sẵn sàng tác chiến</span>
+            <div className="rescue-stat-icon-box icon-green">
+              <ThunderboltOutlined />
+            </div>
+          </div>
+          <div className="rescue-stat-number">{getTeamCount("active")}</div>
+          <div className="rescue-stat-footer">
+            <span className="rescue-stat-hint">Có thể điều động ngay</span>
+            {filterStatus === "active" && <span className="rescue-active-tag">Đang chọn</span>}
+          </div>
         </div>
+
         <div
+          className={`rescue-stat-card card-rest ${filterStatus === "rest" ? "active" : ""}`}
           onClick={() => setFilterStatus("rest")}
-          style={{ cursor: "pointer" }}
         >
-          {/* <StatCard
-            title="ĐANG NGHỈ"
-            value={getTeamCount("rest")}
-            icon={<CoffeeOutlined />}
-            gray
-            active={filterStatus === "rest"}
-          /> */}
+          <div className="rescue-stat-header">
+            <span className="rescue-stat-label">Đang nghỉ / Dự phòng</span>
+            <div className="rescue-stat-icon-box icon-amber">
+              <CoffeeOutlined />
+            </div>
+          </div>
+          <div className="rescue-stat-number">{getTeamCount("rest")}</div>
+          <div className="rescue-stat-footer">
+            <span className="rescue-stat-hint">Chờ phân công / Nghỉ ngơi</span>
+            {filterStatus === "rest" && <span className="rescue-active-tag">Đang chọn</span>}
+          </div>
         </div>
-        {/* <StatCard
-          title="NHÂN SỰ SẴN SÀNG"
-          value={totalMembers}
-          icon={<UserOutlined />}
-        /> */}
+
+        <div className="rescue-stat-card card-members">
+          <div className="rescue-stat-header">
+            <span className="rescue-stat-label">Tổng quân số chiến sĩ</span>
+            <div className="rescue-stat-icon-box icon-purple">
+              <UserOutlined />
+            </div>
+          </div>
+          <div className="rescue-stat-number">{totalMembers}</div>
+          <div className="rescue-stat-footer">
+            <span className="rescue-stat-hint">Nhân lực đã đăng ký</span>
+          </div>
+        </div>
       </div>
 
-      {/* FILTER BAR */}
+      {/* FILTER BAR & TEAMS LIST */}
       <TeamManagementList
         teamsData={mappedTeams}
         filterStatus={filterStatus}
-        onTeamChanged={fetchTeams}
+        onTeamChanged={() => fetchTeams(true)}
         searchQuery={searchQuery}
         areaFilterId={areaFilterId}
         onSearchChange={setSearchQuery}
@@ -196,23 +253,12 @@ export default function RescueTeamManagement() {
         onResetFilters={() => {
           setSearchQuery("");
           setAreaFilterId(null);
+          setFilterStatus("all");
         }}
       />
-      <ScheduleList />
-    </div>
-  );
-}
 
-function StatCard({ title, value, icon, green, gray, active }) {
-  return (
-    <div
-      className={`stat-card ${green ? "green" : ""} ${gray ? "gray" : ""} ${
-        active ? "active" : ""
-      }`}
-    >
-      <div className="stat-icon">{icon}</div>
-      <span>{title}</span>
-      <h2>{value}</h2>
+      {/* SCHEDULE & MISSIONS SECTION */}
+      <ScheduleList />
     </div>
   );
 }
