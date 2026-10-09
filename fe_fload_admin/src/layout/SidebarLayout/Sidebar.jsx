@@ -21,10 +21,6 @@ import {
   History,
   UserCheck,
   LogOut,
-  LifeBuoy,
-  ChevronRight,
-  ShieldAlert,
-  Sparkles,
 } from "lucide-react";
 
 import { getUserProfile } from "../../../api/axios/Auth/authApi";
@@ -40,7 +36,6 @@ const menuByRole = {
       icon: <Users size={18} />,
       path: "/admin/user",
       end: true,
-      badge: "User",
     },
     {
       label: "Cấu hình tham số",
@@ -51,38 +46,37 @@ const menuByRole = {
       label: "Logs hệ thống",
       icon: <FileText size={18} />,
       path: "/admin/logs",
-      badge: "Audit",
     },
     {
       label: "Chiến dịch cứu trợ",
       icon: <Flame size={18} />,
       path: "/admin/chien-dich-cuu-tro",
-      badge: "Hot",
+      badge: "Mới",
     },
   ],
 
   manager: [
     {
-      label: "Tổng quan vận hành",
+      label: "Tổng quan",
       icon: <LayoutDashboard size={18} />,
       path: "/manager",
       end: true,
     },
     {
-      label: "Phương tiện cứu trợ",
+      label: "Phương tiện",
       icon: <Truck size={18} />,
       path: "/manager/vehicles",
     },
     {
-      label: "Kho hàng cứu trợ",
+      label: "Kho hàng",
       icon: <Package size={18} />,
       path: "/manager/inventory",
     },
     {
-      label: "Phê duyệt điều phối",
+      label: "Phê duyệt",
       icon: <ClipboardCheck size={18} />,
       path: "/manager/approve",
-      badge: "Ưu tiên",
+      badge: "Cần duyệt",
     },
     {
       label: "Kế hoạch cứu trợ",
@@ -95,7 +89,7 @@ const menuByRole = {
       path: "/manager/team-cuu-tro",
     },
     {
-      label: "Đội cứu hộ trực chiến",
+      label: "Đội cứu hộ",
       icon: <Shield size={18} />,
       path: "/manager/rescue-team",
     },
@@ -107,7 +101,7 @@ const menuByRole = {
       icon: <CheckCircle2 size={18} />,
       path: "/coordinator",
       end: true,
-      badge: "Khẩn cấp",
+      badge: "Tin mới",
     },
     {
       label: "Đang điều phối",
@@ -138,7 +132,7 @@ const menuByRole = {
       icon: <ClipboardCheck size={18} />,
       path: "/rescueTeam",
       end: true,
-      badge: "Mới",
+      badge: "Nhiệm vụ",
     },
     {
       label: "Đang cứu hộ",
@@ -161,9 +155,9 @@ const menuByRole = {
 
 const roleMeta = {
   admin: { name: "Quản trị viên", color: "#ef4444" },
-  manager: { name: "Điều hành kho & đội", color: "#8b5cf6" },
-  coordinator: { name: "Điều phối viên", color: "#0284c7" },
-  rescueteam: { name: "Đội viên cứu nạn", color: "#10b981" },
+  manager: { name: "Điều hành kho & đội", color: "#a855f7" },
+  coordinator: { name: "Điều phối viên", color: "#38bdf8" },
+  rescueteam: { name: "Đội viên cứu nạn", color: "#22c55e" },
 };
 
 export default function Sidebar() {
@@ -188,7 +182,6 @@ export default function Sidebar() {
         setUserProfile(data);
       }
     } catch {
-      // Use existing user from storage if available
       if (user.fullName) {
         setUserProfile({
           fullName: user.fullName,
@@ -217,25 +210,13 @@ export default function Sidebar() {
 
   return (
     <aside className="sidebar">
-      {/* BRAND / HUB HEADER */}
-      <div className="sidebar-brand">
-        <div className="sidebar-brand__logo-wrap">
-          <div className="sidebar-brand__glow-ring" />
-          <LifeBuoy className="sidebar-brand__icon" size={22} />
+      {/* HEADER SECTION IN SIDEBAR */}
+      <div className="sidebar-top">
+        <div className="sidebar-top__hub">
+          <span className="sidebar-top__dot" />
+          <span className="sidebar-top__title">MENU ĐIỀU HÀNH</span>
         </div>
-        <div className="sidebar-brand__text">
-          <div className="sidebar-brand__title">
-            <span>RESCUE HUB</span>
-            <span className="sidebar-brand__live-tag">LIVE</span>
-          </div>
-          <p className="sidebar-brand__subtitle">Cứu Trợ & Ứng Cứu Bão Lũ</p>
-        </div>
-      </div>
-
-      {/* SECTION LABEL */}
-      <div className="sidebar-section-title">
-        <span>MENU ĐIỀU HÀNH</span>
-        <div className="sidebar-section-line" />
+        <span className="sidebar-top__badge">HOẠT ĐỘNG</span>
       </div>
 
       {/* NAVIGATION ITEMS */}
@@ -253,19 +234,13 @@ export default function Sidebar() {
               return `menu-item ${isActive || isDangCuuHo ? "active" : ""}`;
             }}
           >
-            <div className="menu-item__left">
-              <span className="menu-icon">{item.icon}</span>
-              <span className="menu-label">{item.label}</span>
-            </div>
-
-            <div className="menu-item__right">
-              {item.badge && (
-                <span className={`menu-badge ${item.badge === "Hot" || item.badge === "Khẩn cấp" ? "badge-danger" : "badge-info"}`}>
-                  {item.badge}
-                </span>
-              )}
-              <ChevronRight size={14} className="menu-arrow" />
-            </div>
+            <span className="menu-icon">{item.icon}</span>
+            <span className="menu-label" title={item.label}>{item.label}</span>
+            {item.badge && (
+              <span className={`menu-badge ${item.badge === "Mới" || item.badge === "Tin mới" ? "badge-danger" : "badge-info"}`}>
+                {item.badge}
+              </span>
+            )}
           </NavLink>
         ))}
       </nav>
@@ -275,7 +250,7 @@ export default function Sidebar() {
         <div
           className="user-card"
           onClick={() => setProfileOpen(true)}
-          title="Nhấn để xem và chỉnh sửa thông tin cá nhân"
+          title="Xem thông tin tài khoản"
         >
           <div className="avatar-wrap">
             <div className="avatar">{avatarText}</div>
@@ -286,21 +261,20 @@ export default function Sidebar() {
           </div>
 
           <div className="user-details">
-            <span className="user-name">{userProfile.fullName}</span>
-            <div className="user-role-pill">
-              <span
-                className="role-color-dot"
-                style={{ background: currentRoleMeta.color }}
-              />
-              <span className="role-text">
-                {userProfile.roleName || currentRoleMeta.name}
-              </span>
-            </div>
+            <span className="user-name" title={userProfile.fullName}>
+              {userProfile.fullName}
+            </span>
+            <span
+              className="user-role"
+              style={{ color: currentRoleMeta.color }}
+            >
+              {userProfile.roleName || currentRoleMeta.name}
+            </span>
           </div>
         </div>
 
-        <button className="logout-btn" onClick={handleLogout} title="Đăng xuất khỏi hệ thống">
-          <LogOut size={16} />
+        <button className="logout-btn" onClick={handleLogout} title="Đăng xuất">
+          <LogOut size={15} />
           <span>Đăng xuất</span>
         </button>
       </div>
