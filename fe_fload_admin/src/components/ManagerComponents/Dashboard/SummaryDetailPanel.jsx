@@ -37,7 +37,7 @@ const DATA_KEY_MAPPING = {
 
 const IMAGE_FIELD_HINTS = ["image", "img", "photo", "avatar", "url"];
 const DATE_FIELD_HINTS = ["date", "time", "at"];
-const API_BASE = "https://api-rescue.purintech.id.vn";
+const API_BASE = (import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || "https://bebaolu.onrender.com").replace(/\/$/, "");
 
 const LABEL_OVERRIDES = {
   rescueRequestId: "Mã yêu cầu cứu hộ",
@@ -112,6 +112,10 @@ const isHttpUrl = (value) =>
 const resolveImageUrl = (value) => {
   if (!value || typeof value !== "string") {
     return "";
+  }
+
+  if (value.includes("api-rescue.purintech.id.vn")) {
+    return value.replace("https://api-rescue.purintech.id.vn", API_BASE);
   }
 
   if (isHttpUrl(value)) {
@@ -396,11 +400,14 @@ const getRequestImages = (request) => {
     imgs
       .map((item) => item?.trim?.() || item)
       .filter(Boolean)
-      .map((item) =>
-        item.startsWith("http")
+      .map((item) => {
+        if (item.includes("api-rescue.purintech.id.vn")) {
+          return item.replace("https://api-rescue.purintech.id.vn", API_BASE);
+        }
+        return item.startsWith("http")
           ? item
-          : `${API_BASE}${item.startsWith("/") ? "" : "/"}${item}`
-      )
+          : `${API_BASE}${item.startsWith("/") ? "" : "/"}${item}`;
+      })
   )];
 };
 

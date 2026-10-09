@@ -13,7 +13,7 @@ import AuthNotify from "../../../utils/Common/AuthNotify";
 
 import "./MissionDetail.css";
 
-const IMAGE_BASE = "https://api-rescue.purintech.id.vn";
+const IMAGE_BASE = (import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || "https://bebaolu.onrender.com").replace(/\/$/, "");
 
 
 
@@ -258,11 +258,14 @@ const [rejectLoading, setRejectLoading] = useState(false);
       images
         .map(i => i?.trim())
         .filter(Boolean)
-        .map(i =>
-          i.startsWith("http")
+        .map(i => {
+          if (i.includes("api-rescue.purintech.id.vn")) {
+            return i.replace("https://api-rescue.purintech.id.vn", IMAGE_BASE);
+          }
+          return i.startsWith("http")
             ? i
-            : `${IMAGE_BASE}${i.startsWith("/") ? "" : "/"}${i}`
-        )
+            : `${IMAGE_BASE}${i.startsWith("/") ? "" : "/"}${i}`;
+        })
     )];
   };
   
@@ -456,10 +459,12 @@ const [rejectLoading, setRejectLoading] = useState(false);
 <Image.PreviewGroup>
 {images.map((img, i) => {
 
-  const imageUrl =
-  img.startsWith("http")
-  ? img
-  : `${IMAGE_BASE}${img.startsWith("/") ? "" : "/"}${img}`
+  let imageUrl = img;
+  if (img.includes("api-rescue.purintech.id.vn")) {
+    imageUrl = img.replace("https://api-rescue.purintech.id.vn", IMAGE_BASE);
+  } else if (!img.startsWith("http")) {
+    imageUrl = `${IMAGE_BASE}${img.startsWith("/") ? "" : "/"}${img}`;
+  }
 
   return (
     <Image

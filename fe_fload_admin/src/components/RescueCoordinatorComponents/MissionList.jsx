@@ -48,7 +48,7 @@ const isNew = (createdAt) => {
 
 /* ================= CONVERT API ================= */
 
-const API_BASE = "https://api-rescue.purintech.id.vn";
+const API_BASE = (import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || "https://bebaolu.onrender.com").replace(/\/$/, "");
 
 const convertApiToMission = (data = [], statuses = []) => {
   if (!Array.isArray(data)) return [];
@@ -81,11 +81,14 @@ const convertApiToMission = (data = [], statuses = []) => {
         images
           .map(i => i?.trim())
           .filter(Boolean)
-          .map(i =>
-            i.startsWith("http")
+          .map(i => {
+            if (i.includes("api-rescue.purintech.id.vn")) {
+              return i.replace("https://api-rescue.purintech.id.vn", API_BASE);
+            }
+            return i.startsWith("http")
               ? i
-              : `${API_BASE}${i.startsWith("/") ? "" : "/"}${i}`
-          )
+              : `${API_BASE}${i.startsWith("/") ? "" : "/"}${i}`;
+          })
       )];
     };
 

@@ -3,7 +3,7 @@ import { PhoneOutlined } from "@ant-design/icons";
 
 import "./RescueDetailModal.css";
 
-const IMAGE_BASE = "https://api-rescue.purintech.id.vn";
+const IMAGE_BASE = (import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || "https://bebaolu.onrender.com").replace(/\/$/, "");
 const REQUEST_TYPES = [
   "cứu hộ khẩn cấp",
   "hỗ trợ cứu trợ",
@@ -59,11 +59,14 @@ export default function RescueDetailModal({ data, onClose }) {
   const normalizedImages = images
   .filter(Boolean)
   .map(img => img.trim())
-  .map(img =>
-    img.startsWith("http")
+  .map(img => {
+    if (img.includes("api-rescue.purintech.id.vn")) {
+      return img.replace("https://api-rescue.purintech.id.vn", IMAGE_BASE);
+    }
+    return img.startsWith("http")
       ? img
-      : `https://api-rescue.purintech.id.vn${img}`
-  );
+      : `${IMAGE_BASE}${img.startsWith("/") ? "" : "/"}${img}`;
+  });
     const getRequestTypeLabel = (value) => {
       const found = REQUEST_TYPE_OPTIONS.find(
         (item) => item.value === value

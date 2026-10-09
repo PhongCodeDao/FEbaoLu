@@ -9,7 +9,7 @@ import {
 import verifyIcon from "../../../assets/verifire.svg";
 import "./RescueReportDetail.css";
 
-const IMAGE_BASE = "https://api-rescue.purintech.id.vn";
+const IMAGE_BASE = (import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || "https://bebaolu.onrender.com").replace(/\/$/, "");
 
 const getUrgencyColor = (id) => {
   const colors = [
@@ -235,11 +235,14 @@ export default function RescueReportDetail({ mission }) {
     images
       .map(i => i?.trim())
       .filter(Boolean)
-      .map(i =>
-        i.startsWith("http")
+      .map(i => {
+        if (i.includes("api-rescue.purintech.id.vn")) {
+          return i.replace("https://api-rescue.purintech.id.vn", IMAGE_BASE);
+        }
+        return i.startsWith("http")
           ? i
-          : `${IMAGE_BASE}${i.startsWith("/") ? "" : "/"}${i}`
-      )
+          : `${IMAGE_BASE}${i.startsWith("/") ? "" : "/"}${i}`;
+      })
   )];
   const formatSLA = (minutes) => {
     if (!minutes) return "--";

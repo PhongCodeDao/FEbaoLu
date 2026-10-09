@@ -11,7 +11,7 @@ import AuthNotify from "../../../utils/Common/AuthNotify";
 import "./RescueProgressModal.css";
 import { Input } from "antd";
 import { useNavigate } from "react-router-dom";
-const IMAGE_BASE = "https://api-rescue.purintech.id.vn";
+const IMAGE_BASE = (import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || "https://bebaolu.onrender.com").replace(/\/$/, "");
 
 /* ================= REQUEST TYPE ================= */
 
@@ -197,9 +197,13 @@ const RescueProgressModal = ({ requestId, open, onClose }) => {
   const images = data?.rescueRequest?.locationImageUrl
     ?.split(",")
     .filter(Boolean)
-    .map(img =>
-      img.startsWith("http") ? img : IMAGE_BASE + img
-    );
+    .map(img => {
+      const clean = img.trim();
+      if (clean.includes("api-rescue.purintech.id.vn")) {
+        return clean.replace("https://api-rescue.purintech.id.vn", IMAGE_BASE);
+      }
+      return clean.startsWith("http") ? clean : `${IMAGE_BASE}${clean.startsWith("/") ? "" : "/"}${clean}`;
+    });
 /* ================= CHECK REJECT ================= */
 const isRejected =
   data?.currentProgressCode === "REQUEST_REJECTED" ||
