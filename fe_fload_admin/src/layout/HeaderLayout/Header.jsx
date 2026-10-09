@@ -14,6 +14,8 @@ import coordinatorIcon from "../../assets/coordinator.svg";
 import rescueIcon from "../../assets/rescueTeam.svg";
 import WeatherWidget from "./WeatherWidget";
 import ClockWidget from "./ClockWidget";
+import NotificationDrawer from "./NotificationDrawer";
+import { getAllNotifications } from "../../../api/axios/Notifications/notificationsApi";
 import "./rc-hd.header.css";
 
 export default function Header() {
@@ -21,6 +23,24 @@ export default function Header() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [serverOnline, setServerOnline] = useState(true);
   const [pingMs, setPingMs] = useState(32);
+  const [isNotifOpen, setIsNotifOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  const refreshNotifs = async () => {
+    try {
+      const data = await getAllNotifications({ target: role });
+      if (Array.isArray(data)) {
+        const unread = data.filter((n) => !n.isRead && !n.IsRead).length;
+        setUnreadCount(unread);
+      }
+    } catch {}
+  };
+
+  useEffect(() => {
+    refreshNotifs();
+    const interval = setInterval(refreshNotifs, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   const roleInfo = {
     admin: {
@@ -154,11 +174,14 @@ export default function Header() {
         {/* Notification Bell */}
         <button
           className="rc-hd__btn-action rc-hd__btn-notif"
-          title="Thông báo khẩn cấp hệ thống"
+          title="Xem thông báo và cảnh báo khẩn cấp"
           aria-label="Notifications"
+          onClick={() => setIsNotifOpen(true)}
         >
           <Bell size={16} />
-          <span className="rc-hd__notif-badge">3</span>
+          {unreadCount > 0 && (
+            <span className="rc-hd__notif-badge">{unreadCount > 9 ? "9+" : unreadCount}</span>
+          )}
         </button>
 
         {/* Language Badge */}
@@ -167,6 +190,15 @@ export default function Header() {
           <span className="rc-hd__lang-text">VN</span>
         </div>
       </div>
+
+      {/* NOTIFICATION DRAWER / DROPDOWN */}
+      <NotificationDrawer
+        isOpen={isNotifOpen}
+        onClose={() => {
+          setIsNotifOpen(false);
+          refreshNotifs();
+        }}
+      />
     </header>
   );
 }

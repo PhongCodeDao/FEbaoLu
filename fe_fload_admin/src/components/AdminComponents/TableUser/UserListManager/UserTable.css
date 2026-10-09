@@ -1,75 +1,141 @@
-.userTable {
-    background: white;
-    padding: 16px;
-    border-radius: 12px;
-  }
-  
-  .userTable table {
-    width: 100%;
-  }
-  
-  .userTable th {
-    text-align: left;
-    padding: 12px;
-  }
-  
-  .userTable td {
-    padding: 12px;
-    border-top: 1px solid #eee;
-  }
-  
-  .userTable tr:hover {
-    background: #f9f9f9;
-  }
-  
-  .userTable__name {
-    font-weight: 600;
-  }
-  
-  .userTable__email {
-    color: #888;
-    font-size: 13px;
-  }
-  
-  .status.green {
-    color: green;
-  }
-  
-  .status.red {
-    color: red;
-  }
-  .userTable__stt {
+/* ================================================= */
+/* ULTRA MODERN USER TABLE                           */
+/* ================================================= */
 
-    font-weight: 600;
-  
-    color: #666;
-  
-  }
-  
-  
-  .userTable th {
-  
-    background: #fafafa;
-  
-    font-weight: 600;
-  
-  }
-  
-  
-  .userTable tr:hover {
-  
-    background: #f5faff;
-  
-    cursor: pointer;
-  
-  }
-  .userTable__pagination{
-    margin-top:20px;
-    display:flex;
-    justify-content:center;
-  }
-  .userTable__actions{
-    display:flex;
-    gap:6px;
-    align-items:center;
-  }
+.userTable {
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.04);
+  overflow-x: auto;
+}
+
+.userTable table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.userTable th {
+  background: #f8fafc;
+  color: #475569;
+  font-size: 12.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 14px 16px;
+  border-bottom: 2px solid #e2e8f0;
+  white-space: nowrap;
+}
+
+.userTable th:first-child {
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+}
+
+.userTable th:last-child {
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+
+.userTable td {
+  padding: 14px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 13.5px;
+  color: #334155;
+  vertical-align: middle;
+  transition: background 0.15s ease;
+}
+
+.userTable tr:hover td {
+  background: #f8fafc;
+}
+
+.userTable__stt {
+  font-weight: 700;
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+.userTable__name {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.userTable__email {
+  color: #64748b;
+  font-size: 12.5px;
+}
+
+/* Action Buttons in Row */
+.userTable__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.userTable__btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: #f8fafc;
+}
+
+.userTable__btn--edit {
+  color: #2563eb;
+  border-color: #dbeafe;
+}
+
+.userTable__btn--edit:hover {
+  background: #eff6ff;
+  border-color: #93c5fd;
+  transform: translateY(-1px);
+}
+
+.userTable__btn--del {
+  color: #ef4444;
+  border-color: #fee2e2;
+}
+
+.userTable__btn--del:hover {
+  background: #fef2f2;
+  border-color: #fca5a5;
+  transform: translateY(-1px);
+}
+
+/* Status Badges */
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status.green {
+  background: #dcfce7;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+}
+
+.status.red {
+  background: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
+/* Pagination container */
+.userTable__pagination {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end;
+}
